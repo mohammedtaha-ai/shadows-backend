@@ -368,6 +368,12 @@ running product paths.
 
 ## 14. Delivery order
 
+The [delivery spec](superpowers/specs/2026-10-10-backend-delivery-design.md)
+and [initial plan](superpowers/plans/2026-10-10-backend-initial-plan.md) make this
+sequence actionable. Library candidates are tested first; experiment results amend
+the spec and dependent tasks before implementation. Writing an initial conditional
+plan does not close section 13's capability prerequisites.
+
 The full local Shadows roadmap remains intact. NYLRA needs neither the future
 manager nor executors to demonstrate value; cloud accounts never gate local use.
 

@@ -6,6 +6,11 @@ This file owns source placement and dependency boundaries for this repository.
 The paths below are intended destinations when a runnable feature needs them,
 not an inventory of existing modules or an instruction to create empty folders.
 
+[Delivery spec](superpowers/specs/2026-10-10-backend-delivery-design.md) and
+[initial plan](superpowers/plans/2026-10-10-backend-initial-plan.md) define
+experiment-first selection and joint client gates. Library names in those files
+are candidates until measured; this file remains the source-placement owner.
+
 ## Selected approach
 
 Use one modular TypeScript application organized by capability. HTTP and durable

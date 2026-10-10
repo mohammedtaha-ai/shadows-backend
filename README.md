@@ -10,6 +10,8 @@ database, cloud deployment, or integration has been implemented here.
 | Document | Owns |
 | --- | --- |
 | [Architecture](docs/architecture.md) | Shared deployment, languages, responsibility boundaries, context exchange, approval delivery, and unresolved implementation prerequisites |
+| [Delivery spec](docs/superpowers/specs/2026-10-10-backend-delivery-design.md) | Library experiments, joint protocol gate and backend acceptance |
+| [Initial plan](docs/superpowers/plans/2026-10-10-backend-initial-plan.md) | Experiment-first tasks coordinated with NYLRA and Shadows |
 | [Source structure](docs/source-structure.md) | Prepared folder layout and dependency boundaries; not an implemented code map |
 | [Contract convention](docs/contracts/README.md) | Applying the source template with inspected evidence |
 | [NYLRA vision](../nylra/Vision.md) | The companion's product experience and full future capability inventory |
