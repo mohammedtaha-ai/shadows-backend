@@ -1,0 +1,45 @@
+[
+  {
+    "name": "synthetic provider completion usage",
+    "status": "PASS",
+    "observed": {
+      "text": "partial-complete",
+      "finishReason": "stop",
+      "totalTokens": 5
+    }
+  },
+  {
+    "name": "synthetic partial transport failure preserves text and explicit error",
+    "status": "PASS",
+    "observed": {
+      "partialText": "partial",
+      "errorParts": 0,
+      "thrownType": "AI_APICallError"
+    }
+  },
+  {
+    "name": "synthetic explicit cancellation propagates to provider socket",
+    "status": "PASS",
+    "observed": {
+      "preservedChunks": 1,
+      "abortParts": 1,
+      "socketClosed": true
+    }
+  },
+  {
+    "name": "synthetic tool input valid execution",
+    "status": "PASS",
+    "observed": {
+      "executions": 1,
+      "resultPart": "tool-result"
+    }
+  },
+  {
+    "name": "synthetic tool input invalid refusal",
+    "status": "PASS",
+    "observed": {
+      "executions": 0,
+      "resultPart": "tool-error"
+    }
+  }
+]

@@ -132,4 +132,8 @@ The folder names and domain split are project-specific design choices.
 supports explicit published entry points but is not a security boundary.
 [ESLint import restrictions](https://eslint.org/docs/latest/rules/no-restricted-imports)
 provides path/pattern restrictions suitable for enforcing static dependency rules.
-Checked 2026-10-10. No framework, ORM or queue library is selected by this document.
+Checked 2026-10-10. Component selection is owned by
+[architecture section 2](architecture.md#2-languages-and-technology-direction),
+with [partial B0 evidence](evidence/2026-10-10-backend-capability-probes.md).
+Non-product experiments live under `probes/b0-2026-10-10/`; they are not product
+modules, the implemented code map, or permission to scaffold the layout above.

@@ -1,7 +1,14 @@
 # Backend delivery design
 
+**2026-10-11 evidence update:** [MiniMax supplement](../../evidence/2026-10-11-minimax-provider-probe.md)
+establishes a narrow real M3 non-reasoning path through the OpenAI chat adapter.
+Retain cancellation/error handling and test multi-round tool/reasoning continuity
+before widening adoption. Deployed identity and J1 remain separately gated.
+
 Date: 2026-10-10. Status: initial specification requested by Mohammed.
-Library choices are candidates, not validated dependencies. No implementation is
+Library choices now have [partial B0 evidence](../../evidence/2026-10-10-backend-capability-probes.md).
+HTTP/SQL/job component selections are recorded in architecture; actual provider
+and deployed identity/native acceptance remain OPEN. No product implementation is
 claimed. The user explicitly requested writing this specification and its initial
 plan together, with experiments first and plan revision from their results.
 
@@ -47,6 +54,44 @@ authenticated outbound connector; choose its transport from measured behavior.
 named OPENs honestly, then amend this spec and every dependent plan task. A failed
 candidate blocks dependent tasks, not independent character/UI work. Do not build
 the application against an unproven choice and promise a later rewrite.
+
+### B0 evidence amendment - 2026-10-10
+
+Retained [non-product reproduction](../../../probes/b0-2026-10-10/README.md)
+pins Node 24.15.0 and the inspected dependencies. Fifteen local assertions pass;
+actual-provider and deployed-identity/Windows system-browser experiments are
+blocked, so B0 is partially verified and B1 remains gated. The evidence report
+owns observations, exact versions, decision table and review prerequisites.
+
+- Use one canonical TypeBox wire schema for validation and OpenAPI export at the
+  reviewed HTTP boundary. Fastify serialization does not enforce all constraints:
+  validate outgoing objects and each raw stream envelope explicitly. Generated TS
+  types alone do not validate untrusted JSON. The compiled Dart flat fixture does
+  not select a general generator or prove rich J1/mobile compatibility.
+- Kysely/pg passed real transactions and conditional revision conflicts.
+  node-pg-migrate owns cloud SQL migration history, advisory exclusion and ordered
+  upgrades; pg-boss owns its internal schema migrations. Do not create a second
+  application history or let product modules access queue internals.
+- Domain persistence and enqueue must share the workflow's transaction connection
+  through the declared pg-boss Db adapter. Explicitly review expiry, heartbeat,
+  monitor and supervise intervals: changing supervise alone does not bound recovery.
+  Reconcile a remote durable outcome using stable identity/fingerprint before
+  retrying an uncertain effect. This still requires real Shadows proof at B4.
+- AI SDK Core 6.0.303/OpenAI adapter 3.0.125 pass synthetic tests only. An iterator
+  may throw after text rather than yield an error part. Preserve partial output
+  and persist one truthful complete/failed/cancelled terminal result on either path.
+  Tool input validation is not project authorization. Real provider selection stays
+  OPEN until actual stream, stop, faults and relevant tools are observed.
+- openid-client 6.8.8/oidc-provider 9.12.2 pass synthetic public-client PKCE/state/
+  nonce, expiry, replay, refresh revocation and logout cases. No hosted provider is
+  selected. Native Windows return handling, persisted identity/device sessions,
+  issuer configuration, production keys and immediate revocation policy require
+  separate evidence. Review clock tolerance explicitly; the fixture uses zero.
+
+No alternative HTTP/store/queue stack was needed after explicit schema validation
+and recovery-timing configuration. Rejected older AI pins were patched and rerun;
+unexecuted alternatives are not ranked. All library acceptance is bounded by the
+report's cases, not a reduction of the full product direction.
 
 ## 3. Application boundaries
 
@@ -115,7 +160,8 @@ Real Shadows integration and Windows acceptance are required before claiming an
 end-to-end journey. Tests must prove scope isolation, replay, stale refusal,
 revocation and worker interruption; source contracts cite inspected test bodies.
 
-OPENs close at these triggers: B0 closes library selection; B1 closes identity and
+OPENs close at these triggers: B0 evidence and review close library selection;
+blocked actual-provider/native identity experiments keep that gate open. B1 closes identity and
 real-data lifecycle decisions; J1 closes external schema/reconnect rules; B4 closes
 remote authority proof with Shadows; voice/mobile gates close on actual devices.
 No raw provider/session values belong in prompts, logs, evidence or source control.

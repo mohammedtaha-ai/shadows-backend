@@ -1,15 +1,24 @@
 # Backend Initial Implementation Plan
 
+**2026-10-11 B0 supplement:** [real MiniMax results](../../evidence/2026-10-11-minimax-provider-probe.md)
+pass completion, client cancellation, injected partial-response fault and one-round
+tool execution for requested MiniMax-M3. This narrows the provider blocker for that
+configuration only. Multi-round reasoning continuity, deployed identity/native
+login and content-lifecycle decisions are not closed; B1 has not started.
+
 > **For agentic workers:** Use superpowers:executing-plans for inline execution,
 > or superpowers:subagent-driven-development when delegation is explicitly selected.
 
 **Goal:** Deliver durable, scoped NYLRA conversations connected to real Shadows,
 then add verified confirmation, mobile/voice, teams and Production in bounded slices.
 **Architecture:** One modular Node application; Rust Shadows retains project rules.
-**Tech Stack:** TypeScript/PostgreSQL; Fastify, Kysely/pg, pg-boss and AI SDK Core
-are B0 candidates, not dependencies already approved by experiment.
+**Tech Stack:** TypeScript/PostgreSQL; B0 supports Fastify/TypeBox/OpenAPI,
+Kysely/pg, node-pg-migrate and pg-boss for component review. AI SDK Core and
+deployed identity selection remain unresolved pending actual-provider/native proof.
 **Spec:** [Backend delivery](../specs/2026-10-10-backend-delivery-design.md).
-**Status:** Initial plan, not executed. Requested together with the spec on 2026-10-10.
+**Status:** B0 experiments executed with partial verification on 2026-10-10;
+actual-provider and Windows/deployed identity gates remain blocked. B1 and every
+later task are unstarted. [Evidence](../../evidence/2026-10-10-backend-capability-probes.md).
 
 ## Global constraints
 
@@ -43,20 +52,56 @@ freeze, identity and owner-side behavior are actual dependencies, not mocks to s
 `docs/architecture.md`, the delivery spec and this plan as results require.
 Keep disposable scripts outside product source; record their revision/provenance.
 
-- [ ] Inspect supported Node/library versions and licenses; pin the probe environment.
-- [ ] Exercise Fastify validation and generated schema with TS and one Dart consumer.
+- [x] Inspect supported Node/library versions and licenses; pin the probe environment.
+- [x] Exercise Fastify validation and generated schema with TS and one Dart consumer.
 - [ ] Test real-provider stream completion, partial failure and explicit cancellation.
-- [ ] Run disposable PostgreSQL migrations and concurrent revision-conflict tests.
-- [ ] Prove atomic enqueue rollback and worker restart with pg-boss; reconcile an
+- [x] Run disposable PostgreSQL migrations and concurrent revision-conflict tests.
+- [x] Prove atomic enqueue rollback and worker restart with pg-boss; reconcile an
   external result already applied before the worker records completion.
 - [ ] Exercise maintained OIDC login via a Windows system browser, return binding,
   logout and revocation. Record actual selected provider and deployment requirements.
-- [ ] Record pass/fail, exact commands/versions, alternatives and unavailable evidence.
+- [x] Record pass/fail, exact commands/versions, alternatives and unavailable evidence.
 - [ ] Update dependent task paths/interfaces and test commands to match the selected
   tools; replace initial task outlines with executable steps before starting B1.
 
 **Exit:** evidence-backed library decisions, revised plan and remaining blocked
 capabilities named. Queue delivery guarantees never replace domain idempotency.
+
+**Observed B0 state:** 15 local assertions pass; actual-provider and Windows
+system-browser/deployed identity acceptance are blocked. Synthetic OIDC protocol
+passes, but does not check the native return listener or persisted device sessions.
+The compiled Dart consumer covers a flat DTO; full generator/J1 conformance is
+unresolved. B0 remains partially verified; unchecked items above are not closed.
+
+**Retained artifacts:** [non-product fixture package](../../../probes/b0-2026-10-10/README.md),
+its exact lockfile, generated OpenAPI/TS/Dart artifacts and JSON results. The
+report records baseline Git state and source/setup hashes. Do not delete the only
+reproduction before reviewer inspection. No product source or code map is created.
+
+**Executable B0 recheck commands (PowerShell):**
+
+```powershell
+Set-Location E:/Globalprojects/shadows-backend/probes/b0-2026-10-10
+npm ci --fetch-timeout=30000 --fetch-retries=1
+npm test
+npm run check:docs
+npm audit --json > artifacts/npm-audit.json
+node provenance.mjs
+```
+
+The fixture package pins Fastify 5.12.5, TypeBox 0.34.52, swagger 9.9.2,
+Kysely 0.29.6, pg 8.23.1, node-pg-migrate 9.0.0 and pg-boss 12.37.1.
+AI SDK 6.0.303/OpenAI 3.0.125 and OIDC libraries are experimental pins until
+their missing acceptance gates close. These are probe commands, not future
+product test commands. The full versions/license table is in the evidence.
+
+**Rulings for this bounded run:** keep the user's requested checkout and isolated
+fixtures; no worktree/branch change or commit. Keep actual-provider/native gates
+blocked rather than invent configuration. Adopt HTTP/store/migration/job components
+only within observed limits; do not silently close architecture OPENs. Defer final
+B1 adapter signatures and executable product steps until issuer/provider/lifecycle
+decisions exist; guessing them would violate owner prerequisites. These rulings
+require reviewer inspection before B1 and cost a follow-up B0 pass, not a rewrite.
 
 ### B1: Authenticated application and data lifecycle
 
@@ -66,6 +111,14 @@ capabilities named. Queue delivery guarantees never replace domain idempotency.
 Create only required files; populate contracts and actual code map with the source.
 **Consumes:** B0 identity/migration selections. **Produces:** verified principal
 and device context through the selected identity adapter, never a caller-claimed id.
+
+**Prerequisite amendment:** do not start from this outline. First finish actual
+identity/native evidence and its review, accept B0 component selections, and close
+real-content lifecycle. Then replace the identity adapter outline with executable
+steps, exact product scripts and account/device revocation/expiry/restart cases.
+Use node-pg-migrate for cloud migrations and Kysely/pg transactions; no second
+application migration history. B0's synthetic automatic consent and in-memory
+provider adapter must not be copied into product source.
 
 - [ ] Close architecture identity and real-content retention/deletion decisions.
 - [ ] Write failing acceptance cases: expired session, revoked device, foreign
@@ -83,6 +136,11 @@ and device context through the selected identity adapter, never a caller-claimed
 `tests/journeys/connector-replay.test.ts`.
 **Consumes:** B1 principal/device and actual Shadows grant boundary.
 **Produces:** J1 schema artifact, examples and current topic/source projections.
+
+**B0 amendment:** begin J1 review with TypeBox JSON schema and schema-derived
+OpenAPI/TS artifacts; require explicit outgoing/envelope validation and runtime
+consumer checks. Review a full Dart generator against rich J1 shapes before
+calling TS/Dart conformance complete. Existing flat fixture names are not J1 DTOs.
 
 - [ ] Specify J1 fields from spec section 4, normalized command hashing and schema
   ownership; choose exact DTO names once and generate consumer artifacts.
@@ -104,6 +162,11 @@ and device context through the selected identity adapter, never a caller-claimed
 **Consumes:** J1 topic/source projection. **Produces:** persisted conversation
 entries, stream events and explicit terminal outcome under J1.
 
+**B0 amendment:** actual-provider selection remains a gate. Add cases for thrown
+stream iteration errors as well as error parts, retained deltas, usage and terminal
+outcome. Distinguish HTTP disconnection from deliberate cancellation in persisted
+service behavior. The synthetic provider cannot close J2.
+
 - [ ] Test disconnect mid-output, explicit stop, provider failure, repeated send,
   out-of-order delivery, backend restart and source revocation during retrieval.
 - [ ] Implement scoped orchestration and durable conversation lifecycle; separate
@@ -118,6 +181,12 @@ entries, stream events and explicit terminal outcome under J1.
 `tests/integration/confirmation-scope.test.ts`, `tests/journeys/owner-handoff.test.ts`.
 **Consumes:** J1 and real Shadows §24.6 enforcement. **Produces:** owner-attributed
 assessment/command outcomes without cloud substitution for runtime acceptance.
+
+**B0 amendment:** use the declared same-transaction pg-boss Db operation for
+enqueue; review lease/heartbeat/monitor/supervise budgets together. Require real
+owner outcome replay/lookup after an ambiguous effect, refusal of changed command
+fingerprints, and failed/retry-exhausted delivery visibility. Synthetic remote
+tables and queue completion cannot substitute for §24.6 acceptance.
 
 - [ ] Confirm Shadows dependency before enabling writes; unavailable enforcement
   results in an unavailable capability, not a prompt-only restriction.
@@ -148,7 +217,8 @@ remain in Vision. Each gets a first-consumer design; no generic framework is res
 
 B0 must write exact reproducible commands for the selected package manager/test
 runner, schema generation, migration and PostgreSQL fixture setup. These commands
-do not exist today. Each subsequent task starts with a failing behavioral test,
+now exist for the non-product probes above. Product package/scripts and exact
+adapter-specific gates still require prerequisite review before B1. Each subsequent task starts with a failing behavioral test,
 implements the smallest complete path, runs focused and required gates, updates
 contracts and ends with one scoped commit. Documentation checks do not require
 running the unrelated Shadows full suite. Runtime changes follow their own gates.

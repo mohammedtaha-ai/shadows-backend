@@ -1,0 +1,29 @@
+{
+  "startingGitRevision": "599d49c2455d6afa822c1d0fc404ce82332fc113",
+  "startingBranch": "main",
+  "startingWorktree": "clean",
+  "generatedAt": "2026-10-10T20:53:09.130Z",
+  "files": {
+    ".gitignore": "552f86545e76cd69ef527a58d22f34c55cbd257bafba45c17b2141b1dc874b62",
+    "README.md": "199969c97b995588a9a1082650179ce07fbc61a51f3adc912ee31961eacfc859",
+    "ai.mjs": "40fa96f74aff97a8c374f1241abfa1433bdd5ef717a656a9c5bcecaa0b9b43ad",
+    "availability.mjs": "8af95d73c6f0e7442e3b9a10e669a0f06c9edafb283705d6c7776277ffe3ae44",
+    "consumer.ts": "2021827c28cd884a62aa6900e7f8995bd28377182e449ea8f474948611ec885c",
+    "contract.yaml": "baf9e8888e9a563857e0dfa94d9af6bcceebcd154cbb2210eff832424e82f5e8",
+    "dart-generate.mjs": "7abebddc53b652ff7a4d8d8e07e8e356afb1dbed64ec195050e857f2766bffd3",
+    "database.mjs": "37c9d5c96041a5ffc1ab14e3537de5f69e15f89a3eb49d383eb22b27f5c8b3b2",
+    "docs-check.mjs": "f4ec892d71edee5429278bbe3f5f86e384d6c3c5ce83572b2dff7f02a00c8d9e",
+    "http.mjs": "f197a1829b518c0c81d2e58d29af6d595f186fd4cc841878d2985b1687a2a8ce",
+    "migrations/001_scope.sql": "e7464182e7d7ba9535d82fa50472624c1b6bb010f9b64e2d657eb1b9eb775051",
+    "migrations/002_upgrade.sql": "f39216898eca33b1d2bc39692c6e0f694663fb9d956a69a73147bcce90306c0d",
+    "oidc.mjs": "a62cca2bacc8e0a72c38fff8ea510bc3812a60c49f580159395412df62183413",
+    "package-lock.json": "e5513c89c1dff6d321ba7aeed63f4acca7f75cf8555d68150e67d3c6e27fb0ff",
+    "package.json": "4c55abba7a74c5a6ee2f37590f9206fbbd0e68d12f58640fe93e0a09f34568aa",
+    "provenance.mjs": "6a16c30178f3521f143155caaaf312c768495b27f038f7f349040b443f8d202e",
+    "record.mjs": "8709bf56579e2bca967d33d9d9d60dbc26ef5de3941121c8d4c8bd73a15c670a",
+    "remote-fixture.mjs": "bdd9a93a4e8c2dd7ed66afa98d24537a5a89318d8b36b265d7e42ce5a4ddc0cf",
+    "run.mjs": "1db4ec2cc3b290ffaed0d17860679598fc8ace9654e240dfe1ac42a041390ce3",
+    "versions.mjs": "6142dfd3563ea1843f4e0ab795132b67c61516c0b3634c0123954994f751a9d0",
+    "worker-crash.mjs": "2edfc59b7d9ddd0f945759c0df6c7f87ce21f547c191b02ec7dd343ed34cfa12"
+  }
+}

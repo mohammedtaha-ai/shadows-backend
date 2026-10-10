@@ -1,0 +1,55 @@
+[
+  {
+    "name": "migration empty upgrade rollback and reapply",
+    "status": "PASS",
+    "observed": {
+      "version": "PostgreSQL 18.4 on x86_64-windows, compiled by msvc-19.44.35226, 64-bit",
+      "emptyUp": true,
+      "priorSchemaUpgrade": true,
+      "concurrentMigrationRefused": true,
+      "repeatUp": true,
+      "downUp": true
+    }
+  },
+  {
+    "name": "scoped queries rollback concurrent revision conflict",
+    "status": "PASS",
+    "observed": {
+      "foreignRows": 0,
+      "rollbackRevision": 0,
+      "competingWrites": [
+        0,
+        1
+      ]
+    }
+  },
+  {
+    "name": "atomic domain write and enqueue rollback and commit",
+    "status": "PASS",
+    "observed": {
+      "rollbackDomainRows": 0,
+      "rollbackJobs": 0,
+      "committedDomainRows": 1,
+      "committedJobs": 1
+    }
+  },
+  {
+    "name": "interrupted lease restart recovery external reconciliation",
+    "status": "PASS",
+    "observed": {
+      "sameJobRecovered": true,
+      "remoteEffects": 1,
+      "outcome": "reconciled",
+      "changedFingerprintRefused": true,
+      "workerExit": 73
+    }
+  },
+  {
+    "name": "retry exhaustion remains visible",
+    "status": "PASS",
+    "observed": {
+      "state": "failed",
+      "retryCount": 1
+    }
+  }
+]

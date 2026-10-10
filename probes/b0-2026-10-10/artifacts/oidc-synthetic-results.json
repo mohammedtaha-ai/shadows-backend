@@ -1,0 +1,14 @@
+[
+  {
+    "name": "synthetic OIDC PKCE state nonce code replay and refresh revocation",
+    "status": "PASS",
+    "observed": {
+      "PKCE": "S256",
+      "wrongStateRefused": true,
+      "codeReplayRefused": true,
+      "refreshAfterRevocationRefused": true,
+      "expiredAccessRefused": true,
+      "logoutSilentLoginRefused": true
+    }
+  }
+]

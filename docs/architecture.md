@@ -47,8 +47,13 @@ no planned TypeScript-to-Go or TypeScript-to-Rust cloud-backend rewrite.
 Adding capabilities follows the existing boundaries. Choice of a provider
 library does not determine the application's domain shapes or authority rules.
 
-The HTTP framework, database access library, provider SDK, durable-job library,
-and deployment services have not been selected. Axum, SQLx, Rig, and PGMQ from
+The [B0 evidence](evidence/2026-10-10-backend-capability-probes.md) supports
+Fastify 5 with TypeBox/schema-derived OpenAPI, Kysely/pg, node-pg-migrate as the
+sole cloud SQL migration history owner, and pg-boss as durable job transport.
+These component decisions remain subject to review; they do not close the
+aggregate capability prerequisite or authorize B1. Actual model-provider SDK
+selection, identity deployment and deployment services remain unresolved.
+Axum, SQLx, Rig, and PGMQ from
 earlier alternatives are not adopted cloud dependencies by this agreement.
 Semantic search may use PostgreSQL extensions if justified by retrieval needs;
 pgvector, Redis, and a dedicated graph engine are not mandatory infrastructure.
@@ -337,11 +342,18 @@ These items are deliberately unresolved, with an explicit closing trigger:
 - **Application framework and libraries:** close before the implementation plan
   selects packages, using an end-to-end provider stream, scoped retrieval,
   cancellation, and durable-delivery check for the actual supported providers.
+  B0 partially verifies the HTTP/SQL/job components above and synthetic AI/OIDC
+  behavior. This OPEN remains until actual-provider evidence and the remaining
+  reviewed integration gates are obtained; flat DTO consumers are not J1 acceptance.
 - **Identity and confirmation:** close before pairing or approval implementation
   by reviewing account/device trust, revocation, and a model-independent human
   confirmation flow implementing Shadows §24.6, including owner-side membership
   freshness and revocation. Neither local Origin checks nor a
   claimed `human` field establish remote human authority.
+  B0's established OIDC libraries pass a synthetic loopback protocol fixture;
+  deployed issuer, Windows system-browser/native return, persistent sessions and
+  device revocation are still unverified. Token revocation/logout alone cannot
+  close backend device trust or Shadows owner-side authority.
 - **Integration protocol and context production:** close before connector work
   by reviewing schemas, initial-context/reconnect semantics, permitted fields,
   context limits, source versions, and generation of the appropriate Planner

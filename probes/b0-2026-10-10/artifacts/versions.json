@@ -1,0 +1,155 @@
+{
+  "node": "v24.15.0",
+  "platform": "win32",
+  "architecture": "x64",
+  "packages": [
+    {
+      "name": "@ai-sdk/openai",
+      "version": "3.0.125",
+      "license": "Apache-2.0",
+      "engines": {
+        "node": ">=18"
+      }
+    },
+    {
+      "name": "@apidevtools/swagger-parser",
+      "version": "13.1.0",
+      "license": "MIT",
+      "engines": {
+        "node": ">=22.19.0"
+      }
+    },
+    {
+      "name": "@fastify/swagger",
+      "version": "9.9.2",
+      "license": "MIT",
+      "engines": null
+    },
+    {
+      "name": "@sinclair/typebox",
+      "version": "0.34.52",
+      "license": "MIT",
+      "engines": null
+    },
+    {
+      "name": "@types/node",
+      "version": "24.19.2",
+      "license": "MIT",
+      "engines": null
+    },
+    {
+      "name": "@types/pg",
+      "version": "8.23.1",
+      "license": "MIT",
+      "engines": null
+    },
+    {
+      "name": "ai",
+      "version": "6.0.303",
+      "license": "Apache-2.0",
+      "engines": {
+        "node": ">=18"
+      }
+    },
+    {
+      "name": "embedded-postgres",
+      "version": "18.4.0-beta.17",
+      "license": "MIT",
+      "engines": {
+        "node": ">=16"
+      }
+    },
+    {
+      "name": "fastify",
+      "version": "5.12.5",
+      "license": "MIT",
+      "engines": null
+    },
+    {
+      "name": "kysely",
+      "version": "0.29.6",
+      "license": "MIT",
+      "engines": {
+        "node": ">=22.0.0"
+      }
+    },
+    {
+      "name": "node-pg-migrate",
+      "version": "9.0.0",
+      "license": "MIT",
+      "engines": {
+        "node": ">=20.11.0"
+      }
+    },
+    {
+      "name": "oidc-provider",
+      "version": "9.12.2",
+      "license": "MIT",
+      "engines": null
+    },
+    {
+      "name": "openapi-fetch",
+      "version": "0.17.0",
+      "license": "MIT",
+      "engines": null
+    },
+    {
+      "name": "openapi-typescript",
+      "version": "7.13.0",
+      "license": "MIT",
+      "engines": null
+    },
+    {
+      "name": "openid-client",
+      "version": "6.8.8",
+      "license": "MIT",
+      "engines": null
+    },
+    {
+      "name": "pg",
+      "version": "8.23.1",
+      "license": "MIT",
+      "engines": {
+        "node": ">= 16.0.0"
+      }
+    },
+    {
+      "name": "pg-boss",
+      "version": "12.37.1",
+      "license": "MIT",
+      "engines": {
+        "node": ">=22.12.0"
+      }
+    },
+    {
+      "name": "tsx",
+      "version": "4.23.15",
+      "license": "MIT",
+      "engines": {
+        "node": ">=18.0.0"
+      }
+    },
+    {
+      "name": "typescript",
+      "version": "5.9.3",
+      "license": "Apache-2.0",
+      "engines": {
+        "node": ">=14.17"
+      }
+    },
+    {
+      "name": "yaml",
+      "version": "2.9.1",
+      "license": "ISC",
+      "engines": {
+        "node": ">= 14.6"
+      }
+    },
+    {
+      "name": "zod",
+      "version": "4.6.5",
+      "license": "MIT",
+      "engines": null
+    }
+  ]
+}

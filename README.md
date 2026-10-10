@@ -2,8 +2,9 @@
 
 Cloud coordination and NYLRA application alongside the future Rust Shadows server.
 
-**Status:** Architecture agreements recorded on 2026-10-10. No application,
-database, cloud deployment, or integration has been implemented here.
+**Status:** Architecture agreements and partial B0 capability evidence recorded on
+2026-10-10. Non-product isolated probes are retained for review. No application,
+product database, cloud deployment, or real integration has been implemented here.
 
 ## Start here
 
@@ -12,6 +13,7 @@ database, cloud deployment, or integration has been implemented here.
 | [Architecture](docs/architecture.md) | Shared deployment, languages, responsibility boundaries, context exchange, approval delivery, and unresolved implementation prerequisites |
 | [Delivery spec](docs/superpowers/specs/2026-10-10-backend-delivery-design.md) | Library experiments, joint protocol gate and backend acceptance |
 | [Initial plan](docs/superpowers/plans/2026-10-10-backend-initial-plan.md) | Experiment-first tasks coordinated with NYLRA and Shadows |
+| [B0 evidence](docs/evidence/2026-10-10-backend-capability-probes.md) | Executed probes, conditional component decisions and blocked acceptance |
 | [Source structure](docs/source-structure.md) | Prepared folder layout and dependency boundaries; not an implemented code map |
 | [Contract convention](docs/contracts/README.md) | Applying the source template with inspected evidence |
 | [NYLRA vision](../nylra/Vision.md) | The companion's product experience and full future capability inventory |
