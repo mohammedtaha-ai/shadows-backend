@@ -4,13 +4,21 @@ The [2026-10-11 handoff](../../docs/evidence/2026-10-11-b0-closure-followup.md)
 owns follow-up results and remaining cloud work. `identity-bindings.mjs` and
 `identity-devices.mjs` are independent synthetic/prototype checks.
 `identity-keycloak.mjs` requires the pinned Docker image to have been pulled first;
-its behavioral cases remain unexecuted locally. `minimax-rounds.mjs` is explicit
+its behavioral cases were unexecuted locally; the separate cloud run passed.
+Use `node identity-keycloak.mjs --cloud` in this managed Linux environment after
+the explicit local-socket Docker preflight/pull in the report; it preserves local
+results. `--cloud --refusals-only` runs six typed protocol-refusal checks only.
+Neither mode is Windows native acceptance. `minimax-rounds.mjs` is explicit
 opt-in real-provider work, separate from `npm test`; `--continuity-only` makes at
 most four calls. Never run it automatically in CI. `.identity-runtime/` and
 `.identity-cluster/` are isolated and ignored. No secret values are in artifacts.
 
-Optional real-provider supplement: `node ai-minimax.mjs` explicitly loads the
-repository-root `.env` and uses `API_KEY` only with the official MiniMax endpoint.
+Optional real-provider supplement: `node ai-minimax.mjs` loads the
+optional repository-root `.env` only when `process.env.API_KEY` is missing.
+Both opt-in probes prefer the inherited API_KEY, including a Network-secret proxy
+placeholder, and never require/create a `.env`. They use only the official MiniMax
+endpoint. The observed cloud binding is named MINIMAX_API_KEY, not API_KEY; no
+provider call or aliasing was needed or performed in this continuation.
 This makes up to four bounded paid API calls and is not part of `npm test`.
 See `docs/evidence/2026-10-11-minimax-provider-probe.md` from the repository root.
 Never log `.env`, SDK errors or request headers. The existing `ai.mjs` stays synthetic.
@@ -69,3 +77,18 @@ Artifacts are JSON observations, OpenAPI, generated TS declarations and generate
 Dart source. Compiled `consumer.exe`, the cluster, dependencies and logs are
 ignored; retain source and lockfile. Do not delete the only reproduction before
 review. Generated artifacts and result files are replaced by a rerun.
+
+Cloud focused checks (no provider calls or repeated passed experiments):
+
+```sh
+node --test runtime-api-key.test.mjs
+node cloud-provenance.mjs
+node followup-checks.mjs --cloud
+git diff --check
+```
+
+`--cloud` writes `followup-artifacts/cloud-checks.json`, preserving the local
+check artifact; absent sibling repository links are reported separately from
+broken repository-local links. Secret comparison uses inherited runtime values
+only and outputs match counts, never matched content. Retained MiniMax sources
+and results are historical evidence; no extra cloud MiniMax request was made.

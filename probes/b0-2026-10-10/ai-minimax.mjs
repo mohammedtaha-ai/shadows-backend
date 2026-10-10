@@ -1,12 +1,11 @@
 // NON-PRODUCT: explicit opt-in real MiniMax probe. Never serialize SDK errors.
-import { loadEnvFile } from 'node:process';
+import { ensureApiKey } from './runtime-api-key.mjs';
 import { writeFile } from 'node:fs/promises';
 import { streamText, tool } from 'ai';
 import { createOpenAI } from '@ai-sdk/openai';
 import { z } from 'zod';
 
-loadEnvFile(new URL('../../.env', import.meta.url));
-if (!process.env.API_KEY) throw new Error('Missing API_KEY');
+try { ensureApiKey(); } catch { console.log('BLOCKED API_KEY unavailable (details withheld)'); process.exit(1); }
 const results = [];
 const endpoint = 'https://api.minimax.io/v1';
 const modelId = 'MiniMax-M3';

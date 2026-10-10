@@ -51,13 +51,16 @@ The [B0 evidence](evidence/2026-10-10-backend-capability-probes.md) supports
 Fastify 5 with TypeBox/schema-derived OpenAPI, Kysely/pg, node-pg-migrate as the
 sole cloud SQL migration history owner, and pg-boss as durable job transport.
 These component decisions remain subject to review; they do not close the
-aggregate capability prerequisite or authorize B1. Actual model-provider SDK
-selection, identity deployment and deployment services remain unresolved.
+aggregate capability prerequisite or authorize B1. AI SDK/OpenAI chat is
+conditionally supported for the tested MiniMax-M3 path; production provider
+configuration, identity deployment and deployment services remain unresolved.
 The [2026-10-11 follow-up](evidence/2026-10-11-b0-closure-followup.md) establishes
 bounded MiniMax-M3 tool-result/reasoning continuity and client abort behavior.
-Keycloak is a preliminary identity recommendation, with image-transfer/native
-acceptance blocked. Lifecycle proposals and the B1 execution plan remain unwritten
-at the user's local stop-and-publish checkpoint; no OPEN is closed by this handoff.
+The cloud follow-up passed Keycloak 26.8.0 server cases with synthetic accounts;
+self-hosted Keycloak with openid-client 6.8.8 is the conditional recommendation.
+Windows native acceptance and production operations remain OPEN. Section 5 now
+contains lifecycle proposals for review, and the initial plan defines conditional
+B1 tasks. These additions do not approve policy, authorize B1, or close an OPEN.
 Axum, SQLx, Rig, and PGMQ from
 earlier alternatives are not adopted cloud dependencies by this agreement.
 Semantic search may use PostgreSQL extensions if justified by retrieval needs;
@@ -187,6 +190,74 @@ Already viewed/exported data cannot be recalled from people or providers; disclo
 that limit. Minimal audit metadata is retained separately from content under an
 explicit policy. Exact retention periods and backup purge deadlines close the
 data-lifecycle OPEN before storing real content.
+
+### Recommended identity boundary — PROPOSED FOR USER REVIEW
+
+**PROPOSED FOR USER REVIEW:** use self-hosted Keycloak 26.8.0 and the standard
+openid-client 6.8.8 adapter. The [cloud identity evaluation](evidence/2026-10-11-b0-closure-followup.md#cloud-identity-recommendation)
+compares only Keycloak and ZITADEL and records server/native/operational limits.
+A separate identity database belongs to Keycloak; this application must not query
+its tables or store passwords. Map `(issuer, subject)` to an internal account id;
+never merge accounts by matching email or trust a client-supplied account id.
+
+**PROPOSED FOR USER REVIEW:** the Node backend is the confidential OIDC relying
+party. NYLRA native code opens the system browser and receives a short-lived,
+one-use backend return ticket bound to a native-generated redemption challenge.
+The backend owns OIDC state, nonce, S256 verifier and the fixed HTTPS provider
+callback; native clients receive only backend session credentials. This is a
+proposed integration boundary, not the public-client B0 fixture's implementation.
+Windows uses an application-controlled IPv4 loopback listener; later Flutter uses
+reviewed OS-bound return registration. No provider tokens enter the webview, chat,
+URLs returned to native code, or generated public artifacts. Review this flow
+jointly with NYLRA N0/N2 before implementation.
+
+**PROPOSED FOR USER REVIEW:** store only hashes of 256-bit random backend bearer
+handles; persist a device-bound session with 24-hour idle and 30-day absolute
+expiry. Reauthentication issues a fresh handle. Check account/session/device
+revocation in PostgreSQL for every authorized operation, without a positive cache.
+Database unavailability refuses authorization. Native code owns OS-protected
+credential storage and removes it at logout. Backend credentials survive restart
+only within their recorded lifetime; a changed client device id never establishes
+trust. These limits balance restart convenience against long-lived bearer theft.
+
+**PROPOSED FOR USER REVIEW:** set provider access tokens to five minutes, ordinary
+SSO sessions to 24-hour idle/30-day maximum, and disable offline access, implicit
+and password grants. Require S256, exact HTTPS callback registration, RS256 and
+an explicit issuer/client/audience allowlist; allow at most 30 seconds clock skew.
+Keep Keycloak persistent user sessions enabled. Store required provider tokens
+only encrypted server-side, under separately provisioned runtime key material.
+Key rotation, encrypted-token recovery and production PostgreSQL restore need
+acceptance before deployment; the H2 probe does not establish them.
+
+**PROPOSED FOR USER REVIEW:** local logout revokes the current backend session
+before trying provider refresh-token revocation and RP-initiated browser logout.
+Device revocation atomically revokes every backend session of that device and
+leaves other devices intact. Global logout revokes all account sessions; report
+provider logout as pending/failed separately if unreachable. Validate signed OIDC
+back-channel logout with issuer, audience, event, sid and replay checks to revoke
+mapped backend sessions. Provider token revocation alone does not revoke a backend
+handle; a locally checked JWT may remain valid until expiry. Backend revocation
+does not certify provider logout or recall already disclosed data. Existing SQL
+fixtures prove only proposed mechanics, not this service or device trust.
+
+### Content lifecycle defaults — PROPOSED FOR USER REVIEW
+
+Every row below is **PROPOSED FOR USER REVIEW**. No retention policy is approved.
+Section 13's data-lifecycle OPEN remains open until the user reviews these values,
+provider terms are resolved, and deletion/invalidation/restore tests pass.
+
+| Data / owner | Recommended default and tradeoff |
+| --- | --- |
+| Conversations / conversations | **PROPOSED FOR USER REVIEW:** retain NYLRA messages and source bindings for 90 days after the topic's last user activity; explicit deletion can occur sooner. Automated cache refresh does not extend that deadline. Disclose expiry in clients. Finite retention reduces exposure/storage but loses older conversational continuity; an explicit future keep/export choice requires separate review. |
+| Scoped project evidence / context | **PROPOSED FOR USER REVIEW:** retain only selected excerpts, version/digest, acquisition time, owner grant and exact instance/workspace/project/work/thread scope; expire content seven days after acquisition or at the source grant/content deadline, whichever comes first. Re-fetch only through a still-valid grant. No whole-history or automatic source-tree upload. This favors minimization over long offline explanation. |
+| Derived summaries, embeddings and caches / deriving module | **PROPOSED FOR USER REVIEW:** retrieval caches expire within 24 hours; summaries/embeddings within 30 days, always capped by every source's earlier deadline. Track all contributing source ids/versions, grant revisions and deletion ids; derived access requires permission for every source. Mixed-project derivation remains constrained by all scopes; it never becomes account-wide. Invalidate at source change/revocation/deletion before further use and rebuild only from permitted sources. Recompute cost is preferable to stale or broadened access. |
+| Personal memory / memory | **PROPOSED FOR USER REVIEW:** disabled until explicit opt-in; retain user-inspectable communication preferences until correction/deletion/account deletion, with an annual review reminder. Record origin and consent time. No automatic conversion of project facts, retrieved instructions, approvals or team content into personal memory. Opt-in gives less automatic personalization but preserves source authority. |
+| Deletion / each owning module | **PROPOSED FOR USER REVIEW:** hide/refuse deleted content synchronously with a durable deletion marker; purge live content and all dependent derivatives within 24 hours, with idempotent progress and visible failure. Account deletion revokes sessions immediately and propagates to each owner plus the identity provider; its provider purge remains pending until acknowledged. Tombstones carry only opaque ids and deadlines for 35 days after deletion. This allows retry/restore protection without retaining content. |
+| Backups / deployment operator | **PROPOSED FOR USER REVIEW:** encrypted daily backups with a maximum 30-day lifetime, including incremental chains/replicas and identity backups; initial recovery objectives are RPO 24 hours and RTO 24 hours, to be demonstrated before deployment. Deleted content can remain inaccessible in backups until expiry. Restore in quarantine and replay deletion/revocation markers before serving traffic. A failed purge/restore audit blocks release; do not claim instant physical deletion from immutable backups. |
+| Minimal audit metadata / operation owner | **PROPOSED FOR USER REVIEW:** retain for 90 days: opaque event/account/device/object ids, operation type, timestamp, outcome/refusal category and policy revision. Exclude message text, reasoning, prompts, excerpts, email, IP, user-agent, tokens, keys and request/response bodies. Record deletion progress without source content. A shorter forensic window trades investigation depth for minimization; audit data has separate restricted access and expiry. |
+| Revoked links / links and context | **PROPOSED FOR USER REVIEW:** immediately deny new reads, explanation context use and queued dispatch; recheck grants before acquisition, provider send and owner dispatch. Hide all affected scoped evidence/derived entries immediately and purge their live copies within 24 hours, including conversation entries carrying that source if safe removal cannot be proven. Preserve only untainted dialogue with scope/freshness status. Revocation does not delete the local owner's project. |
+| Revoked devices / devices and clients | **PROPOSED FOR USER REVIEW:** deny backend sessions immediately; clear credentials and scoped client caches on the next reachable client sync. Device revocation alone does not delete the account's conversations or revoke unrelated project links. An offline/lost device's previously downloaded data cannot be guaranteed erased; do not promise a physical purge deadline for it. |
+| Provider processing / provider adapter and operator | **PROPOSED FOR USER REVIEW:** send only the minimum permitted text; disable optional provider history/training where supported and prefer contractual zero retention. Do not persist reasoning as conversation content or diagnostics. Provider retention, deletion capability and subprocessors must be reviewed before real content; backend deletion cannot certify deletion by a provider. No MiniMax B0 test established those contractual controls. |
 
 ## 6. Current work context, not transcript replication
 
@@ -347,17 +418,20 @@ These items are deliberately unresolved, with an explicit closing trigger:
 - **Application framework and libraries:** close before the implementation plan
   selects packages, using an end-to-end provider stream, scoped retrieval,
   cancellation, and durable-delivery check for the actual supported providers.
-  B0 partially verifies the HTTP/SQL/job components above and synthetic AI/OIDC
-  behavior. This OPEN remains until actual-provider evidence and the remaining
-  reviewed integration gates are obtained; flat DTO consumers are not J1 acceptance.
+  B0 verifies the scoped HTTP/SQL/job fixtures, real MiniMax cases and cloud
+  Keycloak server cases described in evidence. This OPEN remains until native
+  and remaining reviewed integration gates are obtained; flat DTO consumers
+  are not J1 acceptance and scoped provider evidence is not all-model support.
 - **Identity and confirmation:** close before pairing or approval implementation
   by reviewing account/device trust, revocation, and a model-independent human
   confirmation flow implementing Shadows §24.6, including owner-side membership
   freshness and revocation. Neither local Origin checks nor a
   claimed `human` field establish remote human authority.
   B0's established OIDC libraries pass a synthetic loopback protocol fixture;
-  deployed issuer, Windows system-browser/native return, persistent sessions and
-  device revocation are still unverified. Token revocation/logout alone cannot
+  Keycloak server protocol, logout/revocation and development-store restart now
+  have cloud evidence. Windows system-browser/native return, the proposed
+  confidential-backend flow, production persistence and product device trust
+  remain unverified. Token revocation/logout alone cannot
   close backend device trust or Shadows owner-side authority.
 - **Integration protocol and context production:** close before connector work
   by reviewing schemas, initial-context/reconnect semantics, permitted fields,
@@ -365,7 +439,9 @@ These items are deliberately unresolved, with an explicit closing trigger:
   work context. Existing local streams are not assumed a complete cloud feed.
 - **Data lifecycle:** close before persisting real user/project content by setting
   retention periods, backup purge deadlines and testable deletion/invalidation
-  propagation for section 5's sharing rules, including provider retention.
+  propagation for section 5's sharing rules, including provider retention. The
+  section 5 defaults are PROPOSED FOR USER REVIEW; only explicit user review plus
+  behavioral deletion/restore evidence closes this OPEN.
 - **Voice and native client capabilities:** close before the corresponding client
   implementation plan by demonstrating capture, playback, interruption,
   background/lock-screen notification behavior, reconnect, and the same topic

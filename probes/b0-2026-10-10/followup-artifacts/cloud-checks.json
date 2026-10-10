@@ -1,0 +1,102 @@
+{
+  "date": "2026-10-11",
+  "baseline": "1b334c5968ed9014e7f53136672f2af1c34b73a3",
+  "node": "v24.19.0",
+  "candidateFiles": 17,
+  "knownSecretComparison": "PASS (runtime-only comparison)",
+  "scannedFiles": 73,
+  "secretMatchCount": 0,
+  "localLinks": 85,
+  "brokenLinks": [],
+  "missingExternalLinks": [
+    {
+      "file": "docs/superpowers/specs/2026-10-10-backend-delivery-design.md",
+      "target": "../../../../nylra/docs/evidence/2026-10-10-coucou-and-library-research.md"
+    },
+    {
+      "file": "docs/superpowers/specs/2026-10-10-backend-delivery-design.md",
+      "target": "../../../../nylra/docs/superpowers/specs/2026-10-10-nylra-delivery-design.md"
+    },
+    {
+      "file": "docs/superpowers/plans/2026-10-10-backend-initial-plan.md",
+      "target": "../../../../nylra/docs/superpowers/plans/2026-10-10-nylra-initial-plan.md"
+    },
+    {
+      "file": "docs/architecture.md",
+      "target": "../../nylra/Vision.md"
+    },
+    {
+      "file": "docs/architecture.md",
+      "target": "../../shadows/docs/superpowers/specs/2026-09-21-architecture-design.md#17-workspace-authority-and-deployment"
+    },
+    {
+      "file": "docs/architecture.md",
+      "target": "../../shadows/docs/superpowers/specs/2026-10-08-approval-authority-design.md#246-external-human-confirmation-and-assessment"
+    },
+    {
+      "file": "docs/architecture.md",
+      "target": "../../shadows/docs/superpowers/specs/2026-10-01-task-contracts-and-evidence-design.md#1712-production-operations-extension"
+    },
+    {
+      "file": "README.md",
+      "target": "../nylra/Vision.md"
+    },
+    {
+      "file": "README.md",
+      "target": "../shadows/docs/superpowers/specs/2026-09-21-architecture-design.md#17-workspace-authority-and-deployment"
+    }
+  ],
+  "yamlParsed": 2,
+  "syntax": [
+    {
+      "file": "probes/b0-2026-10-10/ai-minimax.mjs",
+      "status": "PASS"
+    },
+    {
+      "file": "probes/b0-2026-10-10/followup-checks.mjs",
+      "status": "PASS"
+    },
+    {
+      "file": "probes/b0-2026-10-10/identity-keycloak.mjs",
+      "status": "PASS"
+    },
+    {
+      "file": "probes/b0-2026-10-10/minimax-rounds.mjs",
+      "status": "PASS"
+    },
+    {
+      "file": "probes/b0-2026-10-10/cloud-provenance.mjs",
+      "status": "PASS"
+    },
+    {
+      "file": "probes/b0-2026-10-10/runtime-api-key.mjs",
+      "status": "PASS"
+    },
+    {
+      "file": "probes/b0-2026-10-10/runtime-api-key.test.mjs",
+      "status": "PASS"
+    }
+  ],
+  "sourceHashes": {
+    "docs/architecture.md": "200c9dc7f2558be7d027b3554a3ad733b4c724f2c87dc7b25e0f8e147694b182",
+    "docs/evidence/2026-10-11-b0-closure-followup.md": "ef8d22ed493966836b802d2304b7d839f527e21f253d2c888e6e94a0ad68ffcc",
+    "docs/superpowers/plans/2026-10-10-backend-initial-plan.md": "571b5628e781f8da3b9d6254b0fd8290d083ec68c912f7e9093615711580d1a9",
+    "docs/superpowers/specs/2026-10-10-backend-delivery-design.md": "b6359ee4409b05a82c305b58454e33796f77ecc57c2aad53244277ed7597990d",
+    "probes/b0-2026-10-10/README.md": "a10459c2c22bb3a62569ae73af92920848fbd95d2beec925f02eea440a36fa3f",
+    "probes/b0-2026-10-10/ai-minimax.mjs": "711d4154eed0b818514a3c7c4920923aabdcd11113afc06e0e89f3383836a38d",
+    "probes/b0-2026-10-10/cloud-provenance.mjs": "04df043e553dea44b3e5b226f0a4503a509b3a79e6b7b7a3833ec264dc5c58a3",
+    "probes/b0-2026-10-10/contract.yaml": "ab12a15cad61cfe8f4a9efef8d6e309108318132383ee46510eef47ac3faf516",
+    "probes/b0-2026-10-10/followup-artifacts/cloud-runtime.json": "6eb7f645849783a3929aa3b3600c4ad9d0dd0aa9014d0c4c286657af5afa52ce",
+    "probes/b0-2026-10-10/followup-artifacts/identity-keycloak-cloud-refusals-results.json": "610688a14b586f29aaba44115233f1632d1071201bf20226c389040e50cc35ff",
+    "probes/b0-2026-10-10/followup-artifacts/identity-keycloak-cloud-results.json": "36a7760a56aaef70201d10b3828f169d885bacc1da7bffb316c11113437e56b7",
+    "probes/b0-2026-10-10/followup-checks.mjs": "072af6cc54efe24f394f9828c3760daf1639bca36cd6ed253b1a1ef3c6a136d9",
+    "probes/b0-2026-10-10/identity-keycloak.mjs": "249edd093e02c8f33b61153a7564321b27491b45245fe1e66031db8dc3d4b9d1",
+    "probes/b0-2026-10-10/minimax-rounds.mjs": "3b572a8cecab3300163904d8511e3ac3ab3de7b0d1d03e8c9e079283ac969ba9",
+    "probes/b0-2026-10-10/runtime-api-key.mjs": "28ba7384aa506878d55111485463d82db414e9797faa18c8a8c73b0688f9b71a",
+    "probes/b0-2026-10-10/runtime-api-key.test.mjs": "607478acf40001663a26f4f1cfada1bae4578da519c55dbfc139bbbc5ed6a10f"
+  },
+  "limitations": [
+    "Static syntax/links/YAML and literal secret comparison only; not a security audit or runtime conformance proof.",
+    "Static checks infer no product/native acceptance. Missing sibling links are separately reported cloud prerequisites."
+  ]
+}

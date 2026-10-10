@@ -1,13 +1,13 @@
 // NON-PRODUCT opt-in B0 real MiniMax follow-up. No raw errors/headers/config/text saved.
-// Root .env is loaded only at runtime; no other credential source is accessed.
-import { loadEnvFile } from 'node:process';
+// Prefer process.env.API_KEY; optional root .env only for legacy local execution.
+import { ensureApiKey } from './runtime-api-key.mjs';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { streamText, tool, stepCountIs } from 'ai';
 import { createOpenAI } from '@ai-sdk/openai';
 import { z } from 'zod';
 import { randomInt } from 'node:crypto';
 import { isDeepStrictEqual } from 'node:util';
-try {loadEnvFile(new URL('../../.env',import.meta.url));}catch{console.log('BLOCKED root runtime configuration unavailable (details withheld)');process.exit(1);}
+try { ensureApiKey(); } catch { console.log('BLOCKED API_KEY unavailable (details withheld)'); process.exit(1); }
 const continuityOnly=process.argv.includes('--continuity-only');
 const endpoint='https://api.minimax.io/v1/chat/completions', requestedModel='MiniMax-M3';
 const limits={maxCalls:continuityOnly?4:5,maxOutputTokensPerCall:768,maxSerializedInputBytes:32768,perFlowMs:60000,totalMs:180000,automaticRetries:0};
