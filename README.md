@@ -1,6 +1,6 @@
 # Shadows Backend
 
-Shared cloud backend for Shadows and NYLRA.
+Cloud coordination and NYLRA application alongside the future Rust Shadows server.
 
 **Status:** Architecture agreements recorded on 2026-10-10. No application,
 database, cloud deployment, or integration has been implemented here.
@@ -19,8 +19,14 @@ This is the selected long-term direction, not a temporary step before a
 rewrite in Rust or Go. Framework and library choices remain subject to the
 specific prerequisites in the architecture document.
 
-Shadows' current local runtime remains in its own repository. NYLRA desktop
-and mobile applications belong in `nylra`. They access this backend through
+Shadows' local and future server runtime share Rust project rules in `shadows`.
+This TypeScript application does not reimplement them or write their tables.
+[Shadows §1.7](../shadows/docs/superpowers/specs/2026-09-21-architecture-design.md#17-workspace-authority-and-deployment)
+owns workspace authority and synchronization. The
+[sharing inventory](docs/architecture.md#what-lives-where) identifies local,
+cloud-owned and explicitly shared data.
+
+NYLRA desktop and mobile applications belong in `nylra`. They access this backend through
 its public protocol; clients never access PostgreSQL directly.
 
 These sibling links assume the repositories are checked out beside each

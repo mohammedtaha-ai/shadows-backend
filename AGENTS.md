@@ -9,6 +9,9 @@ unresolved prerequisites are not permission to invent decisions silently.
 - This repository owns the shared TypeScript/Node.js cloud application.
 - NYLRA client experience is owned by `../nylra/Vision.md`.
 - Local project rules remain owned by Shadows. An adapter cannot bypass them.
+- Team rules also execute in the Rust Shadows runtime. Do not duplicate them in
+  TypeScript or access Rust-owned tables. Follow Shadows §1.7 for synchronization
+  and §24.6 for external confirmation and assessment.
 - Keep one owner for every rule, table, protocol shape, and decision.
 - A source module has one named job. Split by responsibility; do not create
   miscellaneous `helpers` or `utils` piles.

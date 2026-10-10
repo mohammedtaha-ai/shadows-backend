@@ -8,13 +8,18 @@ before implementation. No capability in this document is claimed implemented.
 This file owns the shared architecture. The [NYLRA vision](../../nylra/Vision.md)
 owns the companion's experience and future product capabilities. Shadows' own
 specifications continue to own its planning and execution rules.
+Specifically, [Shadows §1.7](../../shadows/docs/superpowers/specs/2026-09-21-architecture-design.md#17-workspace-authority-and-deployment)
+owns workspace authority, runtime placement, synchronization and worker assignment;
+[§24.6](../../shadows/docs/superpowers/specs/2026-10-08-approval-authority-design.md#246-external-human-confirmation-and-assessment)
+owns external confirmation and assessment. These decisions were clarified on
+2026-10-10 at the user's request; they are not implementation evidence.
 
 ## 1. Product boundaries
 
 | Repository | Sole responsibility |
 | --- | --- |
-| `shadows` | The local software-delivery runtime |
-| `shadows-backend` | The shared cloud application |
+| `shadows` | Rust project rules and runtime for local and future server deployment |
+| `shadows-backend` | TypeScript cloud coordination and NYLRA application |
 | `nylra` | The companion's desktop and mobile experiences |
 
 The shared backend hosts NYLRA's conversation orchestration, personal memory,
@@ -58,6 +63,7 @@ rules and stores; provider adapters translate external APIs.
 | Responsibility boundary | Sole ownership |
 | --- | --- |
 | Identity | Authenticated account identity |
+| Membership | Account roles and access to team workspaces |
 | Devices | Device trust lifecycle |
 | Shadows links | Allowed access to paired instances and selected projects |
 | Intervention topics | Lifecycle of an issue requiring human attention |
@@ -131,6 +137,44 @@ information retains its project scope. A preference is not authorization and
 cannot override a project's approved rules. Cross-project context requires
 permission for every involved source.
 
+### What lives where
+
+This is the sharing inventory. Shadows §1.7 owns workspace authority and sync.
+
+| Data | Primary home | What this cloud application receives |
+| --- | --- | --- |
+| Personal plans, agreements, decisions and Planner history | Owning local Shadows | Selected topic context and permitted excerpts only |
+| Personal source tree, artifacts and code index | Owning computer | No automatic upload; selected excerpts or explicit artifact transfer |
+| Team plans, agreements and execution records | Server Rust runtime's PostgreSQL store | Authorized projections and topic evidence through its API |
+| Team code and artifacts | Selected Git remote and scoped artifact storage, with worker checkouts | References/digests; content only for authorized operations |
+| NYLRA conversations, personal memory and notification preferences | Cloud NYLRA store | Cloud-owned data with scoped client caches |
+| Accounts, membership, device trust and project links | Cloud coordination store | Cloud-owned access metadata |
+| Active harness processes and execution state | Assigned machine | Status/evidence through the owner, never live-process replication |
+
+Connection states are **local only**, **linked for NYLRA**, and **member of a
+team workspace**. Linking never converts a personal project into a team project.
+Membership exposes neither personal projects nor personal NYLRA memory to a team.
+Publication into a team is an explicit selected import with new target ownership
+and source provenance, not ongoing bidirectional sync or publication of history.
+
+Selecting a project is not blanket permission to upload its files. The user sees
+permitted data categories and can inspect/revoke sharing. The local connector
+filters before transmission; the cloud cannot widen its grant. Cross-project
+retrieval checks every source, not just the destination topic.
+
+Cloud NYLRA and the selected model provider process permitted plaintext. Encryption
+in transit/at rest must not be presented as end-to-end encryption hiding that text
+from those processors. Local-model support needs a separate future execution path;
+BYOK does not make cloud reasoning local.
+
+Revocation blocks new reads, queued dispatches and use of cached context for new
+explanations. Summaries, embeddings and caches retain source scope for invalidation
+and deletion. Personal memory cannot turn project content into account-wide access.
+Already viewed/exported data cannot be recalled from people or providers; disclose
+that limit. Minimal audit metadata is retained separately from content under an
+explicit policy. Exact retention periods and backup purge deadlines close the
+data-lifecycle OPEN before storing real content.
+
 ## 6. Current work context, not transcript replication
 
 The integration follows the current work and intervention topics. It does not
@@ -194,12 +238,21 @@ completed outcomes. It does not report adoption or resumed work merely because
 a request was sent. Assessment-only requests need enforced write restrictions;
 a natural-language instruction alone does not establish those restrictions.
 
+Shadows §24.6 defines Planner approval versus human confirmation. The trusted
+client displays the exact operation/proposal independently of generated chat and
+requires a deliberate confirmation action. Voice may prepare a proposal; it cannot
+automatically sign a model's interpretation. Voice-only confirmation requires a
+separately reviewed mechanism. Preferences never become delegated authority.
+
 ## 9. Reliability and disconnected devices
 
 Topics and pending deliveries are durable. Requests carry stable identifiers,
 scope, and their intended source versions. Reconnection resumes from a recorded
 position and reconciles current topic state. Retries can redeliver a message;
 idempotency prevents a second domain effect. Receipt is distinct from acceptance.
+An authorized identical retry returns its recorded outcome. Reusing the same
+identity for different normalized content conflicts; duplicate delivery itself is
+not an error. Reconnect does not reapprove work.
 
 Changed or superseded proposals invalidate stale confirmation. Revoked project
 links prevent new reads and dispatches, including work waiting in a queue.
@@ -226,13 +279,20 @@ regardless of the channel.
 
 ## 11. Future cloud workspaces and operations
 
-Personal work remains local initially. Team workspaces are a future server-owned
-Shadows capability. A server-owned workspace is authoritative for its own data;
-a cloud copy of local context is not a competing authoritative workspace.
+Shadows §1.7 owns the runtime decision. Future cloud deployment composes this
+TypeScript application with a Rust Shadows server from the `shadows` repository.
+The TypeScript choice does not require rewriting project rules. The PostgreSQL
+product adapter belongs to `shadows-core`. Deployment manifests may compose both
+processes without transferring source or table ownership.
 
-Continuing personal execution on a server requires an explicit synchronization
-and execution-handoff design. Conversation synchronization alone does not move
-files, harness state, processes, or execution authority.
+The workspace owner and execution machine are different roles. Team planning can
+remain available while a member's laptop is offline; work assigned to that laptop
+has not moved merely because a cloud conversation remains available.
+
+Backup, code transfer, ownership migration and execution handoff are separate
+explicit operations under §1.7. Initial NYLRA linking performs none implicitly.
+A stopped personal computer has no available Planner or new local execution;
+cloud explanation is limited to permitted cached facts.
 
 Server administration, production work, and AWS operations remain future scoped
 Shadows capabilities. Their runtime owns execution and authorization. NYLRA
@@ -260,15 +320,16 @@ These items are deliberately unresolved, with an explicit closing trigger:
   cancellation, and durable-delivery check for the actual supported providers.
 - **Identity and confirmation:** close before pairing or approval implementation
   by reviewing account/device trust, revocation, and a model-independent human
-  confirmation flow. Reconcile the relevant Shadows authority specifications
-  with the new external client boundary; neither local Origin checks nor a
+  confirmation flow implementing Shadows §24.6, including owner-side membership
+  freshness and revocation. Neither local Origin checks nor a
   claimed `human` field establish remote human authority.
 - **Integration protocol and context production:** close before connector work
   by reviewing schemas, initial-context/reconnect semantics, permitted fields,
   context limits, source versions, and generation of the appropriate Planner
   work context. Existing local streams are not assumed a complete cloud feed.
 - **Data lifecycle:** close before persisting real user/project content by setting
-  retention, deletion, cached-context invalidation, and visible sharing rules.
+  retention periods, backup purge deadlines and testable deletion/invalidation
+  propagation for section 5's sharing rules, including provider retention.
 - **Voice and native client capabilities:** close before the corresponding client
   implementation plan by demonstrating capture, playback, interruption,
   background/lock-screen notification behavior, reconnect, and the same topic
@@ -280,7 +341,33 @@ These items are deliberately unresolved, with an explicit closing trigger:
 Acceptance must show a direct Planner conversation followed by NYLRA explaining
 the correct current work without a full-history upload; a manager/Planner
 escalation when those roles exist; desktop-to-phone topic continuity; explicit
-assessment and confirmation; rejection of stale or repeated requests; link
+assessment and confirmation; stale/conflicting request rejection and identical
+retry replay without a second effect; link
 revocation; and recovery after connector, worker, and daemon interruption.
 Library support, unit tests, and documentation alone do not establish those
 running product paths.
+
+## 14. Delivery order
+
+The full local Shadows roadmap remains intact. NYLRA needs neither the future
+manager nor executors to demonstrate value; cloud accounts never gate local use.
+
+1. **Text integration:** close identity, context/protocol and data-lifecycle OPENs;
+   connect one selected personal project, explain bounded current work after a
+   direct Planner conversation, and continue the same topic on desktop and phone.
+   Prove source/freshness display, revocation and reconnect without history upload.
+2. **Assessment and confirmation:** implement §24.6's enforced assessment mode,
+   trusted confirmation and owner validation. Prove stale-basis refusal, duplicate
+   replay and recovery across client, connector and worker interruption.
+3. **Voice and presence:** STT/TTS, native notifications, interruption, AYLUL and
+   later telephone escalation require real-device evidence. Measure total cost
+   and latency, including retrieval, speech, retries and corrections.
+4. **Team workspace:** after the complete local release, implement §1.7's server,
+   membership enforcement, PostgreSQL parity, artifacts and bounded local workers.
+   Prove two users, isolation, conflicting edits and disconnected reconciliation.
+5. **Cloud execution and portability:** prove isolated workers, attempt fencing,
+   artifact handoff and explicit migration/restore. Future integrations, delegation,
+   enterprise hosting and richer assistance stay in the full NYLRA inventory.
+
+These are delivery boundaries, not an implementation plan or measured capability.
+Each step needs reviewed interfaces and a runnable acceptance path.
