@@ -1,5 +1,11 @@
 # Backend Initial Implementation Plan
 
+**Local stop-and-publish checkpoint, 2026-10-11:** continue from the
+[B0 follow-up handoff](../../evidence/2026-10-11-b0-closure-followup.md).
+MiniMax continuity and negative protocol bindings now have scoped evidence.
+Keycloak server/native acceptance, lifecycle proposals and executable B1 expansion
+remain unfinished; no B1 or later task has started.
+
 **2026-10-11 B0 supplement:** [real MiniMax results](../../evidence/2026-10-11-minimax-provider-probe.md)
 pass completion, client cancellation, injected partial-response fault and one-round
 tool execution for requested MiniMax-M3. This narrows the provider blocker for that

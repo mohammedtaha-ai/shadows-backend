@@ -1,0 +1,20 @@
+{
+  "date": "2026-10-11",
+  "database": "b0_identity_followup",
+  "port": 45904,
+  "results": [
+    {
+      "name": "backend-owned device revocation and fresh-process session validation prototype",
+      "status": "PASS",
+      "observed": {
+        "version": "PostgreSQL 18.4 on x86_64-windows, compiled by msvc-19.44.35226, 64-bit",
+        "persistedProcessRestart": true,
+        "revokedDeviceDenied": true,
+        "otherDeviceUnaffected": true,
+        "foreignRevocationDenied": true,
+        "expiredSessionDenied": true,
+        "scope": "non-product SQL policy prototype; no OIDC/token revocation or product acceptance"
+      }
+    }
+  ]
+}

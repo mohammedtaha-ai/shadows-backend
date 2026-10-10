@@ -53,6 +53,11 @@ sole cloud SQL migration history owner, and pg-boss as durable job transport.
 These component decisions remain subject to review; they do not close the
 aggregate capability prerequisite or authorize B1. Actual model-provider SDK
 selection, identity deployment and deployment services remain unresolved.
+The [2026-10-11 follow-up](evidence/2026-10-11-b0-closure-followup.md) establishes
+bounded MiniMax-M3 tool-result/reasoning continuity and client abort behavior.
+Keycloak is a preliminary identity recommendation, with image-transfer/native
+acceptance blocked. Lifecycle proposals and the B1 execution plan remain unwritten
+at the user's local stop-and-publish checkpoint; no OPEN is closed by this handoff.
 Axum, SQLx, Rig, and PGMQ from
 earlier alternatives are not adopted cloud dependencies by this agreement.
 Semantic search may use PostgreSQL extensions if justified by retrieval needs;

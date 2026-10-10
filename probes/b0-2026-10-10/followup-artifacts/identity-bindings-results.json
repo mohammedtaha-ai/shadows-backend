@@ -1,0 +1,36 @@
+{
+  "date": "2026-10-11",
+  "issuerImplementation": "oidc-provider 9.12.2, synthetic automatic consent, in-memory sessions",
+  "results": [
+    {
+      "name": "wrong-state",
+      "status": "PASS",
+      "errorType": "ClientError",
+      "errorCode": "OAUTH_INVALID_RESPONSE"
+    },
+    {
+      "name": "wrong-pkce",
+      "status": "PASS",
+      "errorType": "ResponseBodyError",
+      "errorCode": "OAUTH_RESPONSE_BODY_ERROR"
+    },
+    {
+      "name": "wrong-nonce",
+      "status": "PASS",
+      "errorType": "ClientError",
+      "errorCode": "OAUTH_JWT_CLAIM_COMPARISON_FAILED"
+    },
+    {
+      "name": "reused-code",
+      "status": "PASS"
+    },
+    {
+      "name": "one-time return bookkeeping prototype",
+      "status": "PASS",
+      "nativeBrowser": false,
+      "wrongState": true,
+      "reusedReturn": true,
+      "expiredReturn": true
+    }
+  ]
+}

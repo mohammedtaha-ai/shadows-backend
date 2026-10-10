@@ -40,8 +40,9 @@ gaps:
   - at: schema
     gap: dart-generate.mjs supports only the flat fixture DTO, not a complete J1 Dart generator.
 open_questions:
-  - Does MiniMax multi-round tool and reasoning continuity work beyond ai-minimax.mjs one-round non-reasoning cases?
+  - Does MiniMax reasoning_split=true preserve separately returned reasoning metadata? minimax-rounds.mjs only verifies think-tag content with reasoning_split=false.
   - Which deployed issuer and Windows native callback mechanism will close account/device revocation and restart acceptance?
+  - Will the unexecuted Keycloak fixture pass once its pinned image can be downloaded?
 tests:
   - name: migration empty upgrade rollback and reapply
     checks: SQL migrations from empty and previous state, competing advisory-lock refusal, down/up and repeat-up behavior.
@@ -53,3 +54,9 @@ tests:
     checks: A retained text delta precedes an exception or stream error; no complete result is assumed.
   - name: synthetic OIDC PKCE state nonce code replay and refresh revocation
     checks: Public native client code exchange, state refusal, expired access refusal with zero tolerance, refresh revocation, code replay refusal and silent login refusal after logout.
+  - name: wrong-state / wrong-pkce / wrong-nonce / reused-code
+    checks: identity-bindings.mjs uses fresh synthetic authorization flows and asserts typed refusal; the PKCE response is invalid_grant.
+  - name: backend-owned device revocation and fresh-process session validation prototype
+    checks: identity-devices.mjs checks disposable PG records from new verifier processes; account-scoped device revoke, other device survival and expiry. This is not product implementation.
+  - name: real non-reasoning tool result round trip / real reasoning tool continuity
+    checks: minimax-rounds.mjs executes one schema-valid local tool, sends its result in a second provider request and checks a runtime-random value absent from the prompt; reasoning assistant content is preserved with parsed-tool-input equivalence.

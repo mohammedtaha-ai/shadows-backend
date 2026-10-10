@@ -3,3 +3,5 @@ node_modules/
 .dart_tool/
 consumer.exe
 *.log
+.identity-runtime/
+.identity-cluster/

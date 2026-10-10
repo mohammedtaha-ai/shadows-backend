@@ -1,5 +1,10 @@
 # Backend delivery design
 
+**B0 handoff, 2026-10-11:** [follow-up checkpoint](../../evidence/2026-10-11-b0-closure-followup.md)
+adds bounded real MiniMax tool-result/reasoning continuity and negative OIDC/device
+prototype evidence. Keycloak/native acceptance remains blocked; lifecycle choices
+and concrete B1 planning still require continuation. B1 remains unstarted.
+
 **2026-10-11 evidence update:** [MiniMax supplement](../../evidence/2026-10-11-minimax-provider-probe.md)
 establishes a narrow real M3 non-reasoning path through the OpenAI chat adapter.
 Retain cancellation/error handling and test multi-round tool/reasoning continuity

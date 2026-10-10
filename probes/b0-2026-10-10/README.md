@@ -1,5 +1,14 @@
 # B0 non-product capability experiments
 
+The [2026-10-11 handoff](../../docs/evidence/2026-10-11-b0-closure-followup.md)
+owns follow-up results and remaining cloud work. `identity-bindings.mjs` and
+`identity-devices.mjs` are independent synthetic/prototype checks.
+`identity-keycloak.mjs` requires the pinned Docker image to have been pulled first;
+its behavioral cases remain unexecuted locally. `minimax-rounds.mjs` is explicit
+opt-in real-provider work, separate from `npm test`; `--continuity-only` makes at
+most four calls. Never run it automatically in CI. `.identity-runtime/` and
+`.identity-cluster/` are isolated and ignored. No secret values are in artifacts.
+
 Optional real-provider supplement: `node ai-minimax.mjs` explicitly loads the
 repository-root `.env` and uses `API_KEY` only with the official MiniMax endpoint.
 This makes up to four bounded paid API calls and is not part of `npm test`.
