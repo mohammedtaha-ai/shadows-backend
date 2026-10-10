@@ -303,6 +303,20 @@ can explain and convey user intent without gaining unrestricted infrastructure
 authority. These future capabilities belong to the complete product direction;
 their delivery does not imply a cloud-language rewrite.
 
+The future Production feature is continuous application operations, including
+AWS resource observation, diagnosis, proposed remediation and verified outcomes.
+[Shadows §17.12](../../shadows/docs/superpowers/specs/2026-10-01-task-contracts-and-evidence-design.md#1712-production-operations-extension)
+owns this lifecycle. This backend handles scoped observation delivery and NYLRA
+incident conversations; Rust owns action authority and verification. An always-on
+collector must have explicit placement and read scope. If a personal owner is
+offline, cloud alerts can continue but owner-dependent actions cannot silently
+transfer to this application. Existing autoscaling is not a second loop to fight.
+
+No operations packages are scaffolded by this direction. The first implementation
+maps each needed operation to its existing owner or gives a new responsibility
+one explicit owner. Competition-specific research is a dated note, never the
+authority for production behavior.
+
 ## 12. Source contracts and documentation
 
 Use [the supplied template](contracts/TEMPLATE.yaml) for implemented source
