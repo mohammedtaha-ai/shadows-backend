@@ -10,6 +10,8 @@ database, cloud deployment, or integration has been implemented here.
 | Document | Owns |
 | --- | --- |
 | [Architecture](docs/architecture.md) | Shared deployment, languages, responsibility boundaries, context exchange, approval delivery, and unresolved implementation prerequisites |
+| [Source structure](docs/source-structure.md) | Prepared folder layout and dependency boundaries; not an implemented code map |
+| [Contract convention](docs/contracts/README.md) | Applying the source template with inspected evidence |
 | [NYLRA vision](../nylra/Vision.md) | The companion's product experience and full future capability inventory |
 | [Source contract template](docs/contracts/TEMPLATE.yaml) | The structure for describing an implemented source module and its evidence |
 | [Agent instructions](AGENTS.md) | How to keep design, code, contracts, and verification consistent |

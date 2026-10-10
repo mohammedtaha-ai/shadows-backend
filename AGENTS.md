@@ -3,6 +3,9 @@
 Read [README.md](README.md) and [docs/architecture.md](docs/architecture.md)
 before proposing code. The architecture records the agreements to date;
 unresolved prerequisites are not permission to invent decisions silently.
+Read [source structure](docs/source-structure.md) for the prepared layout and
+[contract convention](docs/contracts/README.md) before adding source. Proposed
+paths are not existing modules or permission to scaffold unused packages.
 
 ## Ownership
 

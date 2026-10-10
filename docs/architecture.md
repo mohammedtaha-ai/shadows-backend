@@ -86,6 +86,9 @@ service's private store. Cross-service atomic work uses explicitly declared
 transactional operations. A source module earns its place through a real user;
 the architecture does not require empty packages for future features.
 
+The [source organization proposal](source-structure.md) maps these boundaries to
+future paths. It is a design for review, not an existing code map or scaffolding.
+
 ## 4. Connection topology
 
 ```text
@@ -306,6 +309,8 @@ Use [the supplied template](contracts/TEMPLATE.yaml) for implemented source
 modules. Its example bodies are illustrative. No example test name proves a
 new project's behavior. Contracts describe inspected code, reference external
 types, identify stable symbols in gaps, and state the evidence for obligations.
+The [contract convention](contracts/README.md) owns placement, granularity and
+evidence rules for applying that template in both new repositories.
 
 Maintain one code-map owner row per implemented module. Keep design intent,
 source behavior, and dated verification separate. Do not maintain parallel
