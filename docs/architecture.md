@@ -199,6 +199,55 @@ data-lifecycle OPEN before storing real content.
 
 ### Recommended identity boundary — PROPOSED FOR USER REVIEW
 
+#### Authorized local enrollment semantics (2026-10-11)
+
+The local-runtime continuation authorizes this account/installation/session
+distinction. `(issuer, subject)` identifies an account. A device row identifies
+an application installation enrolled after verified authentication, never
+physical hardware. Each login redemption creates a fresh session. Explicit new
+enrollment produces a server-generated device ID and a random 256-bit enrollment
+credential returned once; devices stores only its SHA-256 hash. Reauthentication
+must present that credential, scoped to the verified account, to reuse an active
+enrollment. No caller-supplied device ID, email matching or hardware fingerprint
+establishes enrollment. A credential alone cannot authorize an API operation.
+
+Current-session or account-wide logout revokes sessions and preserves enrollments.
+Device revocation atomically revokes that enrollment and its backend sessions;
+ordinary reauthentication with its credential refuses. Explicit new enrollment
+after a fresh authentication is allowed, even on the same physical computer, and
+creates a new ID. Revocation does not permanently block hardware. Legacy rows
+without enrollment credentials retain existing session behavior but cannot prove
+reuse; clients must explicitly enroll anew. No credentials are retroactively
+minted or silently recovered. Credential theft plus account authentication can
+reuse enrollment: OS-protected native storage and TLS are prerequisites. This
+bounded bearer design avoids introducing signing/key-recovery infrastructure.
+
+Return redemption requires an explicit new/reuse choice and atomically consumes
+the return ticket, enrolls or proves reuse, inserts the session and writes audit.
+Failed transactions leave no enrollment/session and do not consume the ticket.
+One-use replay after a lost response is refused; the client starts a fresh login.
+Only new enrollment returns a credential; reuse preserves the stored one.
+
+The local topology and acceptance plan are recorded in the
+[runtime plan](superpowers/plans/2026-10-11-local-identity-runtime.md).
+Retention-dependent B1.5 remains unapproved and deferred.
+
+Provider disable is checked through confidential refresh-token introspection for
+ordinary authorization and return redemption; no successful provider-state cache
+is used. Active sessions renew provider tokens at most once per minute under the
+account/session transaction and persist them encrypted. Renewal does not extend
+the backend's absolute expiry. Provider/DB failure refuses authorization; an
+ambiguous provider token rotation followed by DB rollback may require fresh login,
+never replay of a code or guessed recovery. Production rotation/outage acceptance
+remains separate.
+
+Local session/account logout and device revocation verify persisted local bearer,
+account, session lifetime and device status without requiring provider availability.
+This revocation-only authentication cannot authorize reads or create sessions.
+Thus local surrender of authority succeeds during outage and provider completion
+can remain pending. Disable alone is not permanent backend revocation; operators
+must explicitly request logout/revocation when that is required.
+
 **PROPOSED FOR USER REVIEW:** use self-hosted Keycloak 26.8.0 and the standard
 openid-client 6.8.8 adapter. The [cloud identity evaluation](evidence/2026-10-11-b0-closure-followup.md#cloud-identity-recommendation)
 compares only Keycloak and ZITADEL and records server/native/operational limits.

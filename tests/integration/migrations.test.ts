@@ -8,7 +8,7 @@ test('empty_schema_up previous_schema_upgrade repeat_up_no_change down_up_reappl
     await runMigrations(f.connection, 'up', 1);
     assert.equal((await f.pool.query("SELECT to_regclass('identity_sessions') AS name")).rows[0].name, null);
     await runMigrations(f.connection, 'up'); await runMigrations(f.connection, 'up');
-    assert.equal((await f.pool.query('SELECT count(*)::int AS n FROM backend_migrations')).rows[0].n, 3);
+    assert.equal((await f.pool.query('SELECT count(*)::int AS n FROM backend_migrations')).rows[0].n, 5);
     await runMigrations(f.connection, 'down');
     assert.equal((await f.pool.query("SELECT to_regclass('identity_accounts') AS name")).rows[0].name, null);
     await runMigrations(f.connection, 'up');
@@ -28,4 +28,18 @@ test('concurrent_migration_lock_refused', async () => {
     await client.query('SELECT pg_advisory_lock(7241865325823964)');
     await assert.rejects(runMigrations(f.connection, 'up'), { message: 'migration_failed' });
   } finally { await client.query('SELECT pg_advisory_unlock(7241865325823964)'); client.release(); await f.close(); }
+});
+
+test('enrollment_upgrade_preserves_legacy_session_without_minting_proof',async()=>{
+ const f=await postgresFixture();
+ try {
+  await runMigrations(f.connection,'up',3);
+  await f.pool.query("INSERT INTO identity_accounts(id,issuer,subject) VALUES('00000000-0000-4000-8000-000000000001','synthetic','legacy')");
+  await f.pool.query("INSERT INTO devices(id,account_id) VALUES('00000000-0000-4000-8000-000000000002','00000000-0000-4000-8000-000000000001')");
+  await f.pool.query("INSERT INTO identity_sessions(id,handle_hash,account_id,device_id,provider_sid,tokens_ciphertext,tokens_key_id,absolute_expires_at) VALUES('00000000-0000-4000-8000-000000000003','legacy-hash','00000000-0000-4000-8000-000000000001','00000000-0000-4000-8000-000000000002','legacy-sid','encrypted','key',now()+interval '1 day')");
+  await runMigrations(f.connection,'up');
+  assert.equal((await f.pool.query('SELECT enrollment_hash FROM devices')).rows[0].enrollment_hash,null);
+  assert.equal((await f.pool.query('SELECT revoked_at,handle_hash FROM identity_sessions')).rows[0].revoked_at,null);
+  assert.equal((await f.pool.query('SELECT handle_hash FROM identity_sessions')).rows[0].handle_hash,'legacy-hash');
+ }finally{await f.close();}
 });

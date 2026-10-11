@@ -15,7 +15,7 @@ test('signed_logout wrong_issuer_audience_event_nonce_refused signing_key_rotati
   let issuer='';
   const server=createServer({key:tls.key,cert:tls.cert},(req,res)=>{
     res.setHeader('content-type','application/json');
-    if(req.url === '/.well-known/openid-configuration') res.end(JSON.stringify({issuer,authorization_endpoint:issuer+'/auth',token_endpoint:issuer+'/token',jwks_uri:issuer+'/jwks',revocation_endpoint:issuer+'/revoke',end_session_endpoint:issuer+'/logout',response_types_supported:['code'],subject_types_supported:['public'],id_token_signing_alg_values_supported:['RS256']}));
+    if(req.url === '/.well-known/openid-configuration') res.end(JSON.stringify({issuer,authorization_endpoint:issuer+'/auth',token_endpoint:issuer+'/token',introspection_endpoint:issuer+'/introspect',jwks_uri:issuer+'/jwks',revocation_endpoint:issuer+'/revoke',end_session_endpoint:issuer+'/logout',response_types_supported:['code'],subject_types_supported:['public'],id_token_signing_alg_values_supported:['RS256']}));
     else if(req.url === '/jwks') res.end(JSON.stringify({keys})); else {res.statusCode=404;res.end('{}');}
   });
   await new Promise<void>(resolve=>server.listen(0,'127.0.0.1',resolve)); const address=server.address();assert.ok(address && typeof address !== 'string');issuer=`https://127.0.0.1:${address.port}`;

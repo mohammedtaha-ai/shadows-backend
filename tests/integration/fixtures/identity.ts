@@ -14,7 +14,9 @@ export async function identityFixture() {
   async authorizationUrl(binding: {state: string; nonce: string; verifier: string}) { const u = new URL(config.issuer + '/authorize'); u.searchParams.set('state',binding.state); u.searchParams.set('nonce',binding.nonce); u.searchParams.set('code_challenge',hash(binding.verifier)); return u.href; },
   async exchange(_callback: URL, _binding: unknown) { exchanges++; return { identity: { issuer: config.issuer, subject, providerSessionId: subject + '-sid' }, providerTokens: { refreshToken: 'synthetic-refresh-sensitive', idToken: 'synthetic-id-sensitive' } }; },
   async revokeAndLogout(_tokens: unknown, callback: { state: string; redirectUri: string }) { if (failProvider) throw new Error('synthetic-sensitive-provider-error'); const u = new URL(callback.redirectUri); u.searchParams.set('state',callback.state); return { logoutUrl: u.href }; },
-  async verifyLogout(_jwt: string) { return { issuer: config.issuer, sid: subject + '-sid', jti: 'synthetic-jti', issuedAt: Math.floor(now.getTime()/1000) }; }
+  async verifyLogout(_jwt: string) { return { issuer: config.issuer, sid: subject + '-sid', jti: 'synthetic-jti', issuedAt: Math.floor(now.getTime()/1000) }; },
+  async isSessionActive() {return true;},
+  async refreshSession(tokens:{refreshToken:string;idToken:string}){return tokens;}
  };
  try {
  const devices = createDevices(db, () => now);
@@ -27,7 +29,7 @@ export async function identityFixture() {
    const callback = new URL(config.callbackUrl); callback.searchParams.set('state',state); callback.searchParams.set('code','synthetic-code');
    return { returnVerifier, start, callback };
  }
- async function login() { const p = await pending(); const returned = await identity.finishLogin(p.callback); return identity.redeemReturn({ ticket: returned.ticket, returnVerifier: p.returnVerifier }); }
+ async function login() { const p = await pending(); const returned = await identity.finishLogin(p.callback); return identity.redeemReturn({ ticket: returned.ticket, returnVerifier: p.returnVerifier ,enrollment:{mode:'new'}}); }
  return { ...f, db, appPool: pool, config, identity, devices, oidc, pending, login, verifier,
    get exchanges() { return exchanges; }, get now() { return now; }, advance(ms: number) { now = new Date(now.getTime()+ms); }, setSubject(value: string) { subject=value; }, failProvider() { failProvider=true; },
    async close() { await db.destroy(); if(!pool.ended) await pool.end(); await f.close(); } };

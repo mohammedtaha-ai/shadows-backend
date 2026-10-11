@@ -2,9 +2,15 @@
   "openapi": "3.0.3",
   "info": {
     "title": "Shadows backend authentication",
-    "version": "1.0.0"
+    "version": "1.1.0"
   },
   "components": {
+    "securitySchemes": {
+      "backendBearer": {
+        "type": "http",
+        "scheme": "bearer"
+      }
+    },
     "schemas": {}
   },
   "paths": {
@@ -80,8 +86,56 @@
                   ],
                   "properties": {
                     "code": {
-                      "maxLength": 64,
-                      "type": "string"
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "enum": [
+                            "request_invalid"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "unauthorized"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "login_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "return_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "logout_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "device_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "rate_limited"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "operation_failed"
+                          ]
+                        }
+                      ]
                     }
                   }
                 }
@@ -100,8 +154,56 @@
                   ],
                   "properties": {
                     "code": {
-                      "maxLength": 64,
-                      "type": "string"
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "enum": [
+                            "request_invalid"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "unauthorized"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "login_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "return_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "logout_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "device_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "rate_limited"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "operation_failed"
+                          ]
+                        }
+                      ]
                     }
                   }
                 }
@@ -120,8 +222,56 @@
                   ],
                   "properties": {
                     "code": {
-                      "maxLength": 64,
-                      "type": "string"
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "enum": [
+                            "request_invalid"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "unauthorized"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "login_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "return_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "logout_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "device_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "rate_limited"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "operation_failed"
+                          ]
+                        }
+                      ]
                     }
                   }
                 }
@@ -140,8 +290,56 @@
                   ],
                   "properties": {
                     "code": {
-                      "maxLength": 64,
-                      "type": "string"
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "enum": [
+                            "request_invalid"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "unauthorized"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "login_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "return_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "logout_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "device_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "rate_limited"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "operation_failed"
+                          ]
+                        }
+                      ]
                     }
                   }
                 }
@@ -160,8 +358,56 @@
                   ],
                   "properties": {
                     "code": {
-                      "maxLength": 64,
-                      "type": "string"
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "enum": [
+                            "request_invalid"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "unauthorized"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "login_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "return_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "logout_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "device_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "rate_limited"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "operation_failed"
+                          ]
+                        }
+                      ]
                     }
                   }
                 }
@@ -235,8 +481,56 @@
                   ],
                   "properties": {
                     "code": {
-                      "maxLength": 64,
-                      "type": "string"
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "enum": [
+                            "request_invalid"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "unauthorized"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "login_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "return_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "logout_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "device_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "rate_limited"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "operation_failed"
+                          ]
+                        }
+                      ]
                     }
                   }
                 }
@@ -255,8 +549,56 @@
                   ],
                   "properties": {
                     "code": {
-                      "maxLength": 64,
-                      "type": "string"
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "enum": [
+                            "request_invalid"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "unauthorized"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "login_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "return_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "logout_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "device_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "rate_limited"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "operation_failed"
+                          ]
+                        }
+                      ]
                     }
                   }
                 }
@@ -275,8 +617,56 @@
                   ],
                   "properties": {
                     "code": {
-                      "maxLength": 64,
-                      "type": "string"
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "enum": [
+                            "request_invalid"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "unauthorized"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "login_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "return_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "logout_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "device_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "rate_limited"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "operation_failed"
+                          ]
+                        }
+                      ]
                     }
                   }
                 }
@@ -295,8 +685,56 @@
                   ],
                   "properties": {
                     "code": {
-                      "maxLength": 64,
-                      "type": "string"
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "enum": [
+                            "request_invalid"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "unauthorized"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "login_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "return_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "logout_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "device_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "rate_limited"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "operation_failed"
+                          ]
+                        }
+                      ]
                     }
                   }
                 }
@@ -315,8 +753,56 @@
                   ],
                   "properties": {
                     "code": {
-                      "maxLength": 64,
-                      "type": "string"
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "enum": [
+                            "request_invalid"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "unauthorized"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "login_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "return_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "logout_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "device_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "rate_limited"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "operation_failed"
+                          ]
+                        }
+                      ]
                     }
                   }
                 }
@@ -337,7 +823,8 @@
                 "type": "object",
                 "required": [
                   "ticket",
-                  "returnVerifier"
+                  "returnVerifier",
+                  "enrollment"
                 ],
                 "properties": {
                   "ticket": {
@@ -349,6 +836,45 @@
                     "maxLength": 128,
                     "pattern": "^[A-Za-z0-9._~-]+$",
                     "type": "string"
+                  },
+                  "enrollment": {
+                    "anyOf": [
+                      {
+                        "additionalProperties": false,
+                        "type": "object",
+                        "required": [
+                          "mode"
+                        ],
+                        "properties": {
+                          "mode": {
+                            "type": "string",
+                            "enum": [
+                              "new"
+                            ]
+                          }
+                        }
+                      },
+                      {
+                        "additionalProperties": false,
+                        "type": "object",
+                        "required": [
+                          "mode",
+                          "credential"
+                        ],
+                        "properties": {
+                          "mode": {
+                            "type": "string",
+                            "enum": [
+                              "reuse"
+                            ]
+                          },
+                          "credential": {
+                            "pattern": "^[A-Za-z0-9_-]{43}$",
+                            "type": "string"
+                          }
+                        }
+                      }
+                    ]
                   }
                 }
               }
@@ -399,6 +925,10 @@
                     "expiresAt": {
                       "maxLength": 40,
                       "type": "string"
+                    },
+                    "enrollmentCredential": {
+                      "pattern": "^[A-Za-z0-9_-]{43}$",
+                      "type": "string"
                     }
                   }
                 }
@@ -417,8 +947,56 @@
                   ],
                   "properties": {
                     "code": {
-                      "maxLength": 64,
-                      "type": "string"
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "enum": [
+                            "request_invalid"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "unauthorized"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "login_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "return_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "logout_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "device_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "rate_limited"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "operation_failed"
+                          ]
+                        }
+                      ]
                     }
                   }
                 }
@@ -437,8 +1015,56 @@
                   ],
                   "properties": {
                     "code": {
-                      "maxLength": 64,
-                      "type": "string"
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "enum": [
+                            "request_invalid"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "unauthorized"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "login_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "return_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "logout_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "device_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "rate_limited"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "operation_failed"
+                          ]
+                        }
+                      ]
                     }
                   }
                 }
@@ -457,8 +1083,56 @@
                   ],
                   "properties": {
                     "code": {
-                      "maxLength": 64,
-                      "type": "string"
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "enum": [
+                            "request_invalid"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "unauthorized"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "login_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "return_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "logout_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "device_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "rate_limited"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "operation_failed"
+                          ]
+                        }
+                      ]
                     }
                   }
                 }
@@ -477,8 +1151,56 @@
                   ],
                   "properties": {
                     "code": {
-                      "maxLength": 64,
-                      "type": "string"
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "enum": [
+                            "request_invalid"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "unauthorized"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "login_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "return_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "logout_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "device_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "rate_limited"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "operation_failed"
+                          ]
+                        }
+                      ]
                     }
                   }
                 }
@@ -497,8 +1219,56 @@
                   ],
                   "properties": {
                     "code": {
-                      "maxLength": 64,
-                      "type": "string"
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "enum": [
+                            "request_invalid"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "unauthorized"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "login_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "return_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "logout_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "device_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "rate_limited"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "operation_failed"
+                          ]
+                        }
+                      ]
                     }
                   }
                 }
@@ -510,6 +1280,11 @@
     },
     "/v1/auth/session": {
       "get": {
+        "security": [
+          {
+            "backendBearer": []
+          }
+        ],
         "responses": {
           "200": {
             "description": "Default Response",
@@ -553,8 +1328,56 @@
                   ],
                   "properties": {
                     "code": {
-                      "maxLength": 64,
-                      "type": "string"
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "enum": [
+                            "request_invalid"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "unauthorized"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "login_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "return_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "logout_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "device_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "rate_limited"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "operation_failed"
+                          ]
+                        }
+                      ]
                     }
                   }
                 }
@@ -573,8 +1396,56 @@
                   ],
                   "properties": {
                     "code": {
-                      "maxLength": 64,
-                      "type": "string"
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "enum": [
+                            "request_invalid"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "unauthorized"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "login_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "return_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "logout_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "device_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "rate_limited"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "operation_failed"
+                          ]
+                        }
+                      ]
                     }
                   }
                 }
@@ -593,8 +1464,56 @@
                   ],
                   "properties": {
                     "code": {
-                      "maxLength": 64,
-                      "type": "string"
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "enum": [
+                            "request_invalid"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "unauthorized"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "login_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "return_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "logout_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "device_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "rate_limited"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "operation_failed"
+                          ]
+                        }
+                      ]
                     }
                   }
                 }
@@ -613,8 +1532,56 @@
                   ],
                   "properties": {
                     "code": {
-                      "maxLength": 64,
-                      "type": "string"
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "enum": [
+                            "request_invalid"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "unauthorized"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "login_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "return_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "logout_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "device_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "rate_limited"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "operation_failed"
+                          ]
+                        }
+                      ]
                     }
                   }
                 }
@@ -633,8 +1600,56 @@
                   ],
                   "properties": {
                     "code": {
-                      "maxLength": 64,
-                      "type": "string"
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "enum": [
+                            "request_invalid"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "unauthorized"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "login_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "return_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "logout_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "device_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "rate_limited"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "operation_failed"
+                          ]
+                        }
+                      ]
                     }
                   }
                 }
@@ -658,6 +1673,11 @@
             }
           }
         },
+        "security": [
+          {
+            "backendBearer": []
+          }
+        ],
         "responses": {
           "200": {
             "description": "Default Response",
@@ -714,8 +1734,56 @@
                   ],
                   "properties": {
                     "code": {
-                      "maxLength": 64,
-                      "type": "string"
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "enum": [
+                            "request_invalid"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "unauthorized"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "login_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "return_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "logout_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "device_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "rate_limited"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "operation_failed"
+                          ]
+                        }
+                      ]
                     }
                   }
                 }
@@ -734,8 +1802,56 @@
                   ],
                   "properties": {
                     "code": {
-                      "maxLength": 64,
-                      "type": "string"
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "enum": [
+                            "request_invalid"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "unauthorized"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "login_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "return_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "logout_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "device_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "rate_limited"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "operation_failed"
+                          ]
+                        }
+                      ]
                     }
                   }
                 }
@@ -754,8 +1870,56 @@
                   ],
                   "properties": {
                     "code": {
-                      "maxLength": 64,
-                      "type": "string"
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "enum": [
+                            "request_invalid"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "unauthorized"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "login_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "return_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "logout_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "device_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "rate_limited"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "operation_failed"
+                          ]
+                        }
+                      ]
                     }
                   }
                 }
@@ -774,8 +1938,56 @@
                   ],
                   "properties": {
                     "code": {
-                      "maxLength": 64,
-                      "type": "string"
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "enum": [
+                            "request_invalid"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "unauthorized"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "login_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "return_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "logout_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "device_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "rate_limited"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "operation_failed"
+                          ]
+                        }
+                      ]
                     }
                   }
                 }
@@ -794,8 +2006,56 @@
                   ],
                   "properties": {
                     "code": {
-                      "maxLength": 64,
-                      "type": "string"
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "enum": [
+                            "request_invalid"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "unauthorized"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "login_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "return_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "logout_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "device_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "rate_limited"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "operation_failed"
+                          ]
+                        }
+                      ]
                     }
                   }
                 }
@@ -819,6 +2079,11 @@
             }
           }
         },
+        "security": [
+          {
+            "backendBearer": []
+          }
+        ],
         "responses": {
           "200": {
             "description": "Default Response",
@@ -875,8 +2140,56 @@
                   ],
                   "properties": {
                     "code": {
-                      "maxLength": 64,
-                      "type": "string"
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "enum": [
+                            "request_invalid"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "unauthorized"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "login_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "return_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "logout_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "device_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "rate_limited"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "operation_failed"
+                          ]
+                        }
+                      ]
                     }
                   }
                 }
@@ -895,8 +2208,56 @@
                   ],
                   "properties": {
                     "code": {
-                      "maxLength": 64,
-                      "type": "string"
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "enum": [
+                            "request_invalid"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "unauthorized"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "login_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "return_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "logout_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "device_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "rate_limited"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "operation_failed"
+                          ]
+                        }
+                      ]
                     }
                   }
                 }
@@ -915,8 +2276,56 @@
                   ],
                   "properties": {
                     "code": {
-                      "maxLength": 64,
-                      "type": "string"
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "enum": [
+                            "request_invalid"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "unauthorized"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "login_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "return_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "logout_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "device_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "rate_limited"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "operation_failed"
+                          ]
+                        }
+                      ]
                     }
                   }
                 }
@@ -935,8 +2344,56 @@
                   ],
                   "properties": {
                     "code": {
-                      "maxLength": 64,
-                      "type": "string"
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "enum": [
+                            "request_invalid"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "unauthorized"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "login_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "return_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "logout_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "device_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "rate_limited"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "operation_failed"
+                          ]
+                        }
+                      ]
                     }
                   }
                 }
@@ -955,8 +2412,56 @@
                   ],
                   "properties": {
                     "code": {
-                      "maxLength": 64,
-                      "type": "string"
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "enum": [
+                            "request_invalid"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "unauthorized"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "login_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "return_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "logout_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "device_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "rate_limited"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "operation_failed"
+                          ]
+                        }
+                      ]
                     }
                   }
                 }
@@ -968,6 +2473,11 @@
     },
     "/v1/devices": {
       "get": {
+        "security": [
+          {
+            "backendBearer": []
+          }
+        ],
         "responses": {
           "200": {
             "description": "Default Response",
@@ -1008,8 +2518,56 @@
                   ],
                   "properties": {
                     "code": {
-                      "maxLength": 64,
-                      "type": "string"
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "enum": [
+                            "request_invalid"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "unauthorized"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "login_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "return_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "logout_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "device_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "rate_limited"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "operation_failed"
+                          ]
+                        }
+                      ]
                     }
                   }
                 }
@@ -1028,8 +2586,56 @@
                   ],
                   "properties": {
                     "code": {
-                      "maxLength": 64,
-                      "type": "string"
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "enum": [
+                            "request_invalid"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "unauthorized"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "login_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "return_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "logout_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "device_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "rate_limited"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "operation_failed"
+                          ]
+                        }
+                      ]
                     }
                   }
                 }
@@ -1048,8 +2654,56 @@
                   ],
                   "properties": {
                     "code": {
-                      "maxLength": 64,
-                      "type": "string"
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "enum": [
+                            "request_invalid"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "unauthorized"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "login_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "return_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "logout_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "device_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "rate_limited"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "operation_failed"
+                          ]
+                        }
+                      ]
                     }
                   }
                 }
@@ -1068,8 +2722,56 @@
                   ],
                   "properties": {
                     "code": {
-                      "maxLength": 64,
-                      "type": "string"
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "enum": [
+                            "request_invalid"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "unauthorized"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "login_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "return_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "logout_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "device_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "rate_limited"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "operation_failed"
+                          ]
+                        }
+                      ]
                     }
                   }
                 }
@@ -1088,8 +2790,56 @@
                   ],
                   "properties": {
                     "code": {
-                      "maxLength": 64,
-                      "type": "string"
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "enum": [
+                            "request_invalid"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "unauthorized"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "login_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "return_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "logout_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "device_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "rate_limited"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "operation_failed"
+                          ]
+                        }
+                      ]
                     }
                   }
                 }
@@ -1110,6 +2860,11 @@
             "in": "path",
             "name": "deviceId",
             "required": true
+          }
+        ],
+        "security": [
+          {
+            "backendBearer": []
           }
         ],
         "responses": {
@@ -1137,8 +2892,56 @@
                   ],
                   "properties": {
                     "code": {
-                      "maxLength": 64,
-                      "type": "string"
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "enum": [
+                            "request_invalid"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "unauthorized"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "login_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "return_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "logout_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "device_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "rate_limited"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "operation_failed"
+                          ]
+                        }
+                      ]
                     }
                   }
                 }
@@ -1157,8 +2960,56 @@
                   ],
                   "properties": {
                     "code": {
-                      "maxLength": 64,
-                      "type": "string"
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "enum": [
+                            "request_invalid"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "unauthorized"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "login_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "return_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "logout_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "device_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "rate_limited"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "operation_failed"
+                          ]
+                        }
+                      ]
                     }
                   }
                 }
@@ -1177,8 +3028,56 @@
                   ],
                   "properties": {
                     "code": {
-                      "maxLength": 64,
-                      "type": "string"
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "enum": [
+                            "request_invalid"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "unauthorized"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "login_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "return_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "logout_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "device_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "rate_limited"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "operation_failed"
+                          ]
+                        }
+                      ]
                     }
                   }
                 }
@@ -1197,8 +3096,56 @@
                   ],
                   "properties": {
                     "code": {
-                      "maxLength": 64,
-                      "type": "string"
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "enum": [
+                            "request_invalid"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "unauthorized"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "login_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "return_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "logout_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "device_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "rate_limited"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "operation_failed"
+                          ]
+                        }
+                      ]
                     }
                   }
                 }
@@ -1217,8 +3164,56 @@
                   ],
                   "properties": {
                     "code": {
-                      "maxLength": 64,
-                      "type": "string"
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "enum": [
+                            "request_invalid"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "unauthorized"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "login_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "return_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "logout_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "device_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "rate_limited"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "operation_failed"
+                          ]
+                        }
+                      ]
                     }
                   }
                 }
@@ -1292,8 +3287,56 @@
                   ],
                   "properties": {
                     "code": {
-                      "maxLength": 64,
-                      "type": "string"
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "enum": [
+                            "request_invalid"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "unauthorized"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "login_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "return_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "logout_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "device_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "rate_limited"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "operation_failed"
+                          ]
+                        }
+                      ]
                     }
                   }
                 }
@@ -1312,8 +3355,56 @@
                   ],
                   "properties": {
                     "code": {
-                      "maxLength": 64,
-                      "type": "string"
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "enum": [
+                            "request_invalid"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "unauthorized"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "login_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "return_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "logout_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "device_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "rate_limited"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "operation_failed"
+                          ]
+                        }
+                      ]
                     }
                   }
                 }
@@ -1332,8 +3423,56 @@
                   ],
                   "properties": {
                     "code": {
-                      "maxLength": 64,
-                      "type": "string"
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "enum": [
+                            "request_invalid"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "unauthorized"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "login_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "return_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "logout_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "device_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "rate_limited"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "operation_failed"
+                          ]
+                        }
+                      ]
                     }
                   }
                 }
@@ -1352,8 +3491,56 @@
                   ],
                   "properties": {
                     "code": {
-                      "maxLength": 64,
-                      "type": "string"
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "enum": [
+                            "request_invalid"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "unauthorized"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "login_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "return_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "logout_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "device_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "rate_limited"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "operation_failed"
+                          ]
+                        }
+                      ]
                     }
                   }
                 }
@@ -1372,8 +3559,56 @@
                   ],
                   "properties": {
                     "code": {
-                      "maxLength": 64,
-                      "type": "string"
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "enum": [
+                            "request_invalid"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "unauthorized"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "login_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "return_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "logout_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "device_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "rate_limited"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "operation_failed"
+                          ]
+                        }
+                      ]
                     }
                   }
                 }
@@ -1409,8 +3644,56 @@
                   ],
                   "properties": {
                     "code": {
-                      "maxLength": 64,
-                      "type": "string"
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "enum": [
+                            "request_invalid"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "unauthorized"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "login_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "return_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "logout_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "device_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "rate_limited"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "operation_failed"
+                          ]
+                        }
+                      ]
                     }
                   }
                 }
@@ -1429,8 +3712,56 @@
                   ],
                   "properties": {
                     "code": {
-                      "maxLength": 64,
-                      "type": "string"
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "enum": [
+                            "request_invalid"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "unauthorized"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "login_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "return_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "logout_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "device_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "rate_limited"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "operation_failed"
+                          ]
+                        }
+                      ]
                     }
                   }
                 }
@@ -1449,8 +3780,56 @@
                   ],
                   "properties": {
                     "code": {
-                      "maxLength": 64,
-                      "type": "string"
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "enum": [
+                            "request_invalid"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "unauthorized"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "login_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "return_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "logout_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "device_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "rate_limited"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "operation_failed"
+                          ]
+                        }
+                      ]
                     }
                   }
                 }
@@ -1469,8 +3848,56 @@
                   ],
                   "properties": {
                     "code": {
-                      "maxLength": 64,
-                      "type": "string"
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "enum": [
+                            "request_invalid"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "unauthorized"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "login_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "return_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "logout_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "device_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "rate_limited"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "operation_failed"
+                          ]
+                        }
+                      ]
                     }
                   }
                 }
@@ -1489,8 +3916,56 @@
                   ],
                   "properties": {
                     "code": {
-                      "maxLength": 64,
-                      "type": "string"
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "enum": [
+                            "request_invalid"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "unauthorized"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "login_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "return_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "logout_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "device_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "rate_limited"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "operation_failed"
+                          ]
+                        }
+                      ]
                     }
                   }
                 }
@@ -1538,8 +4013,56 @@
                   ],
                   "properties": {
                     "code": {
-                      "maxLength": 64,
-                      "type": "string"
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "enum": [
+                            "request_invalid"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "unauthorized"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "login_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "return_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "logout_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "device_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "rate_limited"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "operation_failed"
+                          ]
+                        }
+                      ]
                     }
                   }
                 }
@@ -1558,8 +4081,56 @@
                   ],
                   "properties": {
                     "code": {
-                      "maxLength": 64,
-                      "type": "string"
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "enum": [
+                            "request_invalid"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "unauthorized"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "login_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "return_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "logout_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "device_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "rate_limited"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "operation_failed"
+                          ]
+                        }
+                      ]
                     }
                   }
                 }
@@ -1578,8 +4149,56 @@
                   ],
                   "properties": {
                     "code": {
-                      "maxLength": 64,
-                      "type": "string"
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "enum": [
+                            "request_invalid"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "unauthorized"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "login_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "return_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "logout_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "device_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "rate_limited"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "operation_failed"
+                          ]
+                        }
+                      ]
                     }
                   }
                 }
@@ -1598,8 +4217,56 @@
                   ],
                   "properties": {
                     "code": {
-                      "maxLength": 64,
-                      "type": "string"
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "enum": [
+                            "request_invalid"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "unauthorized"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "login_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "return_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "logout_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "device_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "rate_limited"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "operation_failed"
+                          ]
+                        }
+                      ]
                     }
                   }
                 }
@@ -1618,8 +4285,56 @@
                   ],
                   "properties": {
                     "code": {
-                      "maxLength": 64,
-                      "type": "string"
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "enum": [
+                            "request_invalid"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "unauthorized"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "login_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "return_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "logout_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "device_refused"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "rate_limited"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "operation_failed"
+                          ]
+                        }
+                      ]
                     }
                   }
                 }

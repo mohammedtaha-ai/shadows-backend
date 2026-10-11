@@ -28,10 +28,10 @@ test('Keycloak_26_8 confidential_HTTPS backend_routes one_use_return restart log
   const returned=await request(providerCallback.pathname+providerCallback.search);assert.equal(returned.status,302);
   const nativeReturn=new URL(returned.headers.get('location')!);assert.equal(nativeReturn.origin,'http://127.0.0.1:49152');
   assert.equal(nativeReturn.searchParams.has('id_token'),false);const ticket=nativeReturn.searchParams.get('ticket');
-  const redeem=()=>request('/v1/auth/return',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({ticket,returnVerifier:verifier})});
+  const redeem=()=>request('/v1/auth/return',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({ticket,returnVerifier:verifier,enrollment:{mode:'new'}})});
   const response=await redeem();assert.equal(response.status,200);const grant=await response.json() as {handle:string;principal:{accountId:string;deviceId:string;sessionId:string}};
   assert.equal((await redeem()).status,400);assert.equal((await request(providerCallback.pathname+providerCallback.search)).status,400);
-  await app.stop();app=undefined;const restarted=await restartSession(config,grant.handle);assert.equal(restarted.status,200);assert.deepEqual(restarted.principal,grant.principal);
+  await app.stop();app=undefined;const restarted=await restartSession(config,grant.handle);assert.equal(restarted.providerProbe,'200');assert.equal(restarted.status,200);assert.deepEqual(restarted.principal,grant.principal);
   app=await compose(config,{tls:{key:tls.key,cert:tls.cert}});await app.start();
   const headers={'content-type':'application/json',authorization:`Bearer ${grant.handle}`};
   const logout=await request('/v1/auth/logout',{method:'POST',headers,body:'{}'});assert.equal(logout.status,200);

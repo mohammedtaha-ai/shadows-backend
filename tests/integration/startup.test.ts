@@ -27,3 +27,9 @@ test('graceful_shutdown_closes_pool', async () => {
     assert.equal(app.server.server.listening, false); assert.equal(app.pool.ended, true);
   } finally { await fixture.close(); }
 });
+
+test('health_refuses_after_database_disconnect',async()=>{
+ const f=await postgresFixture();const app=await compose(readConfig(configEnv(f.url)));
+ try{await app.start();await app.pool.end();const r=await app.server.inject('/health');assert.equal(r.statusCode,503);assert.deepEqual(r.json(),{status:'unavailable'});}
+ finally{await app.stop();await f.close();}
+});

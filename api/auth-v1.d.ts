@@ -50,7 +50,7 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
-                            code: string;
+                            code: "request_invalid" | "unauthorized" | "login_refused" | "return_refused" | "logout_refused" | "device_refused" | "rate_limited" | "operation_failed";
                         };
                     };
                 };
@@ -61,7 +61,7 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
-                            code: string;
+                            code: "request_invalid" | "unauthorized" | "login_refused" | "return_refused" | "logout_refused" | "device_refused" | "rate_limited" | "operation_failed";
                         };
                     };
                 };
@@ -72,7 +72,7 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
-                            code: string;
+                            code: "request_invalid" | "unauthorized" | "login_refused" | "return_refused" | "logout_refused" | "device_refused" | "rate_limited" | "operation_failed";
                         };
                     };
                 };
@@ -83,7 +83,7 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
-                            code: string;
+                            code: "request_invalid" | "unauthorized" | "login_refused" | "return_refused" | "logout_refused" | "device_refused" | "rate_limited" | "operation_failed";
                         };
                     };
                 };
@@ -94,7 +94,7 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
-                            code: string;
+                            code: "request_invalid" | "unauthorized" | "login_refused" | "return_refused" | "logout_refused" | "device_refused" | "rate_limited" | "operation_failed";
                         };
                     };
                 };
@@ -135,7 +135,7 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
-                            code: string;
+                            code: "request_invalid" | "unauthorized" | "login_refused" | "return_refused" | "logout_refused" | "device_refused" | "rate_limited" | "operation_failed";
                         };
                     };
                 };
@@ -146,7 +146,7 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
-                            code: string;
+                            code: "request_invalid" | "unauthorized" | "login_refused" | "return_refused" | "logout_refused" | "device_refused" | "rate_limited" | "operation_failed";
                         };
                     };
                 };
@@ -157,7 +157,7 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
-                            code: string;
+                            code: "request_invalid" | "unauthorized" | "login_refused" | "return_refused" | "logout_refused" | "device_refused" | "rate_limited" | "operation_failed";
                         };
                     };
                 };
@@ -168,7 +168,7 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
-                            code: string;
+                            code: "request_invalid" | "unauthorized" | "login_refused" | "return_refused" | "logout_refused" | "device_refused" | "rate_limited" | "operation_failed";
                         };
                     };
                 };
@@ -179,7 +179,7 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
-                            code: string;
+                            code: "request_invalid" | "unauthorized" | "login_refused" | "return_refused" | "logout_refused" | "device_refused" | "rate_limited" | "operation_failed";
                         };
                     };
                 };
@@ -214,6 +214,14 @@ export interface paths {
                     "application/json": {
                         ticket: string;
                         returnVerifier: string;
+                        enrollment: {
+                            /** @enum {string} */
+                            mode: "new";
+                        } | {
+                            /** @enum {string} */
+                            mode: "reuse";
+                            credential: string;
+                        };
                     };
                 };
             };
@@ -232,6 +240,7 @@ export interface paths {
                                 sessionId: string;
                             };
                             expiresAt: string;
+                            enrollmentCredential?: string;
                         };
                     };
                 };
@@ -242,7 +251,7 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
-                            code: string;
+                            code: "request_invalid" | "unauthorized" | "login_refused" | "return_refused" | "logout_refused" | "device_refused" | "rate_limited" | "operation_failed";
                         };
                     };
                 };
@@ -253,7 +262,7 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
-                            code: string;
+                            code: "request_invalid" | "unauthorized" | "login_refused" | "return_refused" | "logout_refused" | "device_refused" | "rate_limited" | "operation_failed";
                         };
                     };
                 };
@@ -264,7 +273,7 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
-                            code: string;
+                            code: "request_invalid" | "unauthorized" | "login_refused" | "return_refused" | "logout_refused" | "device_refused" | "rate_limited" | "operation_failed";
                         };
                     };
                 };
@@ -275,7 +284,7 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
-                            code: string;
+                            code: "request_invalid" | "unauthorized" | "login_refused" | "return_refused" | "logout_refused" | "device_refused" | "rate_limited" | "operation_failed";
                         };
                     };
                 };
@@ -286,7 +295,7 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
-                            code: string;
+                            code: "request_invalid" | "unauthorized" | "login_refused" | "return_refused" | "logout_refused" | "device_refused" | "rate_limited" | "operation_failed";
                         };
                     };
                 };
@@ -334,7 +343,7 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
-                            code: string;
+                            code: "request_invalid" | "unauthorized" | "login_refused" | "return_refused" | "logout_refused" | "device_refused" | "rate_limited" | "operation_failed";
                         };
                     };
                 };
@@ -345,7 +354,7 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
-                            code: string;
+                            code: "request_invalid" | "unauthorized" | "login_refused" | "return_refused" | "logout_refused" | "device_refused" | "rate_limited" | "operation_failed";
                         };
                     };
                 };
@@ -356,7 +365,7 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
-                            code: string;
+                            code: "request_invalid" | "unauthorized" | "login_refused" | "return_refused" | "logout_refused" | "device_refused" | "rate_limited" | "operation_failed";
                         };
                     };
                 };
@@ -367,7 +376,7 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
-                            code: string;
+                            code: "request_invalid" | "unauthorized" | "login_refused" | "return_refused" | "logout_refused" | "device_refused" | "rate_limited" | "operation_failed";
                         };
                     };
                 };
@@ -378,7 +387,7 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
-                            code: string;
+                            code: "request_invalid" | "unauthorized" | "login_refused" | "return_refused" | "logout_refused" | "device_refused" | "rate_limited" | "operation_failed";
                         };
                     };
                 };
@@ -435,7 +444,7 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
-                            code: string;
+                            code: "request_invalid" | "unauthorized" | "login_refused" | "return_refused" | "logout_refused" | "device_refused" | "rate_limited" | "operation_failed";
                         };
                     };
                 };
@@ -446,7 +455,7 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
-                            code: string;
+                            code: "request_invalid" | "unauthorized" | "login_refused" | "return_refused" | "logout_refused" | "device_refused" | "rate_limited" | "operation_failed";
                         };
                     };
                 };
@@ -457,7 +466,7 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
-                            code: string;
+                            code: "request_invalid" | "unauthorized" | "login_refused" | "return_refused" | "logout_refused" | "device_refused" | "rate_limited" | "operation_failed";
                         };
                     };
                 };
@@ -468,7 +477,7 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
-                            code: string;
+                            code: "request_invalid" | "unauthorized" | "login_refused" | "return_refused" | "logout_refused" | "device_refused" | "rate_limited" | "operation_failed";
                         };
                     };
                 };
@@ -479,7 +488,7 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
-                            code: string;
+                            code: "request_invalid" | "unauthorized" | "login_refused" | "return_refused" | "logout_refused" | "device_refused" | "rate_limited" | "operation_failed";
                         };
                     };
                 };
@@ -534,7 +543,7 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
-                            code: string;
+                            code: "request_invalid" | "unauthorized" | "login_refused" | "return_refused" | "logout_refused" | "device_refused" | "rate_limited" | "operation_failed";
                         };
                     };
                 };
@@ -545,7 +554,7 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
-                            code: string;
+                            code: "request_invalid" | "unauthorized" | "login_refused" | "return_refused" | "logout_refused" | "device_refused" | "rate_limited" | "operation_failed";
                         };
                     };
                 };
@@ -556,7 +565,7 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
-                            code: string;
+                            code: "request_invalid" | "unauthorized" | "login_refused" | "return_refused" | "logout_refused" | "device_refused" | "rate_limited" | "operation_failed";
                         };
                     };
                 };
@@ -567,7 +576,7 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
-                            code: string;
+                            code: "request_invalid" | "unauthorized" | "login_refused" | "return_refused" | "logout_refused" | "device_refused" | "rate_limited" | "operation_failed";
                         };
                     };
                 };
@@ -578,7 +587,7 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
-                            code: string;
+                            code: "request_invalid" | "unauthorized" | "login_refused" | "return_refused" | "logout_refused" | "device_refused" | "rate_limited" | "operation_failed";
                         };
                     };
                 };
@@ -625,7 +634,7 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
-                            code: string;
+                            code: "request_invalid" | "unauthorized" | "login_refused" | "return_refused" | "logout_refused" | "device_refused" | "rate_limited" | "operation_failed";
                         };
                     };
                 };
@@ -636,7 +645,7 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
-                            code: string;
+                            code: "request_invalid" | "unauthorized" | "login_refused" | "return_refused" | "logout_refused" | "device_refused" | "rate_limited" | "operation_failed";
                         };
                     };
                 };
@@ -647,7 +656,7 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
-                            code: string;
+                            code: "request_invalid" | "unauthorized" | "login_refused" | "return_refused" | "logout_refused" | "device_refused" | "rate_limited" | "operation_failed";
                         };
                     };
                 };
@@ -658,7 +667,7 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
-                            code: string;
+                            code: "request_invalid" | "unauthorized" | "login_refused" | "return_refused" | "logout_refused" | "device_refused" | "rate_limited" | "operation_failed";
                         };
                     };
                 };
@@ -669,7 +678,7 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
-                            code: string;
+                            code: "request_invalid" | "unauthorized" | "login_refused" | "return_refused" | "logout_refused" | "device_refused" | "rate_limited" | "operation_failed";
                         };
                     };
                 };
@@ -720,7 +729,7 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
-                            code: string;
+                            code: "request_invalid" | "unauthorized" | "login_refused" | "return_refused" | "logout_refused" | "device_refused" | "rate_limited" | "operation_failed";
                         };
                     };
                 };
@@ -731,7 +740,7 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
-                            code: string;
+                            code: "request_invalid" | "unauthorized" | "login_refused" | "return_refused" | "logout_refused" | "device_refused" | "rate_limited" | "operation_failed";
                         };
                     };
                 };
@@ -742,7 +751,7 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
-                            code: string;
+                            code: "request_invalid" | "unauthorized" | "login_refused" | "return_refused" | "logout_refused" | "device_refused" | "rate_limited" | "operation_failed";
                         };
                     };
                 };
@@ -753,7 +762,7 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
-                            code: string;
+                            code: "request_invalid" | "unauthorized" | "login_refused" | "return_refused" | "logout_refused" | "device_refused" | "rate_limited" | "operation_failed";
                         };
                     };
                 };
@@ -764,7 +773,7 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
-                            code: string;
+                            code: "request_invalid" | "unauthorized" | "login_refused" | "return_refused" | "logout_refused" | "device_refused" | "rate_limited" | "operation_failed";
                         };
                     };
                 };
@@ -818,7 +827,7 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
-                            code: string;
+                            code: "request_invalid" | "unauthorized" | "login_refused" | "return_refused" | "logout_refused" | "device_refused" | "rate_limited" | "operation_failed";
                         };
                     };
                 };
@@ -829,7 +838,7 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
-                            code: string;
+                            code: "request_invalid" | "unauthorized" | "login_refused" | "return_refused" | "logout_refused" | "device_refused" | "rate_limited" | "operation_failed";
                         };
                     };
                 };
@@ -840,7 +849,7 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
-                            code: string;
+                            code: "request_invalid" | "unauthorized" | "login_refused" | "return_refused" | "logout_refused" | "device_refused" | "rate_limited" | "operation_failed";
                         };
                     };
                 };
@@ -851,7 +860,7 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
-                            code: string;
+                            code: "request_invalid" | "unauthorized" | "login_refused" | "return_refused" | "logout_refused" | "device_refused" | "rate_limited" | "operation_failed";
                         };
                     };
                 };
@@ -862,7 +871,7 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
-                            code: string;
+                            code: "request_invalid" | "unauthorized" | "login_refused" | "return_refused" | "logout_refused" | "device_refused" | "rate_limited" | "operation_failed";
                         };
                     };
                 };
@@ -899,7 +908,7 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
-                            code: string;
+                            code: "request_invalid" | "unauthorized" | "login_refused" | "return_refused" | "logout_refused" | "device_refused" | "rate_limited" | "operation_failed";
                         };
                     };
                 };
@@ -910,7 +919,7 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
-                            code: string;
+                            code: "request_invalid" | "unauthorized" | "login_refused" | "return_refused" | "logout_refused" | "device_refused" | "rate_limited" | "operation_failed";
                         };
                     };
                 };
@@ -921,7 +930,7 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
-                            code: string;
+                            code: "request_invalid" | "unauthorized" | "login_refused" | "return_refused" | "logout_refused" | "device_refused" | "rate_limited" | "operation_failed";
                         };
                     };
                 };
@@ -932,7 +941,7 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
-                            code: string;
+                            code: "request_invalid" | "unauthorized" | "login_refused" | "return_refused" | "logout_refused" | "device_refused" | "rate_limited" | "operation_failed";
                         };
                     };
                 };
@@ -943,7 +952,7 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
-                            code: string;
+                            code: "request_invalid" | "unauthorized" | "login_refused" | "return_refused" | "logout_refused" | "device_refused" | "rate_limited" | "operation_failed";
                         };
                     };
                 };
@@ -991,7 +1000,7 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
-                            code: string;
+                            code: "request_invalid" | "unauthorized" | "login_refused" | "return_refused" | "logout_refused" | "device_refused" | "rate_limited" | "operation_failed";
                         };
                     };
                 };
@@ -1002,7 +1011,7 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
-                            code: string;
+                            code: "request_invalid" | "unauthorized" | "login_refused" | "return_refused" | "logout_refused" | "device_refused" | "rate_limited" | "operation_failed";
                         };
                     };
                 };
@@ -1013,7 +1022,7 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
-                            code: string;
+                            code: "request_invalid" | "unauthorized" | "login_refused" | "return_refused" | "logout_refused" | "device_refused" | "rate_limited" | "operation_failed";
                         };
                     };
                 };
@@ -1024,7 +1033,7 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
-                            code: string;
+                            code: "request_invalid" | "unauthorized" | "login_refused" | "return_refused" | "logout_refused" | "device_refused" | "rate_limited" | "operation_failed";
                         };
                     };
                 };
@@ -1035,7 +1044,7 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
-                            code: string;
+                            code: "request_invalid" | "unauthorized" | "login_refused" | "return_refused" | "logout_refused" | "device_refused" | "rate_limited" | "operation_failed";
                         };
                     };
                 };

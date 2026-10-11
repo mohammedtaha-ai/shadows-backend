@@ -585,3 +585,11 @@ The full-product roadmap and every later delivery slice remain intact.
 - Final validation: `npm test` PASS 32/32, 0 failures/skips (120.186 seconds);
   typecheck, auth schema/consumer, contracts/YAML, documentation, secret scan and
   whitespace checks passed. Lifecycle remains DEFERRED, observed exit 2.
+
+## Local-runtime continuation (2026-10-11)
+
+The [local identity/runtime plan](2026-10-11-local-identity-runtime.md) supersedes
+the original create-a-device-per-login return shape and the deferred bearer
+annotation minor above. Architecture owns the enrollment semantics; the
+[handoff](../../nylra-local-auth-handoff.md) owns exact local operational steps.
+Existing-checkout/no-commit/no-publication and retention gates remain unchanged.

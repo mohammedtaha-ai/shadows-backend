@@ -32,12 +32,12 @@ test('expired_attempt_refused foreign_return_uri_refused', async () => {
 test('wrong_return_challenge_refused parallel_ticket_one_session expired_ticket_refused', async () => {
  const f = await identityFixture(); try {
   const p = await f.pending(), r = await f.identity.finishLogin(p.callback);
-  await assert.rejects(f.identity.redeemReturn({ticket:r.ticket,returnVerifier:f.verifier()}),{message:'return_refused'});
-  const result = await Promise.allSettled([f.identity.redeemReturn({ticket:r.ticket,returnVerifier:p.returnVerifier}),f.identity.redeemReturn({ticket:r.ticket,returnVerifier:p.returnVerifier})]);
+  await assert.rejects(f.identity.redeemReturn({ticket:r.ticket,returnVerifier:f.verifier(),enrollment:{mode:'new'}}),{message:'return_refused'});
+  const result = await Promise.allSettled([f.identity.redeemReturn({ticket:r.ticket,returnVerifier:p.returnVerifier,enrollment:{mode:'new'}}),f.identity.redeemReturn({ticket:r.ticket,returnVerifier:p.returnVerifier,enrollment:{mode:'new'}})]);
   assert.equal(result.filter(x=>x.status==='fulfilled').length,1);
   assert.equal((await f.pool.query('SELECT count(*)::int AS n FROM identity_sessions')).rows[0].n,1);
   const next = await f.pending(), expired = await f.identity.finishLogin(next.callback); f.advance(60000);
-  await assert.rejects(f.identity.redeemReturn({ticket:expired.ticket,returnVerifier:next.returnVerifier}),{message:'return_refused'});
+  await assert.rejects(f.identity.redeemReturn({ticket:expired.ticket,returnVerifier:next.returnVerifier,enrollment:{mode:'new'}}),{message:'return_refused'});
  } finally { await f.close(); }
 });
 test('failed_session_transaction_does_not_consume_ticket', async () => {
@@ -45,11 +45,11 @@ test('failed_session_transaction_does_not_consume_ticket', async () => {
   const p = await f.pending(), r = await f.identity.finishLogin(p.callback);
   await f.pool.query("CREATE FUNCTION fail_session() RETURNS trigger LANGUAGE plpgsql AS $$ BEGIN RAISE EXCEPTION 'synthetic'; END $$");
   await f.pool.query('CREATE TRIGGER fail_session BEFORE INSERT ON identity_sessions FOR EACH ROW EXECUTE FUNCTION fail_session()');
-  await assert.rejects(f.identity.redeemReturn({ticket:r.ticket,returnVerifier:p.returnVerifier}),{message:'return_refused'});
+  await assert.rejects(f.identity.redeemReturn({ticket:r.ticket,returnVerifier:p.returnVerifier,enrollment:{mode:'new'}}),{message:'return_refused'});
   assert.equal((await f.pool.query('SELECT consumed_at FROM identity_return_tickets')).rows[0].consumed_at,null);
   assert.equal((await f.pool.query('SELECT count(*)::int AS n FROM devices')).rows[0].n,0);
   await f.pool.query('DROP TRIGGER fail_session ON identity_sessions');
-  assert.ok(await f.identity.redeemReturn({ticket:r.ticket,returnVerifier:p.returnVerifier}));
+  assert.ok(await f.identity.redeemReturn({ticket:r.ticket,returnVerifier:p.returnVerifier,enrollment:{mode:'new'}}));
  } finally { await f.close(); }
 });
 test('key_tamper_refused purpose_record_key_binding', async () => {

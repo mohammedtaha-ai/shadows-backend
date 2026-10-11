@@ -8,6 +8,9 @@ public_api:
   compose: Wires public identity/devices operations and HTTP; closes listeners and pools.
   installShutdown: Registers one-shot termination handlers.
 obligations:
+  - rule: Readiness fails safely when the database connection is unavailable.
+    tested_by: health_refuses_after_database_disconnect
+    note: tests/integration/startup.test.ts
   - rule: Invalid config is refused without echoing secret input.
     tested_by: missing_config_refuses_start
     note: tests/integration/startup.test.ts

@@ -2,12 +2,18 @@
 name: identity
 status: current
 source: src/modules/identity
-owns: Issuer/subject mapping, login and native ticket consumption, persisted session authority, provider logout and replay protection.
+owns: Issuer/subject mapping, login and native ticket consumption, explicit enrollment workflow through the devices port, persisted session authority, provider logout and replay protection.
 public_api:
   createIdentity: Composes identity operations with consumer-owned device registration/trust ports.
   createOidcClient: Uses openid-client confidential discovery/exchange/revocation and jose signed logout.
   hash: SHA-256 base64url digest for opaque handles, states and return challenges.
 obligations:
+  - rule: Local logout and device revocation remain available during provider outage and stay revoked after recovery.
+    tested_by: provider_outage_does_not_block_local_revocation_routes
+    note: tests/integration/provider-status.test.ts; locally valid bearer can only surrender authority through these operations.
+  - rule: Active sessions periodically renew encrypted provider tokens transactionally without extending backend absolute expiry; renewal failure refuses.
+    tested_by: active_session_renews_provider_tokens_atomically_without_extending_absolute_expiry
+    note: tests/integration/provider-renewal.test.ts; actual refresh grant is separately measured by the Compose journey.
   - rule: Verified issuer/subject maps the account; a different subject never merges by email.
     tested_by: valid_login_maps_issuer_subject same_email_does_not_merge
     note: tests/integration/login-return.test.ts; no email is consumed or persisted.
@@ -41,6 +47,12 @@ obligations:
   - rule: Confidential Keycloak login, typed OIDC refusals, session restart and provider logout execute through backend routes over HTTPS.
     tested_by: Keycloak_26_8 confidential_HTTPS backend_routes one_use_return restart logout typed_refusals
     note: tests/journeys/keycloak-login.test.ts; Linux HTTP form driver, not Windows native UI.
+  - rule: Inactive provider state or provider failure refuses sessions and pending return without consuming a ticket.
+    tested_by: provider_inactive_or_unavailable_refuses_existing_session_and_pending_return
+    note: tests/integration/provider-status.test.ts; port fault injection, actual disable measurement belongs to local runtime evidence.
+  - rule: Enrollment reauthentication issues fresh sessions without duplicate devices; invalid, foreign or revoked proofs refuse.
+    tested_by: enrollment_reauthentication_restart_proof_and_revocation
+    note: tests/integration/enrollment.test.ts
 not_the_caller's:
   - Construct an authenticated principal from request fields or provider tokens.
   - Assume provider logout succeeded merely because local sessions were revoked.
@@ -50,4 +62,4 @@ gaps:
   - at: TokenVault
     gap: Supports one current runtime key/id; multi-key encrypted-token recovery needs production acceptance.
 open_questions:
-  - Actual provider-triggered back-channel notification, production key rotation and native secure storage need integration acceptance.
+  - Production provider-triggered back-channel delivery, key rotation and native secure storage need their own acceptance; actual local Compose delivery is separately recorded.

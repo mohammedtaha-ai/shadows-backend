@@ -6,6 +6,12 @@ import { identityFixture } from './fixtures/identity.js';
 import { compose } from '../../src/app/compose.js';
 import { hash } from '../../src/modules/identity/index.js';
 import { output, Principal } from '../../src/transports/http/auth-schema.js';
+import { authSchema } from '../../scripts/export-auth-schema.js';
+test('auth_schema_bearer_annotations_and_fixture_validation',async()=>{
+ const schema=JSON.parse(await authSchema());assert.equal(schema.info.version,'1.1.0');
+ assert.deepEqual(schema.components.securitySchemes.backendBearer,{type:'http',scheme:'bearer'});
+ for(const [path,method] of [['/v1/auth/session','get'],['/v1/auth/logout','post'],['/v1/auth/logout-all','post'],['/v1/devices','get'],['/v1/devices/{deviceId}','delete']])assert.deepEqual(schema.paths[path!][method!].security,[{backendBearer:[]}]);
+});
 test('auth_wire rejects_extra_fields_bounds validates_output native_consumer', async () => {
  const f=await identityFixture();const app=await compose(f.config,{oidc:f.oidc,clock:()=>f.now});
  try {
@@ -20,7 +26,10 @@ test('auth_wire rejects_extra_fields_bounds validates_output native_consumer', a
   const returned=await app.server.inject(`/v1/auth/callback?state=${state}&code=synthetic-code`);assert.equal(returned.statusCode,302);
   assert.equal(returned.headers['cache-control'],'no-store');assert.equal(returned.headers['referrer-policy'],'no-referrer');
   const ticket=new URL(returned.headers.location!).searchParams.get('ticket');
-  const grant=await app.server.inject({method:'POST',url:'/v1/auth/return',payload:{ticket,returnVerifier:verifier}}); assert.equal(grant.statusCode,200);
+  for(const enrollment of [undefined,{mode:'reuse'},{mode:'new',deviceId:'untrusted'},{mode:'reuse',credential:'short'}]) {
+   const denied=await app.server.inject({method:'POST',url:'/v1/auth/return',payload:{ticket,returnVerifier:verifier,...(enrollment?{enrollment}:{})}});assert.equal(denied.statusCode,400);
+  }
+  const grant=await app.server.inject({method:'POST',url:'/v1/auth/return',payload:{ticket,returnVerifier:verifier,enrollment:{mode:'new'}}}); assert.equal(grant.statusCode,200);
   const {handle,principal}=grant.json();
   const read=await client.GET('/v1/auth/session',{headers:{authorization:`Bearer ${handle}`}});assert.deepEqual(read.data,principal);
   const wrong=await app.server.inject({url:'/v1/auth/session',headers:{authorization:'Bearer malformed'}});assert.equal(wrong.statusCode,401);

@@ -14,7 +14,7 @@ async function docker(args:string[],timeout=30000) {
  catch{throw new Error('keycloak_fixture_docker');}
 }
 export async function keycloakFixture(callback:string,logoutCallback:string) {
- const tls=await tlsFixture(),port=await freePort(),issuer=`https://127.0.0.1:${port}/realms/b1-acceptance`;
+ const tls=await tlsFixture(),port=await freePort(),managementPort=await freePort(),httpPort=await freePort(),issuer=`https://127.0.0.1:${port}/realms/b1-acceptance`;
  const root=resolve('.test-runtime');await mkdir(root,{recursive:true});const directory=await mkdtemp(resolve(root,'kc-'));
  const name='b1-'+randomUUID(),owner=randomUUID(),password=randomBytes(32).toString('hex'),clientSecret=randomBytes(32).toString('hex');let created=false;
  async function close(){if(created){const owned=(await docker(['inspect','--format',`{{ index .Config.Labels "${label}" }}`,name])).stdout.trim();if(owned!==owner) throw new Error('fixture_ownership');await docker(['rm','--force',name]);}await rm(directory,{recursive:true,force:true});await tls.close();}
@@ -26,13 +26,32 @@ export async function keycloakFixture(callback:string,logoutCallback:string) {
     redirectUris:[callback],attributes:{'pkce.code.challenge.method':'S256','post.logout.redirect.uris':logoutCallback,'id.token.signed.response.alg':'RS256'}}],
    users:[{username:'b1-user',enabled:true,emailVerified:true,email:'b1@example.invalid',firstName:'Synthetic',lastName:'Acceptance',requiredActions:[],credentials:[{type:'password',value:password,temporary:false}]}]}));
   await docker(['image','inspect',image],10000);
+  const network=process.env.B1_FIXTURE_NETWORK_CONTAINER;
+  if(network) {
+   if(!/^[a-zA-Z0-9_-]+$/.test(network))throw new Error('fixture_network_invalid');
+   await docker(['create','--name',name,'--label',`${label}=${owner}`,'--memory','1g','--cpus','2','--network',`container:${network}`,
+    image,'start-dev','--cache=local','--import-realm','--http-enabled=false',`--http-port=${httpPort}`,`--https-port=${port}`,`--http-management-port=${managementPort}`,
+    '--https-certificate-file=/fixture-tls/cert.pem','--https-certificate-key-file=/fixture-tls/key.pem',`--hostname=https://127.0.0.1:${port}`]);created=true;
+   await docker(['cp',resolve(directory,'import'),`${name}:/opt/keycloak/data/import`]);
+   await docker(['cp',tls.directory,`${name}:/fixture-tls`]);
+   await docker(['start',name]);
+  }else{
   await docker(['run','-d','--name',name,'--label',`${label}=${owner}`,'--memory','1g','--cpus','2','-p',`127.0.0.1:${port}:8443`,
    '--mount',`type=bind,source=${resolve(directory,'import')},target=/opt/keycloak/data/import,readonly`,
    '--mount',`type=bind,source=${tls.directory},target=/fixture-tls,readonly`,image,'start-dev','--import-realm','--http-enabled=false',
    '--https-certificate-file=/fixture-tls/cert.pem','--https-certificate-key-file=/fixture-tls/key.pem',`--hostname=https://127.0.0.1:${port}`]);created=true;
-  const deadline=Date.now()+90000;let ready=false;
-  while(Date.now()<deadline){try{if((await fetch(issuer+'/.well-known/openid-configuration',{signal:AbortSignal.timeout(1500)})).ok){ready=true;break;}}catch{}await new Promise(r=>setTimeout(r,500));}
-  if(!ready) throw new Error('keycloak_fixture_readiness');
+  }
+  const deadline=Date.now()+90000;let ready=false,checks=0;
+  while(Date.now()<deadline){try{if((await fetch(issuer+'/.well-known/openid-configuration',{signal:AbortSignal.timeout(1500)})).ok){ready=true;break;}}catch{}
+   if(++checks%10===0 && (await docker(['inspect','--format','{{.State.Status}}',name])).stdout.trim()==='exited')break;
+   await new Promise(r=>setTimeout(r,500));}
+  if(!ready) {
+   const logs=(await docker(['logs',name])).stdout;
+   const state=(await docker(['inspect','--format','{{.State.Status}}',name])).stdout.trim();
+   const conflictPorts=[...logs.matchAll(/(?:port(?:\(s\))?|address)[^\n]{0,80}?\b(\d{2,5})\b/gi)].map(m=>Number(m[1]));
+   console.error(JSON.stringify({code:'keycloak_fixture_readiness',state,conflictPorts,portConflict:/Address already in use/.test(logs),permissionFailure:/Permission denied/.test(logs),startupFailure:/Failed to start server/.test(logs)}));
+   throw new Error('keycloak_fixture_readiness');
+  }
   const cookies=new Map<string,string>();
   async function request(url:URL|string,options:RequestInit={}) {
    const u=new URL(url);if(u.origin!==new URL(issuer).origin && u.origin!==new URL(callback).origin) throw new Error('fixture_foreign_redirect');

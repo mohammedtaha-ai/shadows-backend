@@ -1,8 +1,8 @@
 import type { FastifyInstance } from 'fastify';
-import type { IdentityService, NativeLoginRequest } from '../../modules/identity/index.js';
+import type { IdentityService, NativeLoginRequest,ReturnRequest } from '../../modules/identity/index.js';
 import type { DeviceService } from '../../modules/devices/index.js';
 import type { AppConfig } from '../../app/config.js';
-import { authenticate } from './authenticate.js';
+import { authenticate,authenticateRevocation } from './authenticate.js';
 import * as S from './auth-schema.js';
 export function registerAuth(server:FastifyInstance,identity:IdentityService,devices:DeviceService,config:AppConfig) {
   server.addContentTypeParser('application/x-www-form-urlencoded',{parseAs:'string',bodyLimit:8192},(request,body,done)=>{
@@ -38,15 +38,16 @@ export function registerAuth(server:FastifyInstance,identity:IdentityService,dev
     return reply.redirect(uri.href);
   });
   server.post('/v1/auth/return',{schema:{body:S.ReturnRequest,response:{200:S.SessionGrant,...errors}}},async request=>{
-    const input=request.body as {ticket:string;returnVerifier:string};limit('return:'+input.ticket);
+    const input=request.body as ReturnRequest;limit('return:'+input.ticket);
     return S.output(S.SessionGrant,await identity.redeemReturn(input));
   });
-  server.get('/v1/auth/session',{schema:{response:{200:S.Principal,...errors}}},async request=>S.output(S.Principal,await authenticate(request,identity)));
-  server.post('/v1/auth/logout',{schema:{body:S.Empty,response:{200:S.LogoutResult,...errors}}},async request=>S.output(S.LogoutResult,await identity.logout(await authenticate(request,identity))));
-  server.post('/v1/auth/logout-all',{schema:{body:S.Empty,response:{200:S.LogoutResult,...errors}}},async request=>S.output(S.LogoutResult,await identity.logoutAll(await authenticate(request,identity))));
-  server.get('/v1/devices',{schema:{response:{200:S.DeviceList,...errors}}},async request=>S.output(S.DeviceList,await devices.list(await authenticate(request,identity))));
-  server.delete('/v1/devices/:deviceId',{schema:{params:S.DeviceParams,response:{200:S.Empty,...errors}}},async request=>{
-    await devices.revoke(await authenticate(request,identity),(request.params as {deviceId:string}).deviceId);return S.output(S.Empty,{});
+  const security=[{backendBearer:[]}];
+  server.get('/v1/auth/session',{schema:{security,response:{200:S.Principal,...errors}}},async request=>S.output(S.Principal,await authenticate(request,identity)));
+  server.post('/v1/auth/logout',{schema:{security,body:S.Empty,response:{200:S.LogoutResult,...errors}}},async request=>S.output(S.LogoutResult,await identity.logout(await authenticateRevocation(request,identity))));
+  server.post('/v1/auth/logout-all',{schema:{security,body:S.Empty,response:{200:S.LogoutResult,...errors}}},async request=>S.output(S.LogoutResult,await identity.logoutAll(await authenticateRevocation(request,identity))));
+  server.get('/v1/devices',{schema:{security,response:{200:S.DeviceList,...errors}}},async request=>S.output(S.DeviceList,await devices.list(await authenticate(request,identity))));
+  server.delete('/v1/devices/:deviceId',{schema:{security,params:S.DeviceParams,response:{200:S.Empty,...errors}}},async request=>{
+    await devices.revoke(await authenticateRevocation(request,identity),(request.params as {deviceId:string}).deviceId);return S.output(S.Empty,{});
   });
   server.post('/v1/auth/backchannel-logout',{schema:{consumes:['application/x-www-form-urlencoded','application/json'],body:S.Backchannel,response:{200:S.Empty,...errors}}},async request=>{
     await identity.backchannelLogout((request.body as {logout_token:string}).logout_token);return S.output(S.Empty,{});

@@ -2,8 +2,10 @@
 
 Cloud coordination and NYLRA application alongside the future Rust Shadows server.
 
-**Status (2026-10-11):** B1 identity/device backend implementation and synthetic
-Linux acceptance are recorded in the [B1 evidence](docs/evidence/2026-10-11-b1-linux-acceptance.md).
+**Status (2026-10-11):** B1 identity/device backend, stable installation enrollment
+and actual local Docker/Keycloak acceptance are recorded in the
+[local evidence](docs/evidence/2026-10-11-local-docker-nylra-readiness.md).
+The [earlier Linux evidence](docs/evidence/2026-10-11-b1-linux-acceptance.md) remains historical.
 No deployment, real-data retention approval or B2+ implementation is claimed.
 
 ## Start here
@@ -39,29 +41,33 @@ its public protocol; clients never access PostgreSQL directly.
 These sibling links assume the repositories are checked out beside each
 other as `shadows`, `shadows-backend`, and `nylra`.
 
-## Linux development and acceptance
+## Local Docker development and NYLRA handoff
 
-Use Node 24.19.0 / npm 11.9.0 and the root lockfile. Run `npm ci`,
-`npm run typecheck`, `npm test`, `npm run schema:check`,
-`npm run check:contracts`, `npm run check:docs` and `npm run check:secrets`.
-The root suite runs synthetic B1 acceptance only; it never calls MiniMax or the
-historical B0 suite. Test PostgreSQL clusters are uniquely owned/non-root and
-loopback-only. Keycloak requires the managed local Docker socket and the pinned
-26.8.0 image digest recorded in the evidence. Tests generate and trust their own
-one-day loopback TLS certificates; TLS verification stays enabled.
+Use the [local auth handoff](docs/nylra-local-auth-handoff.md) for the exact
+Docker build/bootstrap/start/migrate/test commands, native sequences and
+certificate trust step. Backend base is `https://127.0.0.1:8443`; issuer is
+`https://127.0.0.1:8443/realms/shadows-local`. No host Node or PostgreSQL is needed.
+All public URLs are reachable through the same ingress inside containers and on
+Windows. Certificate trust for the current Windows user is a deliberate developer
+action; it is never installed automatically or machine-wide.
 
-Runtime configuration requires `B1_DATA_MODE=synthetic`, `DATABASE_URL`,
-`OIDC_ISSUER`, `OIDC_CLIENT_ID`, `OIDC_CLIENT_SECRET`, `OIDC_CALLBACK_URL`,
-`OIDC_LOGOUT_CALLBACK_URL`, `TOKEN_ENCRYPTION_KEY` (32-byte canonical base64),
-`TOKEN_ENCRYPTION_KEY_ID` and `PORT`. Do not place secrets in the repository.
-`npm run db:migrate` invokes the sole SQL history runner; `npm start` launches the
-loopback application. These commands require an explicitly provisioned runtime;
-acceptance tests construct their own resources instead. This is development
-execution, not an approved production build/deployment procedure.
+[Compose](compose.yaml) pins Node 24.19.0, PostgreSQL 18.4, Nginx 1.30.0 and
+Keycloak 26.8.0 images by digest; the image installs the reviewed root lockfile.
+Application and identity databases have separate credentials and persistent
+volumes. Migrate explicitly before starting backend. Stop with `docker compose
+stop` or `docker compose down` without volume deletion. Tests use a separate Linux
+test-runtime volume and owned disposable fixtures, not development data.
 
-`npm run test:lifecycle` deliberately exits 2 with the B1.5 retention gate.
-Identity deletion/purge, tombstone/backup restore, real identities and content
-remain disabled pending reviewed retention policy and their later acceptance.
-Windows browser/return/secure-storage belongs to NYLRA and later joint integration;
-it does not block the Linux backend work authorized here. Authentication grants
-no project authority; linking and rich J1/TS/Dart remain B2 work.
+Auth-v1 **1.1.0** requires explicit new enrollment or proof of an existing
+installation at return redemption. Sessions and enrollment credentials are
+different secrets; logout preserves enrollment, device revocation invalidates it.
+The [OpenAPI](api/auth-v1.openapi.json), [generated TS](api/auth-v1.d.ts) and
+[synthetic fixtures](api/auth-v1.fixtures.json) are backend-owned. Keycloak
+refresh-token introspection checks provider state for each protected operation;
+inactive or unavailable provider state refuses authorization. This adds provider
+availability/latency to authorization and does not assume disable emits logout.
+
+`B1_DATA_MODE=synthetic` remains mandatory. No MiniMax calls or real identities,
+project content, B2+ work or deployment are authorized. `test:lifecycle` still
+exits 2 for unapproved B1.5 retention/deletion/restore. Local Docker/Linux evidence,
+Windows browser acceptance and actual NYLRA acceptance remain separate gates.

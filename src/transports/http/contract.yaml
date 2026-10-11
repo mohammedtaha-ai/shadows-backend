@@ -6,8 +6,12 @@ owns: Canonical auth-v1 TypeBox schema, strict request/output validation, bearer
 public_api:
   registerAuth: Registers login/return/session/device and provider/logout callback routes.
   authenticate: Translates a bearer through persisted identity authorization.
+  authenticateRevocation: Uses local account/session/device verification only for operations that surrender authority.
   output: Explicitly checks outgoing values before Fastify serialization.
 obligations:
+  - rule: Auth 1.1 fixtures validate against canonical schemas and every protected operation declares bearer security.
+    tested_by: auth_schema_bearer_annotations_and_fixture_validation
+    note: tests/integration/auth-wire.test.ts
   - rule: Extra fields and bounds fail; generated protocol consumers use a live listener; invalid output refuses.
     tested_by: auth_wire rejects_extra_fields_bounds validates_output native_consumer
     note: tests/integration/auth-wire.test.ts

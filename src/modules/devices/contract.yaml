@@ -2,11 +2,20 @@
 name: devices
 status: current
 source: src/modules/devices
-owns: Server-generated registration, account-scoped device listing and transactional revocation.
+owns: Server-generated installation enrollment, hashed enrollment credential proof, account-scoped device listing and transactional revocation.
 public_api:
   createDevices: Supplies device registration/trust and public list/revoke operations.
   bindIdentity: Binds declared identity transaction operations exactly once.
 obligations:
+  - rule: Enrollment credential reuse is account scoped and refuses revoked rows; explicit new enrollment creates a different device.
+    tested_by: enrollment_reauthentication_restart_proof_and_revocation
+    note: tests/integration/enrollment.test.ts
+  - rule: Concurrent ticket redemption and failed session insertion do not duplicate enrollment or consume rolled-back tickets.
+    tested_by: enrollment_parallel_reauthentication_and_transaction_rollback
+    note: tests/integration/enrollment.test.ts
+  - rule: Enrollment proof persists across a fresh process and independent concurrent reauthentication returns one device with distinct sessions.
+    tested_by: enrollment_fresh_process_and_parallel_independent_reauthentication
+    note: tests/integration/enrollment.test.ts
   - rule: Foreign account cannot revoke a device; other devices remain authorized.
     tested_by: revoked_device_denies_all_its_sessions other_device_survives foreign_account_revoke_refused
     note: tests/integration/device-revocation.test.ts

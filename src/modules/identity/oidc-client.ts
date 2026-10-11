@@ -21,7 +21,7 @@ export function createOidcClient(settings:IdentitySettings):OidcPort {
    .then(c=>{
     const metadata=c.serverMetadata();
     if(metadata.issuer !== settings.issuer) throw new Error('oidc_unavailable');
-    for(const key of ['authorization_endpoint','token_endpoint','jwks_uri','revocation_endpoint','end_session_endpoint'] as const) {
+    for(const key of ['authorization_endpoint','token_endpoint','jwks_uri','revocation_endpoint','end_session_endpoint','introspection_endpoint'] as const) {
      const url=new URL(metadata[key]!); if(url.protocol !== 'https:' || url.origin !== new URL(settings.issuer).origin || url.username || url.password || url.hash) throw new Error('oidc_unavailable');
     }
     jwks=createRemoteJWKSet(new URL(metadata.jwks_uri!),{timeoutDuration:15000,cooldownDuration:0});
@@ -50,6 +50,18 @@ export function createOidcClient(settings:IdentitySettings):OidcPort {
     const c=await config(); await oidc.tokenRevocation(c,tokens.refreshToken,{token_type_hint:'refresh_token'});
     return {logoutUrl:oidc.buildEndSessionUrl(c,{id_token_hint:tokens.idToken,post_logout_redirect_uri:settings.logoutCallbackUrl,state:callback.state}).href};
    } catch {throw new Error('logout_refused');}
+  },
+  async isSessionActive(tokens) {
+   try {const c=await config();const result=await oidc.tokenIntrospection(c,tokens.refreshToken,{token_type_hint:'refresh_token'});return result.active===true;}
+   catch{throw new Error('provider_unavailable');}
+  },
+  async refreshSession(tokens,identity) {
+   try {
+    const refreshed=await oidc.refreshTokenGrant(await config(),tokens.refreshToken);
+    const claims=refreshed.claims();
+    if(claims && (claims.iss!==identity.issuer || claims.sub!==identity.subject || claims.sid!==identity.providerSessionId))throw 0;
+    return {refreshToken:refreshed.refresh_token ?? tokens.refreshToken,idToken:refreshed.id_token ?? tokens.idToken};
+   }catch{throw new Error('provider_unavailable');}
   },
   async verifyLogout(jwt) {
    try {

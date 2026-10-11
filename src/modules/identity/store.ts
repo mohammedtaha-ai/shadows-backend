@@ -30,6 +30,9 @@ export class IdentityStore {
  async sessionByHash(handleHash: string) { return this.db.selectFrom('identity_sessions').selectAll().where('handle_hash','=',handleHash).executeTakeFirst(); }
  async session(tx: Transaction<Database>, id: string, accountId: string) { return tx.selectFrom('identity_sessions').selectAll().where('id','=',id).where('account_id','=',accountId).forUpdate().executeTakeFirst(); }
  async touch(tx: Transaction<Database>, id: string, now: Date) { await tx.updateTable('identity_sessions').set({last_active_at:now}).where('id','=',id).execute(); }
+ async saveProviderTokens(tx:Transaction<Database>,id:string,sealed:{ciphertext:string;keyId:string},now:Date) {
+  await tx.updateTable('identity_sessions').set({tokens_ciphertext:sealed.ciphertext,tokens_key_id:sealed.keyId,provider_refreshed_at:now}).where('id','=',id).execute();
+ }
  async revoke(tx: Transaction<Database>, accountId: string, now: Date, selector?: {sessionId?:string; deviceId?:string}) {
   let q=tx.updateTable('identity_sessions').set({revoked_at:now}).where('account_id','=',accountId).where('revoked_at','is',null);
   if(selector?.sessionId) q=q.where('id','=',selector.sessionId);

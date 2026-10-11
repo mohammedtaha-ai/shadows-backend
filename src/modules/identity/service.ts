@@ -1,7 +1,7 @@
 import { createHash, randomBytes, randomUUID } from 'node:crypto';
 import type { Kysely, Transaction } from 'kysely';
 import type { Database } from '../../platform/database/schema.js';
-import type { IdentitySettings } from './model.js';
+import type { IdentitySettings,ReturnRequest } from './model.js';
 import type { DeviceRegistrationPort } from './device-registration-port.js';
 import type { DeviceTrustPort } from './device-trust-port.js';
 import type { OidcPort } from './oidc-port.js';
@@ -60,36 +60,60 @@ export class IdentityService {
    return {returnUri:attempt.return_uri,ticket};
   } catch { throw new Error('login_refused'); }
  }
- async redeemReturn(input:{ticket:string;returnVerifier:string}):Promise<SessionGrant> {
+ async redeemReturn(input:ReturnRequest):Promise<SessionGrant> {
   try {
-   if(!/^[A-Za-z0-9_-]{43}$/.test(input.ticket) || !/^[A-Za-z0-9._~-]{43,128}$/.test(input.returnVerifier)) throw 0;
+   if(!/^[A-Za-z0-9_-]{43}$/.test(input.ticket) || !/^[A-Za-z0-9._~-]{43,128}$/.test(input.returnVerifier) ||
+    !input.enrollment || !['new','reuse'].includes(input.enrollment.mode)) throw 0;
    const hint=await this.store.peekTicket(hash(input.ticket)); if(!hint) throw 0;
    return await this.db.transaction().execute(async tx=>{
     const now=this.clock(), account=await this.store.lockAccount(tx,hint.account_id); if(account?.status !== 'active') throw 0;
     const returned=await this.store.consumeTicket(tx,hash(input.ticket),hash(input.returnVerifier),now); if(!returned || await this.store.sidLoggedOut(tx,this.config.issuer,returned.provider_sid)) throw 0;
     const tokens=decodeTokens(await this.vault.open({ciphertext:returned.tokens_ciphertext,keyId:returned.tokens_key_id},'return:'+returned.id));
-    const deviceId=await this.registration.create(tx,returned.account_id), sessionId=randomUUID(), handle=opaque();
+    if(!await this.oidc.isSessionActive(tokens)) throw 0;
+    const enrolled=input.enrollment.mode==='new'?await this.registration.enroll(tx,returned.account_id):undefined;
+    const deviceId=enrolled?enrolled.deviceId:await this.registration.reuse(tx,returned.account_id,(input.enrollment as {mode:'reuse';credential:string}).credential), sessionId=randomUUID(), handle=opaque();
     const sealed=await this.vault.seal(JSON.stringify(tokens),'session:'+sessionId), expiresAt=add(now,30*24*3600000);
     await this.store.insertSession(tx,{id:sessionId,handle_hash:hash(handle),account_id:returned.account_id,device_id:deviceId,provider_sid:returned.provider_sid,
-     tokens_ciphertext:sealed.ciphertext,tokens_key_id:sealed.keyId,issued_at:now,last_active_at:now,absolute_expires_at:expiresAt,revoked_at:null});
+     tokens_ciphertext:sealed.ciphertext,tokens_key_id:sealed.keyId,issued_at:now,last_active_at:now,provider_refreshed_at:now,absolute_expires_at:expiresAt,revoked_at:null});
     await this.store.audit(tx,returned.account_id,deviceId,'session-issued',now);
-    return {handle,principal:{accountId:returned.account_id,deviceId,sessionId},expiresAt:expiresAt.toISOString()};
+    return {handle,principal:{accountId:returned.account_id,deviceId,sessionId},expiresAt:expiresAt.toISOString(),...(enrolled?{enrollmentCredential:enrolled.credential}:{})};
    });
   } catch { throw new Error('return_refused'); }
  }
  async authorizeTransaction(tx:Transaction<Database>,principal:Principal):Promise<void> {
+  await this.checkPrincipal(tx,principal,true);
+ }
+ async authorizeRevocation(tx:Transaction<Database>,principal:Principal):Promise<void> {
+  await this.checkPrincipal(tx,principal,false);
+ }
+ private async checkPrincipal(tx:Transaction<Database>,principal:Principal,provider:boolean):Promise<void> {
   const account=await this.store.lockAccount(tx,principal.accountId), now=this.clock();
   const session=await this.store.session(tx,principal.sessionId,principal.accountId);
   if(account?.status !== 'active' || !session || session.device_id !== principal.deviceId || session.revoked_at ||
    session.absolute_expires_at.getTime()<=now.getTime() || session.last_active_at.getTime()+24*3600000<=now.getTime() ||
    !await this.trust.isActive(tx,principal.accountId,principal.deviceId)) throw new Error('unauthorized');
+  if(provider) {
+   const tokens=decodeTokens(await this.vault.open({ciphertext:session.tokens_ciphertext,keyId:session.tokens_key_id},'session:'+session.id));
+   if(!await this.oidc.isSessionActive(tokens)) throw new Error('unauthorized');
+   if(session.provider_refreshed_at.getTime()+60000<=now.getTime()) {
+    const refreshed=await this.oidc.refreshSession(tokens,{issuer:account.issuer,subject:account.subject,providerSessionId:session.provider_sid});
+    const sealed=await this.vault.seal(JSON.stringify(refreshed),'session:'+session.id);
+    await this.store.saveProviderTokens(tx,session.id,sealed,now);
+   }
+  }
  }
  async authenticate(handle:string):Promise<Principal|null> {
+  return this.authenticateSession(handle,true);
+ }
+ async authenticateForRevocation(handle:string):Promise<Principal|null> {
+  return this.authenticateSession(handle,false);
+ }
+ private async authenticateSession(handle:string,provider:boolean):Promise<Principal|null> {
   try {
    if(!/^[A-Za-z0-9_-]{43}$/.test(handle)) return null;
    const session=await this.store.sessionByHash(hash(handle)); if(!session) return null;
    const principal={accountId:session.account_id,deviceId:session.device_id,sessionId:session.id};
-   return await this.db.transaction().execute(async tx=>{ await this.authorizeTransaction(tx,principal); await this.store.touch(tx,session.id,this.clock()); return principal; });
+   return await this.db.transaction().execute(async tx=>{ await this.checkPrincipal(tx,principal,provider); await this.store.touch(tx,session.id,this.clock()); return principal; });
   } catch { return null; }
  }
  async revokeDeviceSessions(tx:Transaction<Database>,accountId:string,deviceId:string):Promise<void> { await this.store.revoke(tx,accountId,this.clock(),{deviceId}); }
@@ -99,7 +123,7 @@ export class IdentityService {
  private async revokeAndPrepareLogout(principal:Principal,all:boolean):Promise<LogoutResult> {
   try {
    await this.db.transaction().execute(async tx=>{
-    await this.authorizeTransaction(tx,principal);
+    await this.authorizeRevocation(tx,principal);
     await this.store.revoke(tx,principal.accountId,this.clock(),all?undefined:{sessionId:principal.sessionId});
     await this.store.audit(tx,principal.accountId,principal.deviceId,all?'logout-all':'logout',this.clock());
    });

@@ -208,8 +208,42 @@ system browser to the standard provider end-session endpoint; completion remains
 pending until provider revocation and the bound logout callback finish. The
 provider hint stays in the standards-based browser redirect, never the native
 webview/IPC or conversation channel.
-Provider-side disabled accounts and session logout require verified back-channel
-notification; signing a JWT or deleting a provider token is not local revocation.
+Provider account disable is distinct from logout; do not assume disabling emits
+a back-channel event. The local continuation requires confidential refresh-token
+introspection before return redemption and each authorized operation, without a
+positive cache. Inactive or unavailable provider state refuses authorization.
+Revocation-only operations verify persisted local authority and remain available
+without the provider. Active sessions renew encrypted provider tokens at most
+once per minute, preserving issuer/subject/sid binding and backend absolute expiry.
+Back-channel delivery independently persists session revocation. Re-enabling a
+provider account is not local enrollment/session revival: persisted revocations
+still refuse; sessions denied only by provider inactivity can become usable again
+unless explicitly revoked. An operator needing permanent session revocation must
+also request provider logout or backend revocation.
+
+### Local runtime and enrollment continuation (2026-10-11)
+
+The user authorizes choosing and implementing enrollment semantics and a local
+Windows Docker runtime using the existing checkout. [Architecture section 5](../../architecture.md#5-accounts-instances-and-project-selection)
+owns the account/installation/session distinction and explicit new/reuse proof.
+Return redemption now requires `enrollment: {mode:'new'} | {mode:'reuse';credential:string}`;
+new enrollment alone returns `enrollmentCredential` in SessionGrant. This is auth-v1
+revision 1.1.0, replacing the unintegrated 1.0 shape. Protected operations declare
+OpenAPI HTTP bearer security; safe examples and refusals are backend-owned.
+
+[Local plan](../plans/2026-10-11-local-identity-runtime.md) owns execution steps.
+[NYLRA handoff](../../nylra-local-auth-handoff.md) records exact HTTPS addresses,
+current-user certificate trust prerequisites and native sequences. The Compose
+runtime uses separate persistent application/Keycloak PostgreSQL databases and
+credentials, explicit node-pg-migrate commands, and a separately scoped Linux
+test-runtime volume. Keycloak is the only owner of its storage. No host Node,
+host PostgreSQL, wildcard callbacks, hardware fingerprint or trust bypass exists.
+
+Actual Compose acceptance must prove provider-originated back-channel delivery
+and separately measure account disable. A Linux form driver remains distinct
+from Windows browser/native and actual NYLRA acceptance. B1.5 remains deferred;
+no retention defaults, real identity/content, B2+, deployment, commit or push is
+authorized by this continuation.
 
 **Gate matrix amendment (2026-10-11):** the user authorized backend implementation
 and Linux acceptance using the existing checkout/branch. Windows NYLRA N0/N2

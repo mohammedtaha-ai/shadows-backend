@@ -1,0 +1,121 @@
+name: shadows-backend-local
+services:
+  ingress:
+    image: nginx:1.30.0-alpine@sha256:0272e4604ed93c1792f03695a033a6e8546840f86e0de20a884bb17d2c924883
+    ports: ["127.0.0.1:8443:8443"]
+    volumes:
+      - ./docker/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./.local-runtime/tls:/tls:ro
+    healthcheck:
+      test: [CMD-SHELL, "wget -q --spider http://127.0.0.1:8088/ready"]
+      interval: 3s
+      timeout: 2s
+      retries: 30
+  app-db:
+    image: postgres:18.4-bookworm@sha256:882236b897e39051d2368c5ccc6cda944904723506b2dfc97f2a8f5bc9afa382
+    environment:
+      POSTGRES_DB: shadows
+      POSTGRES_USER: shadows
+      POSTGRES_PASSWORD_FILE: /run/secrets/app-db-password
+    secrets: [app-db-password]
+    volumes: ["app-data:/var/lib/postgresql"]
+    healthcheck:
+      test: [CMD-SHELL, "pg_isready -U shadows -d shadows"]
+      interval: 3s
+      timeout: 2s
+      retries: 30
+  identity-db:
+    image: postgres:18.4-bookworm@sha256:882236b897e39051d2368c5ccc6cda944904723506b2dfc97f2a8f5bc9afa382
+    environment:
+      POSTGRES_DB: keycloak
+      POSTGRES_USER: keycloak
+      POSTGRES_PASSWORD_FILE: /run/secrets/identity-db-password
+    secrets: [identity-db-password]
+    volumes: ["identity-data:/var/lib/postgresql"]
+    healthcheck:
+      test: [CMD-SHELL, "pg_isready -U keycloak -d keycloak"]
+      interval: 3s
+      timeout: 2s
+      retries: 30
+  keycloak:
+    image: quay.io/keycloak/keycloak@sha256:27b3230fbabb8c9ff3c66c864cf09dcd8a41aca82e5100679d109ef0eeb05741
+    network_mode: service:ingress
+    depends_on:
+      ingress: {condition: service_healthy}
+      identity-db: {condition: service_healthy}
+    entrypoint: ["/bin/bash", "/local/keycloak-start.sh"]
+    environment:
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://identity-db:5432/keycloak
+      KC_DB_USERNAME: keycloak
+      KC_HOSTNAME: https://127.0.0.1:8443
+      KC_HTTP_ENABLED: "true"
+      KC_HTTP_HOST: 127.0.0.1
+      KC_HTTP_PORT: "8080"
+      KC_PROXY_HEADERS: xforwarded
+      KC_HEALTH_ENABLED: "true"
+      KC_BOOTSTRAP_ADMIN_USERNAME: local-admin
+      KC_TRUSTSTORE_PATHS: /tls/ca.pem
+    secrets: [identity-db-password, admin-password]
+    volumes:
+      - ./docker/keycloak-start.sh:/local/keycloak-start.sh:ro
+      - ./docker/keycloak-health.sh:/local/keycloak-health.sh:ro
+      - ./.local-runtime/realm:/opt/keycloak/data/import:ro
+      - ./.local-runtime/tls/ca.pem:/tls/ca.pem:ro
+    healthcheck:
+      test: [CMD, /bin/bash, /local/keycloak-health.sh]
+      interval: 5s
+      timeout: 3s
+      retries: 40
+  migrate:
+    image: shadows-backend-local:dev
+    build: .
+    depends_on:
+      app-db: {condition: service_healthy}
+    environment: {LOCAL_RUNTIME: /local}
+    volumes: ["./.local-runtime:/local:ro"]
+    command: [node, --import, tsx, docker/runtime.ts, migrate]
+    profiles: [tools]
+  backend:
+    image: shadows-backend-local:dev
+    build: .
+    network_mode: service:ingress
+    depends_on:
+      app-db: {condition: service_healthy}
+      keycloak: {condition: service_healthy}
+    environment:
+      LOCAL_RUNTIME: /local
+      NODE_EXTRA_CA_CERTS: /local/tls/ca.pem
+    volumes: ["./.local-runtime:/local:ro"]
+    command: [node, --import, tsx, docker/runtime.ts, start]
+    healthcheck:
+      test: [CMD, node, -e, "fetch('http://127.0.0.1:3000/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 3s
+      timeout: 3s
+      retries: 30
+  tools:
+    image: shadows-backend-local:dev
+    build: .
+    user: "1000:0"
+    network_mode: service:ingress
+    environment:
+      LOCAL_RUNTIME: /local
+      NODE_EXTRA_CA_CERTS: /local/tls/ca.pem
+      B1_FIXTURE_NETWORK_CONTAINER: shadows-backend-local-ingress-1
+    volumes:
+      - ./:/workspace
+      - dependencies:/workspace/node_modules
+      - test-runtime:/workspace/.test-runtime
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./.local-runtime:/local:ro
+    profiles: [tools]
+    command: [npm, test]
+secrets:
+  app-db-password: {file: ./.local-runtime/secrets/app-db-password}
+  identity-db-password: {file: ./.local-runtime/secrets/identity-db-password}
+  admin-password: {file: ./.local-runtime/secrets/admin-password}
+volumes:
+  app-data:
+  identity-data:
+  dependencies:
+  test-runtime:

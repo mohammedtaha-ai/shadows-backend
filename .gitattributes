@@ -1,0 +1,3 @@
+docker/*.sh text eol=lf
+api/auth-v1.openapi.json text eol=lf
+api/auth-v1.d.ts text eol=lf

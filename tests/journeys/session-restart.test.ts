@@ -4,10 +4,10 @@ import { identityFixture } from '../integration/fixtures/identity.js';
 import { restartSession,restartPending } from '../integration/fixtures/restart.js';
 test('session_survives_fresh_backend_process revocation_survives_fresh_process',async()=>{
  const f=await identityFixture();try {
-  const grant=await f.login();const restarted=await restartSession(f.config,grant.handle);
+  const grant=await f.login();const restarted=await restartSession(f.config,grant.handle,false,true);
   assert.equal(restarted.status,200);assert.deepEqual(restarted.principal,grant.principal);
-  assert.equal((await restartSession(f.config,grant.handle,true)).status,200);
-  assert.equal((await restartSession(f.config,grant.handle)).status,401);
+  assert.equal((await restartSession(f.config,grant.handle,true,true)).status,200);
+  assert.equal((await restartSession(f.config,grant.handle,false,true)).status,401);
   assert.equal(await f.identity.authenticate(grant.handle),null);
  }finally{await f.close();}
 });

@@ -8,6 +8,9 @@ public_api:
   withTransaction: Delegates transaction lifetime to the calling workflow.
   runMigrations: Executes ordered SQL up/down migrations; maps errors to migration_failed.
 obligations:
+  - rule: Enrollment upgrade preserves legacy sessions without silently minting reusable proof.
+    tested_by: enrollment_upgrade_preserves_legacy_session_without_minting_proof
+    note: tests/integration/migrations.test.ts
   - rule: Empty, previous, repeated and rollback/reapply histories preserve ownership constraints.
     tested_by: empty_schema_up previous_schema_upgrade repeat_up_no_change down_up_reapply
     note: tests/integration/migrations.test.ts; body also checks foreign-account device FK refusal.
