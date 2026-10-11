@@ -27,7 +27,9 @@ jobs:
           node-version: '24.19.0'
           cache: npm
       - name: Install locked dependencies
-        run: npm ci --no-audit --no-fund
+        run: |
+          npm ci --no-audit --no-fund
+          mkdir -p .test-runtime
       - name: Pull pinned synthetic identity fixture
         run: docker pull quay.io/keycloak/keycloak@sha256:27b3230fbabb8c9ff3c66c864cf09dcd8a41aca82e5100679d109ef0eeb05741
       - name: Typecheck
