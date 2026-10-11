@@ -1,0 +1,53 @@
+# Identity owns verified account binding, encrypted login/session state and revocation.
+name: identity
+status: current
+source: src/modules/identity
+owns: Issuer/subject mapping, login and native ticket consumption, persisted session authority, provider logout and replay protection.
+public_api:
+  createIdentity: Composes identity operations with consumer-owned device registration/trust ports.
+  createOidcClient: Uses openid-client confidential discovery/exchange/revocation and jose signed logout.
+  hash: SHA-256 base64url digest for opaque handles, states and return challenges.
+obligations:
+  - rule: Verified issuer/subject maps the account; a different subject never merges by email.
+    tested_by: valid_login_maps_issuer_subject same_email_does_not_merge
+    note: tests/integration/login-return.test.ts; no email is consumed or persisted.
+  - rule: Callback state is claimed once before exchange.
+    tested_by: wrong_state_before_exchange parallel_callback_one_claim reused_code_refused
+    note: tests/integration/login-return.test.ts
+  - rule: Return challenge and expiry guard one transactional session creation.
+    tested_by: wrong_return_challenge_refused parallel_ticket_one_session expired_ticket_refused
+    note: tests/integration/login-return.test.ts
+  - rule: Session/device creation failure rolls back ticket consumption.
+    tested_by: failed_session_transaction_does_not_consume_ticket
+    note: tests/integration/login-return.test.ts
+  - rule: Encryption binds purpose, record and runtime key id; tampering refuses.
+    tested_by: key_tamper_refused purpose_record_key_binding
+    note: tests/integration/login-return.test.ts
+  - rule: Persisted checks refuse idle/absolute expiry and database unavailability.
+    tested_by: expired_idle_refused expired_absolute_refused
+    note: tests/integration/session-lifecycle.test.ts; database_unavailable_refuses_auth also exercises pool failure.
+  - rule: Provider outage cannot restore locally revoked authority; retry is explicit and at most three within ticket expiry.
+    tested_by: provider_logout_retry_explicit_bounded_without_local_reauthorization
+    note: tests/integration/session-lifecycle.test.ts
+  - rule: Logout completion requires one bound callback after provider revocation.
+    tested_by: logout_ticket_replay_refused forged_logout_callback_refused browser_logout_pending_until_callback
+    note: tests/integration/session-lifecycle.test.ts
+  - rule: Signed logout validates RS256 issuer/audience/event/sid/iat/jti, excludes nonce and accepts key rotation.
+    tested_by: signed_logout wrong_issuer_audience_event_nonce_refused signing_key_rotation_verified
+    note: tests/integration/oidc-client.test.ts; TLS synthetic JWKS, not provider-triggered delivery.
+  - rule: Back-channel logout blocks redemption of pending tickets for that provider session.
+    tested_by: backchannel_logout_blocks_pending_return_session_resurrection
+    note: tests/integration/authorization-races.test.ts
+  - rule: Confidential Keycloak login, typed OIDC refusals, session restart and provider logout execute through backend routes over HTTPS.
+    tested_by: Keycloak_26_8 confidential_HTTPS backend_routes one_use_return restart logout typed_refusals
+    note: tests/journeys/keycloak-login.test.ts; Linux HTTP form driver, not Windows native UI.
+not_the_caller's:
+  - Construct an authenticated principal from request fields or provider tokens.
+  - Assume provider logout succeeded merely because local sessions were revoked.
+gaps:
+  - at: IdentityService
+    gap: Account deletion, purge deadlines and restore quarantine are deferred to retention-dependent B1.5. Real identities are disabled by application configuration.
+  - at: TokenVault
+    gap: Supports one current runtime key/id; multi-key encrypted-token recovery needs production acceptance.
+open_questions:
+  - Actual provider-triggered back-channel notification, production key rotation and native secure storage need integration acceptance.

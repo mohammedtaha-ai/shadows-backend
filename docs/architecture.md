@@ -2,8 +2,10 @@
 
 Date: 2026-10-10.
 Status: Agreed product and architecture direction recorded from the discussion.
-Detailed interfaces and the OPEN prerequisites below still need written review
-before implementation. No capability in this document is claimed implemented.
+The OPEN prerequisites below remain explicit. The 2026-10-11 continuation
+implements B1 identity/device operations for synthetic Linux acceptance, as
+recorded in [B1 evidence](evidence/2026-10-11-b1-linux-acceptance.md).
+This does not close retention, native client, joint integration or deployment gates.
 
 This file owns the shared architecture. The [NYLRA vision](../../nylra/Vision.md)
 owns the companion's experience and future product capabilities. Shadows' own
@@ -60,7 +62,11 @@ The cloud follow-up passed Keycloak 26.8.0 server cases with synthetic accounts;
 self-hosted Keycloak with openid-client 6.8.8 is the conditional recommendation.
 Windows native acceptance and production operations remain OPEN. Section 5 now
 contains lifecycle proposals for review, and the initial plan defines conditional
-B1 tasks. These additions do not approve policy, authorize B1, or close an OPEN.
+B1 tasks. Those B0 additions did not authorize B1. The later 2026-10-11 user instruction
+authorizes backend implementation/Linux acceptance on the current branch and
+moves Windows acceptance to NYLRA/later joint integration. It does not approve
+retention-dependent B1.5, B2+, real identities or deployment. Runtime startup
+requires synthetic data mode until retention-dependent acceptance closes.
 Axum, SQLx, Rig, and PGMQ from
 earlier alternatives are not adopted cloud dependencies by this agreement.
 Semantic search may use PostgreSQL extensions if justified by retrieval needs;

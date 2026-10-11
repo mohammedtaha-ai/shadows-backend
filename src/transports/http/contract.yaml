@@ -1,0 +1,22 @@
+# HTTP owns authentication wire schemas and translation, never domain authority.
+name: authentication-http
+status: current
+source: src/transports/http
+owns: Canonical auth-v1 TypeBox schema, strict request/output validation, bearer translation and safe refusals.
+public_api:
+  registerAuth: Registers login/return/session/device and provider/logout callback routes.
+  authenticate: Translates a bearer through persisted identity authorization.
+  output: Explicitly checks outgoing values before Fastify serialization.
+obligations:
+  - rule: Extra fields and bounds fail; generated protocol consumers use a live listener; invalid output refuses.
+    tested_by: auth_wire rejects_extra_fields_bounds validates_output native_consumer
+    note: tests/integration/auth-wire.test.ts
+  - rule: Login rate limits are enforced and callback errors do not echo sensitive fixture input; logger is silent.
+    tested_by: auth_wire rate_limits_without_sensitive_diagnostics
+    note: tests/integration/auth-wire.test.ts
+  - rule: Standard OIDC form posts reach logout verification; duplicate fields refuse.
+    tested_by: backchannel_standard_form_transport_and_duplicate_field_refusal
+    note: tests/integration/auth-wire.test.ts; signed-token form/replay assertions also run in tests/integration/oidc-client.test.ts.
+open_questions:
+  - Native Windows browser/loopback/secure-store and later Flutter conformance remain client integration work.
+  - Temporary in-process rate buckets do not establish distributed production abuse controls.

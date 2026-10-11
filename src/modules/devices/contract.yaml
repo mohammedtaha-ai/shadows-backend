@@ -1,0 +1,20 @@
+# Devices owns trusted device rows; identity remains the session/audit owner.
+name: devices
+status: current
+source: src/modules/devices
+owns: Server-generated registration, account-scoped device listing and transactional revocation.
+public_api:
+  createDevices: Supplies device registration/trust and public list/revoke operations.
+  bindIdentity: Binds declared identity transaction operations exactly once.
+obligations:
+  - rule: Foreign account cannot revoke a device; other devices remain authorized.
+    tested_by: revoked_device_denies_all_its_sessions other_device_survives foreign_account_revoke_refused
+    note: tests/integration/device-revocation.test.ts
+  - rule: Device, session and audit revocation roll back together.
+    tested_by: device_revoke_rolls_back_atomically
+    note: tests/integration/device-revocation.test.ts
+  - rule: Device revocation persists across fresh backend processes.
+    tested_by: session_survives_fresh_backend_process revocation_survives_fresh_process
+    note: tests/journeys/session-restart.test.ts
+not_the_caller's:
+  - Query identity stores or reimplement their session revocation rules.

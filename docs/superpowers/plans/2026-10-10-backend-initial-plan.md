@@ -4,7 +4,11 @@
 Keycloak server cases now pass with disposable synthetic accounts. Reuse passed
 MiniMax tool/reasoning continuity and later-round client abort. Native acceptance,
 production identity operations and approval of architecture policy remain open.
-This plan is reviewable preparation only: **B1 and later slices are UNSTARTED**.
+**2026-10-11 execution amendment:** the user authorized B1 backend implementation
+and Linux acceptance in this existing checkout/current branch. Windows acceptance
+belongs to NYLRA/later integration, not this implementation gate. B1.5 remains
+retention-dependent and deferred; B2+ stays unstarted. No MiniMax, sibling edits,
+deployment, commit or push. [Execution evidence](../../evidence/2026-10-11-b1-linux-acceptance.md).
 
 > **For agentic workers:** Use superpowers:executing-plans for inline execution,
 > or superpowers:subagent-driven-development when delegation is explicitly selected.
@@ -18,8 +22,7 @@ MiniMax-M3 has scoped real-provider evidence; Keycloak/openid-client is the
 conditional identity recommendation pending native/confidential-flow review.
 **Spec:** [Backend delivery](../specs/2026-10-10-backend-delivery-design.md).
 **Status:** B0 partially verified across retained local and cloud observations.
-Windows native acceptance and production identity gates remain open. B1 and every
-later task are UNSTARTED. [Evidence](../../evidence/2026-10-10-backend-capability-probes.md).
+Windows native acceptance and production identity gates remain open. Retention-dependent B1.5 is deferred; every B2+ task remains UNSTARTED. B1.1–B1.4 implementation is recorded in the execution evidence. [Evidence](../../evidence/2026-10-10-backend-capability-probes.md).
 
 ## Global constraints
 
@@ -106,14 +109,18 @@ placeholder), with optional local loading only when missing. No additional
 provider calls are required. No AWS or alternative credential source is authorized.
 Prepare conditional B1 interfaces and steps below without creating product files.
 
-### B1: Authenticated application and data lifecycle — UNSTARTED
+### B1: Authenticated application and data lifecycle — Linux continuation
 
-All paths below are **intended**, not existing files. Proposed interfaces are
+B1.1–B1.4 paths now have an implementation; the evidence/code map owns the actual
+inventory. B1.5 and later paths remain intended and uncreated. Proposed interfaces are
 owned by [delivery spec B1](../specs/2026-10-10-backend-delivery-design.md#b1-scope-and-selected-interfaces--conditional-design-unstarted).
 All policy values are owned by [architecture section 5](../../architecture.md#5-accounts-instances-and-project-selection);
 this plan refers to them without creating a second policy copy.
 
-**Entry gate B1.0 (no implementation):**
+**Entry gate B1.0 — historical checklist with execution amendment:**
+The explicit user continuation supersedes the Windows-before-implementation gate.
+Backend/Linux work proceeds; native integration, retention and production operations
+remain separate prerequisites. This does not silently check those boxes.
 
 - [ ] User reviews component pins, self-hosted Keycloak operations and the proposed
   confidential-backend/native-ticket boundary. If ZITADEL is chosen instead,
@@ -529,8 +536,9 @@ remain in Vision. Each gets a first-consumer design; no generic framework is res
 
 B0 must write exact reproducible commands for the selected package manager/test
 runner, schema generation, migration and PostgreSQL fixture setup. These commands
-now exist for the non-product probes above. The conditional product scripts and adapter-specific gates above remain
-UNSTARTED and require prerequisite review before B1. Each subsequent task starts with a failing behavioral test,
+exist for the non-product probes above. B1.1–B1.4 root scripts now ran under
+the authorized Linux continuation; B1.5 and later slices retain their separate
+policy/integration prerequisites. Each subsequent task starts with a failing behavioral test,
 implements the smallest complete path, runs focused and required gates, updates
 contracts and ends with one scoped commit. Documentation checks do not require
 running the unrelated Shadows full suite. Runtime changes follow their own gates.
@@ -538,3 +546,42 @@ running the unrelated Shadows full suite. Runtime changes follow their own gates
 If a probe fails: record the failure, evaluate the named alternative against the
 same cases, amend the owner decision and both affected plans, then restart dependent
 work. Never preserve a rejected dependency just because its scaffold already exists.
+
+## 2026-10-11 execution ledger
+
+Baseline: `51f4ebd283f1d8a4ecc3e4d4c98b939fc6460230`, branch `work`, clean checkout.
+The user's existing-checkout/no-commit/no-push instructions take precedence over
+worktree creation, commits and later-slice publication steps in this plan.
+
+- B1.1: configuration and shutdown tests observed red against stubs, then passed.
+- B1.2: schema/lock tests observed red against stubs, then passed against PG 18.4.
+- B1.3: login/ticket/vault tests observed red, then passed; confidential Keycloak
+  HTTPS flow and typed state/PKCE/nonce/replay refusals passed.
+- B1.4: session/device/logout tests observed red, then passed. Fresh-process
+  session/revocation/pending-login journeys added; exact final commands/results
+  belong to the evidence report. Back-channel pending-ticket resurrection test
+  observed red, then passed after persisted logout checking.
+- B1.5: deferred by the user's unapproved-retention restriction. The lifecycle
+  command exits 2; no deletion/purge/restore acceptance is claimed.
+- Ruling: operate inline in the existing `work` checkout without commits, worktree
+  changes or publication, per user authorization. Cost if wrong: uncommitted work
+  needs later review/integration; no remote repository state changed.
+- Ruling: identity owns an `IdentitySettings` consumer shape rather than importing
+  app configuration, preserving dependency direction. Cost if wrong: later adapter
+  evolution may require an explicit settings amendment.
+- Ruling: pass bound logout state/redirect to the OIDC port and permit at most
+  three explicit attempts within the ticket lifetime after failed provider work;
+  a successful redirect remains one-use. Cost if wrong: provider-specific logout
+  recovery still needs joint/production acceptance; local revocation stays final.
+- Final review fix: standard back-channel form input originally refused before
+  verification. Reproduced with a failing wire test, added bounded parser and
+  duplicate-field refusal plus signed-token wire coverage.
+
+The full-product roadmap and every later delivery slice remain intact.
+- Final minor (deferred): generated OpenAPI omits bearer security-scheme/route
+  annotations. Callers currently set Authorization explicitly; wire enforcement
+  and typed consumer are tested. Add those annotations in a later protocol change.
+
+- Final validation: `npm test` PASS 32/32, 0 failures/skips (120.186 seconds);
+  typecheck, auth schema/consumer, contracts/YAML, documentation, secret scan and
+  whitespace checks passed. Lifecycle remains DEFERRED, observed exit 2.

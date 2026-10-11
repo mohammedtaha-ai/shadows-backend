@@ -1,6 +1,8 @@
 # Backend source organization
 
-Date: 2026-10-10. Status: prepared design for review; no source is scaffolded.
+Date: 2026-10-10; implementation amendment: 2026-10-11.
+Status: full-product placement design; implemented B1 owners are listed in the
+[actual code map](codebase/README.md). Unused capability folders remain uncreated.
 This file owns source placement and dependency boundaries for this repository.
 [Architecture](architecture.md) owns product rules and deployment decisions.
 The paths below are intended destinations when a runnable feature needs them,

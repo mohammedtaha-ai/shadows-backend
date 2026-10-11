@@ -1,0 +1,21 @@
+# Composition owns wiring, configuration refusal and process lifecycle.
+name: backend-application
+status: current
+source: src/app
+owns: Synthetic-only runtime configuration, loopback listeners, one application composition and shutdown.
+public_api:
+  readConfig: Rejects absent/invalid config without values; requires B1_DATA_MODE synthetic.
+  compose: Wires public identity/devices operations and HTTP; closes listeners and pools.
+  installShutdown: Registers one-shot termination handlers.
+obligations:
+  - rule: Invalid config is refused without echoing secret input.
+    tested_by: missing_config_refuses_start
+    note: tests/integration/startup.test.ts
+  - rule: Real identity data remains disabled pending retention review.
+    tested_by: real_identity_data_disabled_until_retention_review
+    note: tests/integration/startup.test.ts
+  - rule: Shutdown closes pool and listener, including before Kysely initialization.
+    tested_by: graceful_shutdown_closes_pool
+    note: tests/integration/startup.test.ts
+open_questions:
+  - Production reverse proxy, TLS and signal draining under sustained traffic need deployment acceptance.

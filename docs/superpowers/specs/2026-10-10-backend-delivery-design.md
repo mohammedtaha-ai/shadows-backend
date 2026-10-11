@@ -1,9 +1,11 @@
 # Backend delivery design
 
 Date: 2026-10-10; evidence amendment: 2026-10-11, Asia/Aden.
-Status: B0 partially verified; **B1 UNSTARTED**. This request authorizes B0
-probes, policy proposals and the conditional B1 plan only. No product source,
-external accounts, deployment or changes to NYLRA/Shadows are authorized.
+Status: B0 partially verified; B1.1–B1.4 backend implementation and Linux
+acceptance authorized by the 2026-10-11 continuation. Use the [B1 evidence](../../evidence/2026-10-11-b1-linux-acceptance.md)
+for actual results. B1.5 remains deferred until retention approval. Windows
+acceptance belongs to NYLRA/later joint integration and does not block this work.
+No MiniMax calls, B2+, sibling edits, deployment, commit or push are authorized.
 
 The [closure follow-up](../../evidence/2026-10-11-b0-closure-followup.md)
 separates retained Windows observations from cloud Keycloak 26.8.0 results.
@@ -115,7 +117,7 @@ report's cases, not a reduction of the full product direction.
   confidential-backend registration, native acceptance, key rotation/restore and
   user policy approval remain explicit gates.
 
-### B1 scope and selected interfaces — conditional design, UNSTARTED
+### B1 scope and selected interfaces — 2026-10-11 Linux continuation
 
 B1 delivers only process composition, account mapping, login return exchange,
 backend session/device operations, identity deletion and minimal identity audit.
@@ -153,7 +155,8 @@ interface OidcPort {
   exchange(callback: URL, binding: { state: string; nonce: string; verifier: string }): Promise<{
     identity: VerifiedIdentity; providerTokens: { refreshToken: string; idToken: string };
   }>;
-  revokeAndLogout(tokens: { refreshToken: string; idToken: string }): Promise<{ logoutUrl: string }>;
+  revokeAndLogout(tokens: { refreshToken: string; idToken: string },
+    callback: { state: string; redirectUri: string }): Promise<{ logoutUrl: string }>;
   verifyLogout(jwt: string): Promise<{ issuer: string; sid: string; jti: string; issuedAt: number }>;
 }
 interface IdentityService {
@@ -208,9 +211,11 @@ webview/IPC or conversation channel.
 Provider-side disabled accounts and session logout require verified back-channel
 notification; signing a JWT or deleting a provider token is not local revocation.
 
-**Gate matrix:** B1 execution requires user acceptance of component/identity flow
-recommendations, Windows NYLRA N0/N2 system-browser/secure-store/return evidence,
-and review of architecture section 5 defaults. Production release additionally
+**Gate matrix amendment (2026-10-11):** the user authorized backend implementation
+and Linux acceptance using the existing checkout/branch. Windows NYLRA N0/N2
+system-browser/secure-store/return acceptance is a later joint integration gate,
+not a Linux implementation prerequisite. Retention-dependent work remains deferred;
+only synthetic identity data may run in the current application. Production release additionally
 requires dedicated identity PostgreSQL, TLS, key rotation, restore, provider terms
 and deletion tests. Missing siblings/native access is an external prerequisite,
 not permission to implement their side here. J1 rich TS/Dart and Shadows §1.7/§24.6

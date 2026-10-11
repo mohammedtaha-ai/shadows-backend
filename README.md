@@ -2,9 +2,9 @@
 
 Cloud coordination and NYLRA application alongside the future Rust Shadows server.
 
-**Status:** Architecture agreements and partial B0 capability evidence recorded on
-2026-10-10. Non-product isolated probes are retained for review. No application,
-product database, cloud deployment, or real integration has been implemented here.
+**Status (2026-10-11):** B1 identity/device backend implementation and synthetic
+Linux acceptance are recorded in the [B1 evidence](docs/evidence/2026-10-11-b1-linux-acceptance.md).
+No deployment, real-data retention approval or B2+ implementation is claimed.
 
 ## Start here
 
@@ -14,6 +14,7 @@ product database, cloud deployment, or real integration has been implemented her
 | [Delivery spec](docs/superpowers/specs/2026-10-10-backend-delivery-design.md) | Library experiments, joint protocol gate and backend acceptance |
 | [Initial plan](docs/superpowers/plans/2026-10-10-backend-initial-plan.md) | Experiment-first tasks coordinated with NYLRA and Shadows |
 | [B0 evidence](docs/evidence/2026-10-10-backend-capability-probes.md) | Executed probes, conditional component decisions and blocked acceptance |
+| [Implemented code map](docs/codebase/README.md) | Actual source owners and contracts |
 | [Source structure](docs/source-structure.md) | Prepared folder layout and dependency boundaries; not an implemented code map |
 | [Contract convention](docs/contracts/README.md) | Applying the source template with inspected evidence |
 | [NYLRA vision](../nylra/Vision.md) | The companion's product experience and full future capability inventory |
@@ -37,3 +38,30 @@ its public protocol; clients never access PostgreSQL directly.
 
 These sibling links assume the repositories are checked out beside each
 other as `shadows`, `shadows-backend`, and `nylra`.
+
+## Linux development and acceptance
+
+Use Node 24.19.0 / npm 11.9.0 and the root lockfile. Run `npm ci`,
+`npm run typecheck`, `npm test`, `npm run schema:check`,
+`npm run check:contracts`, `npm run check:docs` and `npm run check:secrets`.
+The root suite runs synthetic B1 acceptance only; it never calls MiniMax or the
+historical B0 suite. Test PostgreSQL clusters are uniquely owned/non-root and
+loopback-only. Keycloak requires the managed local Docker socket and the pinned
+26.8.0 image digest recorded in the evidence. Tests generate and trust their own
+one-day loopback TLS certificates; TLS verification stays enabled.
+
+Runtime configuration requires `B1_DATA_MODE=synthetic`, `DATABASE_URL`,
+`OIDC_ISSUER`, `OIDC_CLIENT_ID`, `OIDC_CLIENT_SECRET`, `OIDC_CALLBACK_URL`,
+`OIDC_LOGOUT_CALLBACK_URL`, `TOKEN_ENCRYPTION_KEY` (32-byte canonical base64),
+`TOKEN_ENCRYPTION_KEY_ID` and `PORT`. Do not place secrets in the repository.
+`npm run db:migrate` invokes the sole SQL history runner; `npm start` launches the
+loopback application. These commands require an explicitly provisioned runtime;
+acceptance tests construct their own resources instead. This is development
+execution, not an approved production build/deployment procedure.
+
+`npm run test:lifecycle` deliberately exits 2 with the B1.5 retention gate.
+Identity deletion/purge, tombstone/backup restore, real identities and content
+remain disabled pending reviewed retention policy and their later acceptance.
+Windows browser/return/secure-storage belongs to NYLRA and later joint integration;
+it does not block the Linux backend work authorized here. Authentication grants
+no project authority; linking and rich J1/TS/Dart remain B2 work.
