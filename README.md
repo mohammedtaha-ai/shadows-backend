@@ -46,6 +46,14 @@ other as `shadows`, `shadows-backend`, and `nylra`.
 
 ## Local Docker development and NYLRA handoff
 
+[Backend CI](.github/workflows/ci.yml) runs on pushes, pull requests and manual
+dispatch using Node 24.19.0 on Ubuntu 24.04. It installs the root lockfile and
+checks types, contracts, wire schemas, documentation and source secret boundaries,
+then runs the full synthetic PostgreSQL/Keycloak suite. Fixtures generate their
+own ephemeral credentials; no repository secrets, `.env`, MiniMax or deployment
+credentials are consumed. B1.5 `test:lifecycle` remains deferred and is not a CI
+acceptance claim. Windows/NYLRA and production acceptance remain separate.
+
 Use the [local auth handoff](docs/nylra-local-auth-handoff.md) for the exact
 Docker build/bootstrap/start/migrate/test commands, native sequences and
 certificate trust step. Backend base is `https://127.0.0.1:8443`; issuer is

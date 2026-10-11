@@ -1,0 +1,48 @@
+name: Backend CI
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: backend-ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  backend:
+    name: Backend checks
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
+        with:
+          node-version: '24.19.0'
+          cache: npm
+      - name: Install locked dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Pull pinned synthetic identity fixture
+        run: docker pull quay.io/keycloak/keycloak@sha256:27b3230fbabb8c9ff3c66c864cf09dcd8a41aca82e5100679d109ef0eeb05741
+      - name: Typecheck
+        run: npm run typecheck
+      - name: Validate contracts
+        run: npm run check:contracts
+      - name: Verify wire schema and fixtures
+        run: npm run schema:check
+      - name: Check documentation links and YAML
+        run: npm run check:docs
+      - name: Check source secret boundaries
+        run: npm run check:secrets
+      - name: Test synthetic PostgreSQL and Keycloak journeys
+        run: npm test
+      - name: Check whitespace and generated-file stability
+        run: |
+          git diff --check
+          git diff --exit-code
