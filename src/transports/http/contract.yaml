@@ -9,6 +9,9 @@ public_api:
   authenticateRevocation: Uses local account/session/device verification only for operations that surrender authority.
   output: Explicitly checks outgoing values before Fastify serialization.
 obligations:
+  - rule: Session verification maps provider outage to 503; recovered provider can validate the same session.
+    tested_by: provider_outage_is_retryable_503_without_revoking_session
+    note: tests/integration/provider-status.test.ts; invalid or revoked authorization still maps to 401.
   - rule: Auth 1.1 fixtures validate against canonical schemas and every protected operation declares bearer security.
     tested_by: auth_schema_bearer_annotations_and_fixture_validation
     note: tests/integration/auth-wire.test.ts

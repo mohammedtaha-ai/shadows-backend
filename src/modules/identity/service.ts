@@ -114,7 +114,10 @@ export class IdentityService {
    const session=await this.store.sessionByHash(hash(handle)); if(!session) return null;
    const principal={accountId:session.account_id,deviceId:session.device_id,sessionId:session.id};
    return await this.db.transaction().execute(async tx=>{ await this.checkPrincipal(tx,principal,provider); await this.store.touch(tx,session.id,this.clock()); return principal; });
-  } catch { return null; }
+  } catch(error) {
+   if(error instanceof Error && error.message==='unauthorized') return null;
+   throw new Error('authorization_unavailable');
+  }
  }
  async revokeDeviceSessions(tx:Transaction<Database>,accountId:string,deviceId:string):Promise<void> { await this.store.revoke(tx,accountId,this.clock(),{deviceId}); }
  async recordDeviceRevocation(tx:Transaction<Database>,principal:Principal,deviceId:string):Promise<void> { await this.store.audit(tx,principal.accountId,deviceId,'device-revoked',this.clock()); }

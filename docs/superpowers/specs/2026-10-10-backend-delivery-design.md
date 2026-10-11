@@ -1,5 +1,11 @@
 # Backend delivery design
 
+Joint native amendment, 2026-10-11: NYLRA consumes auth-v1 1.1.0 in Rust with
+protected enrollment/session storage; [joint evidence](../../evidence/2026-10-11-joint-native-auth.md)
+owns measured acceptance and browser limitations. Session infrastructure failure
+is retryable HTTP 503, distinct from a genuine 401 refusal. This does not close
+B1.5, production release, real identities or project authority gates.
+
 Date: 2026-10-10; evidence amendment: 2026-10-11, Asia/Aden.
 Status: B0 partially verified; B1.1–B1.4 backend implementation and Linux
 acceptance authorized by the 2026-10-11 continuation. Use the [B1 evidence](../../evidence/2026-10-11-b1-linux-acceptance.md)

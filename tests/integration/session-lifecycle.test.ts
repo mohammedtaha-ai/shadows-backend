@@ -51,5 +51,5 @@ test('logout_ticket_replay_refused forged_logout_callback_refused browser_logout
  } finally { await f.close(); }
 });
 test('database_unavailable_refuses_auth', async () => {
- const f=await identityFixture(); try { const a=await f.login(); await f.db.destroy(); assert.equal(await f.identity.authenticate(a.handle),null); } finally { await f.close(); }
+ const f=await identityFixture(); try { const a=await f.login(); await f.db.destroy(); await assert.rejects(f.identity.authenticate(a.handle),{message:'authorization_unavailable'}); } finally { await f.close(); }
 });

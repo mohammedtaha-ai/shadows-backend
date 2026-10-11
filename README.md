@@ -8,6 +8,9 @@ and actual local Docker/Keycloak acceptance are recorded in the
 The [earlier Linux evidence](docs/evidence/2026-10-11-b1-linux-acceptance.md) remains historical.
 No deployment, real-data retention approval or B2+ implementation is claimed.
 
+[Joint native evidence](docs/evidence/2026-10-11-joint-native-auth.md) records the
+NYLRA Rust consumer against local Docker and the remaining browser UI acceptance.
+
 ## Start here
 
 | Document | Owns |

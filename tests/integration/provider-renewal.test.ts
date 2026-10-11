@@ -14,7 +14,7 @@ test('active_session_renews_provider_tokens_atomically_without_extending_absolut
   assert.equal(tokens.refreshToken,'synthetic-renewed-refresh');assert.equal(row.absolute_expires_at.toISOString(),grant.expiresAt);
   assert.ok(await f.identity.authenticate(grant.handle));assert.equal(refreshes,1);
   f.advance(61000);Object.assign(f.oidc,{refreshSession:async()=>{throw new Error('synthetic-unavailable');}});
-  assert.equal(await f.identity.authenticate(grant.handle),null);
+  await assert.rejects(f.identity.authenticate(grant.handle),{message:'authorization_unavailable'});
   const after=(await f.pool.query('SELECT tokens_ciphertext,provider_refreshed_at FROM identity_sessions WHERE id=$1',[row.id])).rows[0];
   assert.equal(after.tokens_ciphertext,row.tokens_ciphertext);assert.equal(after.provider_refreshed_at.toISOString(),row.provider_refreshed_at.toISOString());
  }finally{await f.close();}

@@ -8,6 +8,9 @@ public_api:
   createOidcClient: Uses openid-client confidential discovery/exchange/revocation and jose signed logout.
   hash: SHA-256 base64url digest for opaque handles, states and return challenges.
 obligations:
+  - rule: Session verification refuses infrastructure failures as a retryable unavailable outcome without revoking the session.
+    tested_by: provider_outage_is_retryable_503_without_revoking_session
+    note: tests/integration/provider-status.test.ts; HTTP uses existing 503 operation_failed; database outage has its own session-lifecycle regression.
   - rule: Local logout and device revocation remain available during provider outage and stay revoked after recovery.
     tested_by: provider_outage_does_not_block_local_revocation_routes
     note: tests/integration/provider-status.test.ts; locally valid bearer can only surrender authority through these operations.

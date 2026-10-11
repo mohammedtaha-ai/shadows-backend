@@ -149,8 +149,9 @@ restoration of revoked authority occurs.
    `/v1/auth/logout-all` (logout bodies `{}`). Persisted account/session/device
    checks run on every operation. A restart reuses the session only after session
    validation; a refused session requires login, not trust in cached account IDs.
-   `401 unauthorized` is generic and may mean expiry, revocation or unavailable
-   database/provider state; it does not prove permanent enrollment revocation.
+   Session verification returns `401 unauthorized` for expiry, revocation or inactive
+   provider state, and `503 operation_failed` for database/provider failure. Neither
+   proves permanent enrollment revocation. A 503 preserves the session for retry.
    Preserve enrollment proof unless the user explicitly clears/replaces it.
 5. Session logout preserves enrollment for future login. Device revoke invalidates
    its enrollment and every attached session. Show explicit new enrollment as a
@@ -174,3 +175,9 @@ secure storage/restart/logout and the actual NYLRA app remain independent gates.
 This handoff does not implement NYLRA's adapter. B1.5 retention/deletion/restore,
 real identities/content, B2+ authority/linking and production deployment remain
 deferred under their owner specifications.
+
+The [joint native evidence](evidence/2026-10-11-joint-native-auth.md) now records
+NYLRA's Rust consumer of auth-v1 1.1.0 against this Compose stack. Its TLS client
+uses the explicit public development CA. With the user's permission, the CA was
+installed in CurrentUser Root; Firefox still displayed a trust warning, so native
+library acceptance does not imply a clean browser trust setup or full UI acceptance.

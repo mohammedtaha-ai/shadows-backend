@@ -241,6 +241,13 @@ ambiguous provider token rotation followed by DB rollback may require fresh logi
 never replay of a code or guessed recovery. Production rotation/outage acceptance
 remains separate.
 
+Session verification distinguishes a valid refusal from an infrastructure failure:
+expired/revoked/inactive identity returns `401 unauthorized`; provider or database
+failure returns `503 operation_failed`. Neither response erases a client enrollment
+credential. A 503 allows retry of the same stored session after recovery and grants
+no access while unavailable. Native clients expose identity only after a successful
+fresh session check. Revocation-only operations retain their local authority path.
+
 Local session/account logout and device revocation verify persisted local bearer,
 account, session lifetime and device status without requiring provider availability.
 This revocation-only authentication cannot authorize reads or create sessions.
