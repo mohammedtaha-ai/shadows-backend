@@ -1,0 +1,36 @@
+{
+  "name": "shadows-backend",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": { "node": ">=24 <25" },
+  "scripts": {
+    "start": "node --import tsx src/main.ts",
+    "typecheck": "tsc --noEmit",
+    "test": "node --import tsx --test tests/architecture/*.test.ts tests/integration/*.test.ts tests/journeys/*.test.ts",
+    "test:startup": "node --import tsx --test tests/integration/startup.test.ts",
+    "test:boundaries": "node --import tsx --test tests/architecture/boundaries.test.ts",
+    "test:migrations": "node --import tsx --test tests/integration/migrations.test.ts",
+    "test:login": "node --import tsx --test tests/integration/login-return.test.ts tests/integration/oidc-client.test.ts",
+    "test:keycloak": "node --import tsx --test tests/journeys/keycloak-login.test.ts",
+    "test:sessions": "node --import tsx --test tests/integration/session-lifecycle.test.ts tests/integration/device-revocation.test.ts tests/integration/backchannel-logout.test.ts",
+    "test:restart": "node --import tsx --test tests/journeys/session-restart.test.ts",
+    "test:lifecycle": "node scripts/lifecycle-gate.mjs",
+    "db:migrate": "node --import tsx scripts/migrate.ts up",
+    "schema:generate": "node --import tsx scripts/export-auth-schema.ts && openapi-typescript api/auth-v1.openapi.json -o api/auth-v1.d.ts",
+    "schema:check": "node --import tsx scripts/check-auth-schema.ts && node --import tsx --test tests/integration/auth-wire.test.ts",
+    "check:contracts": "node --import tsx --test tests/architecture/contracts.test.ts",
+    "check:docs": "node --import tsx scripts/check-docs.ts",
+    "check:secrets": "node --import tsx scripts/check-secrets.ts"
+  },
+  "dependencies": {
+    "@fastify/swagger": "9.9.2", "@sinclair/typebox": "0.34.52",
+    "fastify": "5.12.5", "kysely": "0.29.6", "pg": "8.23.1",
+    "node-pg-migrate": "9.0.0", "openid-client": "6.8.8", "jose": "6.2.12"
+  },
+  "devDependencies": {
+    "@types/node": "24.19.2", "@types/pg": "8.23.1", "typescript": "5.9.3",
+    "tsx": "4.23.15", "yaml": "2.9.1", "openapi-typescript": "7.13.0",
+    "openapi-fetch": "0.17.0", "embedded-postgres": "18.4.0-beta.17"
+  }
+}

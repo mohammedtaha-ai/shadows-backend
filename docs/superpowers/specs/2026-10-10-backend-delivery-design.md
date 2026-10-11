@@ -1,21 +1,24 @@
 # Backend delivery design
 
-**B0 handoff, 2026-10-11:** [follow-up checkpoint](../../evidence/2026-10-11-b0-closure-followup.md)
-adds bounded real MiniMax tool-result/reasoning continuity and negative OIDC/device
-prototype evidence. Keycloak/native acceptance remains blocked; lifecycle choices
-and concrete B1 planning still require continuation. B1 remains unstarted.
+Joint native amendment, 2026-10-11: NYLRA consumes auth-v1 1.1.0 in Rust with
+protected enrollment/session storage; [joint evidence](../../evidence/2026-10-11-joint-native-auth.md)
+owns measured acceptance and browser limitations. Session infrastructure failure
+is retryable HTTP 503, distinct from a genuine 401 refusal. This does not close
+B1.5, production release, real identities or project authority gates.
 
-**2026-10-11 evidence update:** [MiniMax supplement](../../evidence/2026-10-11-minimax-provider-probe.md)
-establishes a narrow real M3 non-reasoning path through the OpenAI chat adapter.
-Retain cancellation/error handling and test multi-round tool/reasoning continuity
-before widening adoption. Deployed identity and J1 remain separately gated.
+Date: 2026-10-10; evidence amendment: 2026-10-11, Asia/Aden.
+Status: B0 partially verified; B1.1–B1.4 backend implementation and Linux
+acceptance authorized by the 2026-10-11 continuation. Use the [B1 evidence](../../evidence/2026-10-11-b1-linux-acceptance.md)
+for actual results. B1.5 remains deferred until retention approval. Windows
+acceptance belongs to NYLRA/later joint integration and does not block this work.
+No MiniMax calls, B2+, sibling edits, deployment, commit or push are authorized.
 
-Date: 2026-10-10. Status: initial specification requested by Mohammed.
-Library choices now have [partial B0 evidence](../../evidence/2026-10-10-backend-capability-probes.md).
-HTTP/SQL/job component selections are recorded in architecture; actual provider
-and deployed identity/native acceptance remain OPEN. No product implementation is
-claimed. The user explicitly requested writing this specification and its initial
-plan together, with experiments first and plan revision from their results.
+The [closure follow-up](../../evidence/2026-10-11-b0-closure-followup.md)
+separates retained Windows observations from cloud Keycloak 26.8.0 results.
+Reuse passed HTTP/SQL/jobs, synthetic binding/device mechanics, MiniMax
+non-reasoning and think-tag reasoning tool continuity, and later-round client
+abort. Windows system-browser/native return and production identity operations
+remain unverified. Lifecycle defaults in architecture are proposed, not approved.
 
 ## 1. Ownership and intent
 
@@ -64,8 +67,9 @@ the application against an unproven choice and promise a later rewrite.
 
 Retained [non-product reproduction](../../../probes/b0-2026-10-10/README.md)
 pins Node 24.15.0 and the inspected dependencies. Fifteen local assertions pass;
-actual-provider and deployed-identity/Windows system-browser experiments are
-blocked, so B0 is partially verified and B1 remains gated. The evidence report
+the original actual-provider/deployed-identity blockers have later supplements.
+B0 remains partially verified because Windows native and production identity
+acceptance are open; see the current amendment below. B1 remains gated. The evidence report
 owns observations, exact versions, decision table and review prerequisites.
 
 - Use one canonical TypeBox wire schema for validation and OpenAPI export at the
@@ -97,6 +101,165 @@ No alternative HTTP/store/queue stack was needed after explicit schema validatio
 and recovery-timing configuration. Rejected older AI pins were patched and rerun;
 unexecuted alternatives are not ranked. All library acceptance is bounded by the
 report's cases, not a reduction of the full product direction.
+
+### B0 evidence amendment — 2026-10-11 cloud continuation
+
+- Conditionally select AI SDK 6.0.303 / @ai-sdk/openai 3.0.125 for the tested
+  MiniMax-M3 Chat Completions path. Real completion, injected partial fault,
+  client cancellation, semantic tool-result use and think-tag reasoning continuity
+  passed. Default the first product journey to non-reasoning; any reasoning path
+  must preserve the observed assistant content and tool input semantics.
+  reasoning_split=true, separate reasoning fields, provider-side stopped billing,
+  model identity and contractual retention are not established. No additional
+  MiniMax calls were needed in this cloud continuation.
+- Recommend Keycloak 26.8.0 / openid-client 6.8.8 conditionally. Cloud disposable
+  server cases passed; wrong state/nonce are relying-party validations, wrong
+  verifier/reused code/expired access/revoked refresh are server refusals. The
+  development H2 restart proves refresh persistence for that fixture only.
+  oidc-provider 9.12.2 remains synthetic test tooling, never product authentication.
+- [Architecture section 5](../../architecture.md#5-accounts-instances-and-project-selection)
+  owns all proposed account/session and content-lifecycle defaults. Do not copy
+  the policy table into delivery or client documents. Identity deployment review,
+  confidential-backend registration, native acceptance, key rotation/restore and
+  user policy approval remain explicit gates.
+
+### B1 scope and selected interfaces — 2026-10-11 Linux continuation
+
+B1 delivers only process composition, account mapping, login return exchange,
+backend session/device operations, identity deletion and minimal identity audit.
+No project linking, conversation store, personal memory, queue, model adapter or
+Shadows authority implementation is part of B1. Content owners adopt section 5
+policy when their first runnable slice is implemented; B1 cannot prove deletion
+of stores that do not exist. Keep real-content ingestion disabled until those
+owners' deletion/invalidation and backup acceptance pass.
+
+Use a confidential `shadows-backend` OIDC client with client_secret_basic,
+S256 authorization code and a single exact backend HTTPS callback, with issuer
+configuration fixed by operator review. Desktop/mobile have no embedded client
+secret and receive no provider tokens. The proposed backend-mediated native
+return differs from B0's public-client fixture and must be accepted with NYLRA.
+Use openid-client discovery/buildAuthorizationUrl/authorizationCodeGrant,
+tokenRevocation/buildEndSessionUrl; use jose 6.2.12 only for signed back-channel
+logout verification (prospective dependency; B0 did not execute that handler).
+No deprecated Keycloak Node adapter or custom JWT signature implementation.
+
+The identity module owns these proposed TypeScript interfaces; paths/tests and
+exact execution steps live in [B1 tasks](../plans/2026-10-10-backend-initial-plan.md#b1-authenticated-application-and-data-lifecycle--unstarted):
+
+```ts
+type VerifiedIdentity = { issuer: string; subject: string; providerSessionId: string };
+type Principal = { accountId: string; deviceId: string; sessionId: string };
+type NativeLoginRequest = {
+  platform: 'windows'; returnUri: string; returnChallenge: string;
+};
+type LoginStart = { attemptId: string; authorizationUrl: string };
+type LoginReturn = { returnUri: string; ticket: string };
+type SessionGrant = { handle: string; principal: Principal; expiresAt: string };
+type LogoutResult = { local: 'revoked'; provider: 'complete' | 'pending'; browserLogoutUrl?: string };
+interface OidcPort {
+  authorizationUrl(binding: { state: string; nonce: string; verifier: string }): Promise<string>;
+  exchange(callback: URL, binding: { state: string; nonce: string; verifier: string }): Promise<{
+    identity: VerifiedIdentity; providerTokens: { refreshToken: string; idToken: string };
+  }>;
+  revokeAndLogout(tokens: { refreshToken: string; idToken: string },
+    callback: { state: string; redirectUri: string }): Promise<{ logoutUrl: string }>;
+  verifyLogout(jwt: string): Promise<{ issuer: string; sid: string; jti: string; issuedAt: number }>;
+}
+interface IdentityService {
+  beginLogin(input: NativeLoginRequest): Promise<LoginStart>;
+  finishLogin(callback: URL): Promise<LoginReturn>;
+  redeemReturn(input: { ticket: string; returnVerifier: string }): Promise<SessionGrant>;
+  authenticate(handle: string): Promise<Principal | null>;
+  logout(principal: Principal): Promise<LogoutResult>;
+  logoutAll(principal: Principal): Promise<LogoutResult>;
+  backchannelLogout(jwt: string): Promise<void>;
+  deleteAccount(principal: Principal): Promise<{ deletionId: string; state: 'pending' }>;
+}
+interface DeviceService {
+  list(principal: Principal): Promise<ReadonlyArray<{ id: string; revoked: boolean }>>;
+  revoke(principal: Principal, deviceId: string): Promise<void>;
+}
+```
+
+`providerTokens` exists only transiently at the adapter/service boundary and is
+encrypted before persistence; it never becomes a transport result.
+`VerifiedIdentity` is produced only after signature/issuer/audience/nonce checks;
+`Principal` is produced only after persisted account/session/device validation.
+Service callers never construct either from request account fields. Return tickets
+are 256-bit random values, stored hashed, valid for 60 seconds and consumed with a
+conditional transaction. Login attempts expire after five minutes and are claimed
+once *before* code exchange. The native return challenge uses S256 and the
+native-generated verifier stays on the originating client. Reject unknown platform,
+foreign/fragmented/credentialed return URI, non-loopback host, wrong fixed callback
+path, unknown state, expired attempt and replay. Bind only IPv4 `127.0.0.1` with
+an explicit ephemeral port and `/oidc-return`; no wildcard redirect or arbitrary
+URL redirect. Flutter support adds a separately reviewed platform/return scheme
+later, without weakening Windows validation.
+
+Use standard opaque bearer authorization for native backend requests, not provider
+JWTs or a webview cookie. Return tickets carry no provider tokens or account claims.
+Browser callback responses use no-store and no-referrer and do not log query strings.
+Login errors expose stable refusal codes only. A lost/ambiguous code exchange
+requires a fresh login, never replay or automatic token-exchange retries.
+
+A workflow owns the PostgreSQL transaction and calls declared operations on
+identity/devices. Devices never read identity tables. Audit writes are owned by
+identity operations and invoked transactionally by device revocation, without
+another generic audit service. Back-channel logout must require RS256, exact
+issuer/audience, the logout event, sid, bounded iat, no nonce and one-time jti.
+Local revocation is authoritative immediately even if provider logout fails.
+`browserLogoutUrl` is a backend URL containing only a one-use logout ticket, never
+a provider ID token hint. The backend consumes that ticket and redirects the
+system browser to the standard provider end-session endpoint; completion remains
+pending until provider revocation and the bound logout callback finish. The
+provider hint stays in the standards-based browser redirect, never the native
+webview/IPC or conversation channel.
+Provider account disable is distinct from logout; do not assume disabling emits
+a back-channel event. The local continuation requires confidential refresh-token
+introspection before return redemption and each authorized operation, without a
+positive cache. Inactive or unavailable provider state refuses authorization.
+Revocation-only operations verify persisted local authority and remain available
+without the provider. Active sessions renew encrypted provider tokens at most
+once per minute, preserving issuer/subject/sid binding and backend absolute expiry.
+Back-channel delivery independently persists session revocation. Re-enabling a
+provider account is not local enrollment/session revival: persisted revocations
+still refuse; sessions denied only by provider inactivity can become usable again
+unless explicitly revoked. An operator needing permanent session revocation must
+also request provider logout or backend revocation.
+
+### Local runtime and enrollment continuation (2026-10-11)
+
+The user authorizes choosing and implementing enrollment semantics and a local
+Windows Docker runtime using the existing checkout. [Architecture section 5](../../architecture.md#5-accounts-instances-and-project-selection)
+owns the account/installation/session distinction and explicit new/reuse proof.
+Return redemption now requires `enrollment: {mode:'new'} | {mode:'reuse';credential:string}`;
+new enrollment alone returns `enrollmentCredential` in SessionGrant. This is auth-v1
+revision 1.1.0, replacing the unintegrated 1.0 shape. Protected operations declare
+OpenAPI HTTP bearer security; safe examples and refusals are backend-owned.
+
+[Local plan](../plans/2026-10-11-local-identity-runtime.md) owns execution steps.
+[NYLRA handoff](../../nylra-local-auth-handoff.md) records exact HTTPS addresses,
+current-user certificate trust prerequisites and native sequences. The Compose
+runtime uses separate persistent application/Keycloak PostgreSQL databases and
+credentials, explicit node-pg-migrate commands, and a separately scoped Linux
+test-runtime volume. Keycloak is the only owner of its storage. No host Node,
+host PostgreSQL, wildcard callbacks, hardware fingerprint or trust bypass exists.
+
+Actual Compose acceptance must prove provider-originated back-channel delivery
+and separately measure account disable. A Linux form driver remains distinct
+from Windows browser/native and actual NYLRA acceptance. B1.5 remains deferred;
+no retention defaults, real identity/content, B2+, deployment, commit or push is
+authorized by this continuation.
+
+**Gate matrix amendment (2026-10-11):** the user authorized backend implementation
+and Linux acceptance using the existing checkout/branch. Windows NYLRA N0/N2
+system-browser/secure-store/return acceptance is a later joint integration gate,
+not a Linux implementation prerequisite. Retention-dependent work remains deferred;
+only synthetic identity data may run in the current application. Production release additionally
+requires dedicated identity PostgreSQL, TLS, key rotation, restore, provider terms
+and deletion tests. Missing siblings/native access is an external prerequisite,
+not permission to implement their side here. J1 rich TS/Dart and Shadows §1.7/§24.6
+remain B2/B4 gates; B1 authentication never grants project authority.
 
 ## 3. Application boundaries
 
@@ -166,8 +329,9 @@ end-to-end journey. Tests must prove scope isolation, replay, stale refusal,
 revocation and worker interruption; source contracts cite inspected test bodies.
 
 OPENs close at these triggers: B0 evidence and review close library selection;
-blocked actual-provider/native identity experiments keep that gate open. B1 closes identity and
-real-data lifecycle decisions; J1 closes external schema/reconnect rules; B4 closes
+native identity/operational prerequisites keep that gate open. User review and
+B1 identity evidence close only their named prerequisites; later content owners
+must prove approved lifecycle behavior before real ingestion; J1 closes external schema/reconnect rules; B4 closes
 remote authority proof with Shadows; voice/mobile gates close on actual devices.
 No raw provider/session values belong in prompts, logs, evidence or source control.
 

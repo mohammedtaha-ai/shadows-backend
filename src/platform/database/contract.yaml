@@ -1,0 +1,21 @@
+# Database primitives own connection and transaction lifetime, not domain authority.
+name: backend-database
+status: current
+source: src/platform/database
+owns: pg pool, Kysely transaction primitives, typed table declarations and node-pg-migrate history.
+public_api:
+  createDatabase: Constructs pool with deadlines and safe error handling.
+  withTransaction: Delegates transaction lifetime to the calling workflow.
+  runMigrations: Executes ordered SQL up/down migrations; maps errors to migration_failed.
+obligations:
+  - rule: Enrollment upgrade preserves legacy sessions without silently minting reusable proof.
+    tested_by: enrollment_upgrade_preserves_legacy_session_without_minting_proof
+    note: tests/integration/migrations.test.ts
+  - rule: Empty, previous, repeated and rollback/reapply histories preserve ownership constraints.
+    tested_by: empty_schema_up previous_schema_upgrade repeat_up_no_change down_up_reapply
+    note: tests/integration/migrations.test.ts; body also checks foreign-account device FK refusal.
+  - rule: An independently held migration lock refuses a competing runner.
+    tested_by: concurrent_migration_lock_refused
+    note: tests/integration/migrations.test.ts
+open_questions:
+  - Production TLS, identity database restore and physical backup expiry are not established by disposable PG acceptance.

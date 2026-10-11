@@ -1,0 +1,172 @@
+{
+  "runDate": "2026-10-11",
+  "timezone": "Asia/Aden",
+  "observedAt": "2026-10-10T23:34:43.887Z",
+  "baseline": "1b334c5968ed9014e7f53136672f2af1c34b73a3",
+  "branch": "work",
+  "initialWorktree": "clean (observed before edits)",
+  "node": "v24.19.0",
+  "npm": "11.9.0",
+  "platform": "linux",
+  "arch": "x64",
+  "dockerClientServer": "28.4.0",
+  "storageDriver": "vfs",
+  "keycloak": "26.8.0",
+  "jvm": "21.0.12.1+1-LTS",
+  "image": "quay.io/keycloak/keycloak:26.8.0",
+  "digest": "sha256:27b3230fbabb8c9ff3c66c864cf09dcd8a41aca82e5100679d109ef0eeb05741",
+  "versionBasis": "Explicit Docker local-socket info, bounded pull and isolated --version command recorded in report; no version command rerun by this recorder.",
+  "minimaxAdditionalCalls": 0,
+  "packages": [
+    {
+      "name": "@ai-sdk/openai",
+      "version": "3.0.125",
+      "license": "Apache-2.0"
+    },
+    {
+      "name": "@apidevtools/swagger-parser",
+      "version": "13.1.0",
+      "license": "MIT"
+    },
+    {
+      "name": "@fastify/swagger",
+      "version": "9.9.2",
+      "license": "MIT"
+    },
+    {
+      "name": "@sinclair/typebox",
+      "version": "0.34.52",
+      "license": "MIT"
+    },
+    {
+      "name": "@types/node",
+      "version": "24.19.2",
+      "license": "MIT"
+    },
+    {
+      "name": "@types/pg",
+      "version": "8.23.1",
+      "license": "MIT"
+    },
+    {
+      "name": "ai",
+      "version": "6.0.303",
+      "license": "Apache-2.0"
+    },
+    {
+      "name": "embedded-postgres",
+      "version": "18.4.0-beta.17",
+      "license": "MIT"
+    },
+    {
+      "name": "fastify",
+      "version": "5.12.5",
+      "license": "MIT"
+    },
+    {
+      "name": "kysely",
+      "version": "0.29.6",
+      "license": "MIT"
+    },
+    {
+      "name": "node-pg-migrate",
+      "version": "9.0.0",
+      "license": "MIT"
+    },
+    {
+      "name": "oidc-provider",
+      "version": "9.12.2",
+      "license": "MIT"
+    },
+    {
+      "name": "openapi-fetch",
+      "version": "0.17.0",
+      "license": "MIT"
+    },
+    {
+      "name": "openapi-typescript",
+      "version": "7.13.0",
+      "license": "MIT"
+    },
+    {
+      "name": "openid-client",
+      "version": "6.8.8",
+      "license": "MIT"
+    },
+    {
+      "name": "pg",
+      "version": "8.23.1",
+      "license": "MIT"
+    },
+    {
+      "name": "pg-boss",
+      "version": "12.37.1",
+      "license": "MIT"
+    },
+    {
+      "name": "tsx",
+      "version": "4.23.15",
+      "license": "MIT"
+    },
+    {
+      "name": "typescript",
+      "version": "5.9.3",
+      "license": "Apache-2.0"
+    },
+    {
+      "name": "yaml",
+      "version": "2.9.1",
+      "license": "ISC"
+    },
+    {
+      "name": "zod",
+      "version": "4.6.5",
+      "license": "MIT"
+    }
+  ],
+  "preservation": [
+    {
+      "file": "probes/b0-2026-10-10/followup-artifacts/checks.json",
+      "baselineHash": "92bf6f8dd4d921167b75e60a341a2f7b38203abc9b3f46310d457690a6604126",
+      "currentHash": "92bf6f8dd4d921167b75e60a341a2f7b38203abc9b3f46310d457690a6604126",
+      "unchanged": true
+    },
+    {
+      "file": "probes/b0-2026-10-10/followup-artifacts/identity-bindings-results.json",
+      "baselineHash": "8b8b7ffdba3a2ced0506a37312d5f6ed4aa3d8280409765865a4fed147c8b614",
+      "currentHash": "8b8b7ffdba3a2ced0506a37312d5f6ed4aa3d8280409765865a4fed147c8b614",
+      "unchanged": true
+    },
+    {
+      "file": "probes/b0-2026-10-10/followup-artifacts/identity-devices-results.json",
+      "baselineHash": "2185d3c963c027e07ef003f3d4e6de5ad09f643ba407cb3af482986467fc37df",
+      "currentHash": "2185d3c963c027e07ef003f3d4e6de5ad09f643ba407cb3af482986467fc37df",
+      "unchanged": true
+    },
+    {
+      "file": "probes/b0-2026-10-10/followup-artifacts/identity-keycloak-results.json",
+      "baselineHash": "7231a8ba824e8b91703eee4a5a344fbfba24fbb8734ba1278ac2d3b8c4db3caa",
+      "currentHash": "7231a8ba824e8b91703eee4a5a344fbfba24fbb8734ba1278ac2d3b8c4db3caa",
+      "unchanged": true
+    },
+    {
+      "file": "probes/b0-2026-10-10/followup-artifacts/minimax-rounds-initial-results.json",
+      "baselineHash": "06efe3915a4eba3ab9ca5526df7e2852d021314f0d8aa9d9a6222bfe1ad3786a",
+      "currentHash": "06efe3915a4eba3ab9ca5526df7e2852d021314f0d8aa9d9a6222bfe1ad3786a",
+      "unchanged": true
+    },
+    {
+      "file": "probes/b0-2026-10-10/followup-artifacts/minimax-rounds-initial-source.txt",
+      "baselineHash": "b4ddb32e6959c200d27ec42c01a741790fbd87441b1bda03a0f6a60f3b2b8010",
+      "currentHash": "b4ddb32e6959c200d27ec42c01a741790fbd87441b1bda03a0f6a60f3b2b8010",
+      "unchanged": true
+    },
+    {
+      "file": "probes/b0-2026-10-10/followup-artifacts/minimax-rounds-results.json",
+      "baselineHash": "8037906c7bac47c0ab3c1c9704388b8861aaf0abdd723c14cda7c4629593d460",
+      "currentHash": "8037906c7bac47c0ab3c1c9704388b8861aaf0abdd723c14cda7c4629593d460",
+      "unchanged": true
+    }
+  ],
+  "lockfileUnchanged": true
+}

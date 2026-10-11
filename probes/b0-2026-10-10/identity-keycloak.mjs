@@ -9,7 +9,12 @@ import { resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createServer } from 'node:http';
 import assert from 'node:assert/strict';
-const run = promisify(execFile), results = [], origin = 'http://127.0.0.1:45901';
+const exec = promisify(execFile);
+const cloud = process.argv.includes('--cloud');
+const refusalsOnly = process.argv.includes('--refusals-only');
+const output = cloud ? `followup-artifacts/identity-keycloak-cloud${refusalsOnly ? '-refusals' : ''}-results.json` : 'followup-artifacts/identity-keycloak-results.json';
+const run = (command, args, options) => exec(command, cloud && command === 'docker' ? ['--host=unix:///var/run/docker.sock', ...args] : args, options);
+const results = [], origin = 'http://127.0.0.1:45901';
 const issuer = `${origin}/realms/b0-followup`, callback = 'http://127.0.0.1:45903/return';
 const image = 'quay.io/keycloak/keycloak:26.8.0', name = `b0-identity-${randomUUID().slice(0, 8)}`;
 const label = 'shadows.b0.followup=2026-10-11';
@@ -45,6 +50,13 @@ async function authorize({ silent=false }={}) {
  } throw new Error('Fixture redirect bound');
 }
 const exchange = (a, overrides={}) => oidc.authorizationCodeGrant(config,a.url,{pkceCodeVerifier:a.verifier,expectedState:a.state,expectedNonce:a.nonce,...overrides});
+async function refusal(operation, expectedCode, providerError) {
+ let caught; try { await operation(); } catch (error) { caught = error; }
+ assert.ok(caught, 'Expected protocol refusal');
+ assert.equal(caught.code, expectedCode, 'Network/programming failure is not protocol refusal');
+ if (providerError) assert.equal(caught.error, providerError);
+ return { errorType: caught.name, errorCode: caught.code, ...(providerError ? { providerError } : {}) };
+}
 try {
  // Require a successfully pulled pinned image; avoid an implicit unbounded third pull.
  await run('docker',['image','inspect','--format','{{.Id}}',image],{timeout:10000});
@@ -60,25 +72,26 @@ try {
     a.used=true; a.resolve(u);res.end('Synthetic return received');
   } catch {res.writeHead(400);res.end('Return refused');}
  }); await new Promise(r=>listener.listen(45903,'127.0.0.1',r));
- await test('actual Keycloak valid code and one-time loopback return',async()=>{
+ if (!refusalsOnly) await test('actual Keycloak valid code and one-time loopback return',async()=>{
   const a=await authorize();let returned;attemptedReturns.set(a.state,{used:false,expires:Date.now()+10000,resolve:u=>returned=u});
   assert.equal((await request(a.url)).status,200);assert.ok(returned);assert.equal((await request(a.url)).status,400);
   const t=await exchange({...a,url:returned});assert.ok(t.claims().sub);return {codeExchange:true,callbackOnce:true,driver:'Node HTTP, not native browser'};
  });
  for(const kind of ['wrong-state','wrong-pkce','wrong-nonce','reused-code']) await test(`actual Keycloak ${kind} refusal`,async()=>{
   const a=await authorize();
-  if(kind==='reused-code') {await exchange(a);await assert.rejects(exchange(a));}
-  else await assert.rejects(exchange(a,kind==='wrong-state'?{expectedState:oidc.randomState()}:kind==='wrong-pkce'?{pkceCodeVerifier:oidc.randomPKCECodeVerifier()}:{expectedNonce:oidc.randomNonce()}));
-  return {freshFlow:true,refused:true};
+  let observed;
+  if(kind==='reused-code') {await exchange(a);observed=await refusal(()=>exchange(a),'OAUTH_RESPONSE_BODY_ERROR','invalid_grant');}
+  else observed=await refusal(()=>exchange(a,kind==='wrong-state'?{expectedState:oidc.randomState()}:kind==='wrong-pkce'?{pkceCodeVerifier:oidc.randomPKCECodeVerifier()}:{expectedNonce:oidc.randomNonce()}),kind==='wrong-state'?'OAUTH_INVALID_RESPONSE':kind==='wrong-pkce'?'OAUTH_RESPONSE_BODY_ERROR':'OAUTH_JWT_CLAIM_COMPARISON_FAILED',kind==='wrong-pkce'?'invalid_grant':undefined);
+  return {freshFlow:true,refused:true,...observed};
  });
- await test('actual Keycloak access expiry',async()=>{const a=await authorize(),t=await exchange(a);assert.ok(await oidc.fetchUserInfo(config,t.access_token,t.claims().sub));await sleep(6500);await assert.rejects(oidc.fetchUserInfo(config,t.access_token,t.claims().sub));return {accessLifetimeSeconds:5,waitMs:6500,expiredRefused:true};});
- await test('actual Keycloak persistent session across server restart',async()=>{const a=await authorize(),t=await exchange(a);await run('docker',['restart','--time','10',name],{timeout:40000});await ready();config=await oidc.discovery(new URL(issuer),'b0-native',undefined,oidc.None(),{execute:[oidc.allowInsecureRequests]});const fresh=await oidc.refreshTokenGrant(config,t.refresh_token);assert.ok(fresh.access_token);return {refreshSurvives:true,storage:'isolated H2 development database, not production PostgreSQL'};});
- await test('actual Keycloak token revocation',async()=>{const a=await authorize(),t=await exchange(a);await oidc.tokenRevocation(config,t.refresh_token,{token_type_hint:'refresh_token'});await assert.rejects(oidc.refreshTokenGrant(config,t.refresh_token));return {revokedRefreshRefused:true,backendDeviceRevocation:'not implied'};});
- await test('actual Keycloak logout prevents silent reauthentication',async()=>{const a=await authorize(),t=await exchange(a);let u=oidc.buildEndSessionUrl(config,{id_token_hint:t.id_token,post_logout_redirect_uri:callback});for(let i=0;i<10&&!u.href.startsWith(callback);i++){const r=await request(u);assert.ok(r.headers.get('location'));u=new URL(r.headers.get('location'),u);}const silent=await authorize({silent:true});assert.equal(silent.url.searchParams.get('error'),'login_required');return {silentLoginRefused:true};});
-} catch(e) {results.push({name:'fixture setup/runtime',status:stage==='image-preflight'?'BLOCKED':'FAIL',stage,errorType:e.name,errorCode:e.code??null,reason:stage==='image-preflight'?'Pinned image unavailable after two bounded pulls ended in unexpected EOF; no Keycloak behavioral case executed':undefined});process.exitCode=1;console.log(JSON.stringify(results.at(-1)));}
+ await test('actual Keycloak access expiry',async()=>{const a=await authorize(),t=await exchange(a);assert.ok(await oidc.fetchUserInfo(config,t.access_token,t.claims().sub));await sleep(6500);const observed=await refusal(()=>oidc.fetchUserInfo(config,t.access_token,t.claims().sub),'OAUTH_WWW_AUTHENTICATE_CHALLENGE');return {accessLifetimeSeconds:5,waitMs:6500,expiredRefused:true,...observed};});
+ if (!refusalsOnly) await test('actual Keycloak persistent session across server restart',async()=>{const a=await authorize(),t=await exchange(a);await run('docker',['restart','--time','10',name],{timeout:40000});await ready();config=await oidc.discovery(new URL(issuer),'b0-native',undefined,oidc.None(),{execute:[oidc.allowInsecureRequests]});const fresh=await oidc.refreshTokenGrant(config,t.refresh_token);assert.ok(fresh.access_token);return {refreshSurvives:true,storage:'isolated H2 development database, not production PostgreSQL'};});
+ await test('actual Keycloak token revocation',async()=>{const a=await authorize(),t=await exchange(a);await oidc.tokenRevocation(config,t.refresh_token,{token_type_hint:'refresh_token'});const observed=await refusal(()=>oidc.refreshTokenGrant(config,t.refresh_token),'OAUTH_RESPONSE_BODY_ERROR','invalid_grant');return {revokedRefreshRefused:true,backendDeviceRevocation:'not implied',...observed};});
+ if (!refusalsOnly) await test('actual Keycloak logout prevents silent reauthentication',async()=>{const a=await authorize(),t=await exchange(a);let u=oidc.buildEndSessionUrl(config,{id_token_hint:t.id_token,post_logout_redirect_uri:callback});for(let i=0;i<10&&!u.href.startsWith(callback);i++){const r=await request(u);assert.ok(r.headers.get('location'));u=new URL(r.headers.get('location'),u);}const silent=await authorize({silent:true});assert.equal(silent.url.searchParams.get('error'),'login_required');return {silentLoginRefused:true};});
+} catch(e) {results.push({name:'fixture setup/runtime',status:stage==='image-preflight'?'BLOCKED':'FAIL',stage,errorType:e.name,errorCode:e.code??null,reason:stage==='image-preflight'?'Pinned image unavailable; no Keycloak behavioral case executed':undefined});process.exitCode=1;console.log(JSON.stringify(results.at(-1)));}
 finally {
  if(listener)await new Promise(r=>listener.close(r));
  if(startedContainer){const owned=(await run('docker',['inspect','--format','{{ index .Config.Labels "shadows.b0.followup" }}',name])).stdout.trim();assert.equal(owned,'2026-10-11');await run('docker',['rm','--force',name]);}
  await rm(runtime,{recursive:true,force:true});
- await mkdir('followup-artifacts',{recursive:true});await writeFile('followup-artifacts/identity-keycloak-results.json',JSON.stringify({date:'2026-10-11',image,issuer,limits:{readinessMs:90000,httpRequestMs:15000,redirects:20},nativeBrowser:{status:'BLOCKED',reason:'CUA exposes in-app browser only; native apps disabled; no Tauri native client or deployed issuer tested'},results},null,2));
+ await mkdir('followup-artifacts',{recursive:true});await writeFile(output,JSON.stringify({date:'2026-10-11',environment:cloud?'cloud Linux':'local',image,issuer,limits:{readinessMs:90000,httpRequestMs:15000,redirects:20},nativeBrowser:{status:'BLOCKED',reason:cloud?'Linux cloud container; no Windows OS, NYLRA Tauri checkout/build, system-browser/native-return surface or real-device harness':'CUA exposes in-app browser only; native apps disabled; no Tauri native client or deployed issuer tested'},results},null,2));
 }
