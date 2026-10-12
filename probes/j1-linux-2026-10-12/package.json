@@ -1,0 +1,14 @@
+{
+  "name": "j1-linux-cross-project-probe",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test *.test.mjs",
+    "start": "node server.mjs"
+  },
+  "dependencies": {
+    "@ai-sdk/openai": "3.0.125",
+    "ai": "6.0.303",
+    "zod": "4.6.5"
+  }
+}
