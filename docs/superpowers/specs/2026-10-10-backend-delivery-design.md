@@ -353,11 +353,16 @@ The answer uses only the supplied context; on-demand retrieval arrives with the
 connector. Shadows owns the sharing switch and the `nylra-context/1` projection
 ([Shadows §1.7](../../../../shadows/docs/superpowers/specs/2026-09-21-architecture-design.md#17-workspace-authority-and-deployment)).
 
-> **OPEN — what `nylra-context/1` carries.** Name, current roadmap outcomes,
-> current plans and their states are the floor; whether Planner thread excerpts
-> belong is undecided, because they are the largest and most private part.
-> **Closes when** the slice-1 plan lists the items and their size bounds, and
-> Shadows' contract for the projection says the same.
+**What `nylra-context/1` carries** (decided with the user on 2026-10-12): the
+project's name, current roadmap outcomes, current plans and their states, and
+**what the Planner said** in the thread that matters, so NYLRA can explain the
+Planner's words without asking the Planner again. That is the planning thread
+of the work in question, or the one an escalation names: its recent Planner and
+person messages, never every older thread. Items are bounded by count and size,
+newest first, inside the 32 KiB context limit; the slice plan states the exact
+bounds and Shadows' projection contract says the same. Only projects the person
+shared are readable, and the excerpts go to the cloud and its model provider as
+architecture §5 discloses.
 
 ## 5. Complete first journey
 
