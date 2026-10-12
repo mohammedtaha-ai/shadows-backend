@@ -21,6 +21,16 @@ export function boundedMinimaxFetch(fetcher = fetch) {
   };
 }
 
+export function forwardProbePart(part, send) {
+  if (part.type === 'tool-error') throw new Error('owner_or_tool_failed');
+  if (part.type === 'error') throw new Error('provider_flow_failed');
+  if (part.type === 'text-delta') {
+    send('delta', { text: part.text });
+    return part.text.length;
+  }
+  return 0;
+}
+
 export async function runConversation({ message, selectedId, shadowsUrl, send, signal }) {
   if (!process.env.MINIMAX_API_KEY) throw new Error('provider_unavailable');
   const model = createOpenAI({
@@ -28,7 +38,7 @@ export async function runConversation({ message, selectedId, shadowsUrl, send, s
     baseURL: 'https://api.minimax.io/v1',
     fetch: boundedMinimaxFetch(),
   }).chat('MiniMax-M3');
-  let toolExecutions = 0, steps = 0, textChars = 0, failed = false;
+  let toolExecutions = 0, steps = 0, textChars = 0;
   const result = streamText({
     model,
     maxRetries: 0,
@@ -52,15 +62,11 @@ export async function runConversation({ message, selectedId, shadowsUrl, send, s
     onStepFinish: () => { steps++; },
   });
   for await (const part of result.fullStream) {
-    if (part.type === 'error') failed = true;
-    if (part.type === 'text-delta') {
-      textChars += part.text.length;
-      if (textChars > 2048) throw new Error('provider_output_bound');
-      send('delta', { text: part.text });
-    }
+    textChars += forwardProbePart(part, send);
+    if (textChars > 2048) throw new Error('provider_output_bound');
   }
   const finishReason = await result.finishReason;
-  if (failed || toolExecutions !== 1 || steps !== 2) throw new Error('provider_flow_failed');
+  if (toolExecutions !== 1 || steps !== 2) throw new Error('provider_flow_failed');
   send('done', { status: 'complete' });
   return { toolExecutions, steps, textChars, finishReason };
 }
