@@ -15,9 +15,35 @@ was supplied only at runtime and is absent from these repositories.
 | NYLRA Linux preview client | SSE parser tests passed; Vite served the preview and approved AYLUL idle asset; native Tauri window rendered AYLUL and displayed a completed local SSE fixture after a button click | That native click used a deterministic fixture, not this real MiniMax probe. See the NYLRA evidence. |
 | Native Linux webview origin | Local `tauri://localhost` accepted; unrecognized browser origin refused before conversation | The original Vite-only CORS allowlist returned 403 to the native webview. Regression tests now cover both sides; a native click-through still needs a UI run. |
 
-`npm test` currently exercises nine probe tests. These results cover a
+`npm test` currently exercises thirteen probe tests. These results cover a
 synthetic, same-host exchange; they do not exercise a cloud-to-private-machine
 network path, identity, owner grant, state persistence, or cancellation.
+
+## Follow-up native window experiments
+
+The real native NYLRA click reached the backend/provider request, but MiniMax
+returned explicit Token Plan usage-limit evidence (`2067`,
+`insufficient_balance_error`). The UI reported unavailable/incomplete; it did
+not show a completed answer. This result is specific to that MiniMax request.
+AI SDK's default error callback also printed the raw error/request; the probe
+now overrides that callback, and a regression test proves a rejected provider
+request emits no raw console error and no `done`.
+
+An alternative native run used `provider-fixture.mjs` to simulate only the
+provider's OpenAI-compatible SSE responses. The rest was real: a new Shadows
+daemon/database, owner API, AI SDK tool execution, backend HTTP/SSE, rebuilt
+Tauri window and `eventsource-parser`. It completed with one owner tool call,
+two SDK steps, 20 text characters, and native `Complete` + fixture name visible.
+The fixture's reply name is read from the actual owner tool result; it refuses
+to reply without that result. No remote provider is exercised by this run.
+
+The OpenRouter attempt remains a separate network failure: Envoy refused the
+HTTPS CONNECT with 403 before reaching the provider. After the user reported
+adding the domain, a repeated credential-free request still received CONNECT
+403 and the current enforced policy still omitted `openrouter.ai`. See
+[OPENROUTER.md](OPENROUTER.md); neither key validity nor free-model quota has
+been established. See [LIBRARIES.md](LIBRARIES.md) for inspected SDK/parser and
+transport options.
 
 ## What should become the product boundary
 
