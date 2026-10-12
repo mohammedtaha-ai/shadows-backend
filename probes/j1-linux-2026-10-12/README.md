@@ -19,7 +19,8 @@ trip. The reply is streamed as SSE to the NYLRA Linux preview.
 4. Ask for the selected project's name. `/chat` accepts at most 2000 message
    characters and streams `delta`, `done`, or `error` events from port 8765.
 
-The probe binds only to loopback, accepts only the Vite preview origin, limits
+The probe binds only to loopback, accepts only the Vite preview and local Tauri
+webview origins, limits
 MiniMax to two requests with 256 output tokens each and 45 seconds overall,
 and never persists the model answer or provider errors. It rejects foreign
 project IDs before an owner request. Its owner read fetches the whole project

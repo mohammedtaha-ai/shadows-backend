@@ -3,13 +3,15 @@ import { createServer } from 'node:http';
 import { fileURLToPath } from 'node:url';
 
 const previewOrigin = 'http://127.0.0.1:5173';
+const allowedOrigins = new Set([previewOrigin, 'tauri://localhost', 'http://tauri.localhost']);
 
 export function createProbeServer({ selectedId, shadowsUrl, runConversation }) {
   return createServer(async (request, response) => {
-    if (request.headers.origin && request.headers.origin !== previewOrigin) {
+    const origin = request.headers.origin;
+    if (origin && !allowedOrigins.has(origin)) {
       response.writeHead(403).end(); return;
     }
-    response.setHeader('access-control-allow-origin', previewOrigin);
+    response.setHeader('access-control-allow-origin', origin ?? previewOrigin);
     response.setHeader('access-control-allow-methods', 'POST, OPTIONS');
     response.setHeader('access-control-allow-headers', 'content-type');
     if (request.method === 'OPTIONS' && request.url === '/chat') {

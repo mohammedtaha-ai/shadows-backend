@@ -13,8 +13,9 @@ was supplied only at runtime and is absent from these repositories.
 | Tool requests a different UUID | Refused before any owner HTTP request | `selected-project.test.mjs` verifies the fixed selected-project boundary. |
 | Shadows owner unavailable | Failed after tool error; no successful completion | The first live run exposed AI SDK's `tool-error` stream part: it had incorrectly produced `done`. Regression test and `forwardProbePart` now reject it. Repeated live run produced `failed=true`, `completed=false`, zero delta events. |
 | NYLRA Linux preview client | SSE parser tests passed; Vite served the preview and approved AYLUL idle asset | No successful browser click or native Tauri window is claimed. See the NYLRA evidence. |
+| Native Linux webview origin | Local `tauri://localhost` accepted; unrecognized browser origin refused before conversation | The original Vite-only CORS allowlist returned 403 to the native webview. Regression tests now cover both sides; a native click-through still needs a UI run. |
 
-`npm test` currently exercises seven probe tests. These results cover a
+`npm test` currently exercises nine probe tests. These results cover a
 synthetic, same-host exchange; they do not exercise a cloud-to-private-machine
 network path, identity, owner grant, state persistence, or cancellation.
 
