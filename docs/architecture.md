@@ -134,6 +134,8 @@ no public inbound port is required on the user's computer.
 | --- | --- |
 | NYLRA chat, personal memory, explanation | Desktop or mobile to shared backend |
 | Open a local plan or navigate to local work | Desktop to local Shadows API |
+| Project context, desktop on the owning computer | Desktop reads the local Shadows API, then sends the permitted excerpts with its turn |
+| Project context, mobile or another computer | Cloud request through the scoped local connector |
 | Ask Planner through NYLRA | Client to cloud to local connector to Planner |
 | Confirm through NYLRA | Client confirmation flow to cloud to local owner validation |
 | Planner requests human intervention | Local owner to cloud to desktop/mobile notification |
@@ -142,6 +144,31 @@ no public inbound port is required on the user's computer.
 Direct desktop integration supports local presentation and navigation. It does
 not introduce an alternative hidden route for NYLRA approvals. Local Shadows
 client actions continue to follow Shadows' own rules.
+
+### Same-machine context path
+
+Decided with the user on 2026-10-12. When NYLRA desktop runs on the computer
+that owns the personal workspace, it reads project context from the local
+Shadows API instead of routing that read through the cloud and back. Shadows
+still decides what is permitted: it serves only projects the person shared with
+NYLRA, and only the bounded projection it defines. The conversation itself
+still lives in the cloud, so the same topic continues on the phone.
+
+There is one copy of each kind of data, so there is nothing to synchronize
+periodically. Project data stays in Shadows and is read at the time of the
+question. The conversation stays in the cloud; desktop and mobile resume it by
+cursor. An excerpt the cloud keeps carries its source revision and read time,
+and is shown as of that time when the owner is offline.
+
+Context a client sends is explanation material only. It never grants a
+capability, confirms an approval or proves the owner's current state; the cloud
+cites it with the revision and read time the client reported. Every action
+still goes to the owning runtime, which revalidates it. The connector remains
+the path for mobile, for another computer, and for anything the owner must
+answer itself. Both paths carry the same J1 shapes, so the connector adds a
+transport, not a second protocol. The first delivery slice uses only this path;
+[the delivery spec](superpowers/specs/2026-10-10-backend-delivery-design.md#4-joint-protocol-contract-j1)
+owns its J1 fields.
 
 ## 5. Accounts, instances, and project selection
 
@@ -536,6 +563,9 @@ manager nor executors to demonstrate value; cloud accounts never gate local use.
    connect one selected personal project, explain bounded current work after a
    direct Planner conversation, and continue the same topic on desktop and phone.
    Prove source/freshness display, revocation and reconnect without history upload.
+   Its first slice is desktop on the owning computer through the
+   [same-machine context path](#same-machine-context-path); the connector
+   follows with the phone.
 2. **Assessment and confirmation:** implement §24.6's enforced assessment mode,
    trusted confirmation and owner validation. Prove stale-basis refusal, duplicate
    replay and recovery across client, connector and worker interruption.

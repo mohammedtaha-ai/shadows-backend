@@ -455,6 +455,11 @@ close content deletion, real Shadows authority, rich J1 or later device journeys
 **Consumes:** B1 principal/device and actual Shadows grant boundary.
 **Produces:** J1 schema artifact, examples and current topic/source projections.
 
+**2026-10-12 amendment:** the first slice is the delivery spec's "J1 slice 1":
+desktop sends Shadows-read context with its turn, so links, connector and
+`src/integrations/shadows/` wait for the mobile slice. Its own plan replaces
+these outlines for that slice.
+
 **B0 amendment:** begin J1 review with TypeBox JSON schema and schema-derived
 OpenAPI/TS artifacts; require explicit outgoing/envelope validation and runtime
 consumer checks. Review a full Dart generator against rich J1 shapes before

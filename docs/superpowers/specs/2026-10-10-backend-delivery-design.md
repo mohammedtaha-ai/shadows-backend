@@ -1,5 +1,9 @@
 # Backend delivery design
 
+Integration amendment, 2026-10-12: the user chose to start the Shadows–NYLRA
+integration with the same-machine desktop slice in §4. This authorizes the
+design amendments in the three repositories; implementation follows its plan.
+
 Joint native amendment, 2026-10-11: NYLRA consumes auth-v1 1.1.0 in Rust with
 protected enrollment/session storage; [joint evidence](../../evidence/2026-10-11-joint-native-auth.md)
 owns measured acceptance and browser limitations. Session infrastructure failure
@@ -292,6 +296,53 @@ Pin producer schema revision and consumer artifact versions. Test reconnect at t
 snapshot boundary, duplicates, gaps, expired cursor, client revision mismatch and
 cross-project substitution. A new protocol version is introduced only for a real
 compatibility need. Do not assume existing Shadows SSE is this external protocol.
+
+### J1 slice 1: same-machine explanation (2026-10-12)
+
+Decided with the user on 2026-10-12: integration starts with NYLRA desktop on
+the owning computer, through architecture's
+[same-machine context path](../../architecture.md#same-machine-context-path).
+This slice needs four of the shapes above: session (B1's, unchanged), topic,
+source reference and conversation stream. The command identity rules apply to
+its two writes. Connector messages, owner commands and confirmation wait for
+their own slices; their fields are not frozen here.
+
+The schema is owned here, defined in TypeBox beside its first route, and
+exported to `api/` with fixtures as auth-v1 is. Field names below are the
+review draft; the exported schema is authoritative once it exists.
+
+| Shape | Fields | Rule |
+| --- | --- | --- |
+| Topic | `topic_id`, `project` (`instance_id`, `project_id`, `name`), `created_at` | One topic belongs to one account and one project. The account comes from the session, never the body |
+| Local context | `schema` (`nylra-context/1`), `project_id`, `revision`, `read_at`, `items[]` | What desktop read from Shadows for this turn. Bounded at 32 KiB serialized; larger is refused, not truncated |
+| Context item | `ref` (Shadows kind + id), `version`, `title`, `text` | Shadows decides which items exist; the backend neither adds nor widens one |
+| Source reference | `ref`, `version`, `read_at`, `origin` (`local_client`) | Kept on every assistant entry that used it. `local_client` says the client reported it; it is not owner-verified |
+| Turn request | `command_id`, `message` (1–2000 chars), `context` | `command_id` replays an identical request and conflicts on a different one |
+| Topic snapshot | `topic`, `entries[]`, `cursor` | Entries and cursor share one boundary; events after the cursor are exactly the later ones |
+| Topic event | `seq` (per-topic, gapless), `turn_id`, `type`, data | `type` is `user_message`, `delta`, `done`, `error`, `cancelled`. The SSE `id` is `seq` |
+| Refusal | `code` | `unauthorized`, `operation_failed`, `topic_not_found`, `context_too_large`, `context_project_mismatch`, `command_conflict`, `resnapshot_required` |
+
+Behavior the slice must prove: a turn ends in exactly one of `done`, `error` or
+`cancelled`, and a stream that ends without one is incomplete, never success.
+Partial output before `error` or `cancelled` is kept and marked partial.
+A context whose `project_id` differs from the topic's is refused before any
+model call. A reconnect with `after=<seq>` resumes without gap or duplicate; an
+expired or unknown cursor answers `resnapshot_required`. A second account cannot
+read or post to the topic. Content stays synthetic until architecture §5's
+lifecycle OPEN closes.
+
+The model provider is configured on the backend, never in the client. This
+slice uses OpenRouter through the AI SDK OpenAI-compatible adapter, after the
+user's 2026-10-12 key passed a synthetic two-step tool probe on free models.
+The answer uses only the supplied context; on-demand retrieval arrives with the
+connector. Shadows owns the sharing switch and the `nylra-context/1` projection
+([Shadows §1.7](../../../../shadows/docs/superpowers/specs/2026-09-21-architecture-design.md#17-workspace-authority-and-deployment)).
+
+> **OPEN — what `nylra-context/1` carries.** Name, current roadmap outcomes,
+> current plans and their states are the floor; whether Planner thread excerpts
+> belong is undecided, because they are the largest and most private part.
+> **Closes when** the slice-1 plan lists the items and their size bounds, and
+> Shadows' contract for the projection says the same.
 
 ## 5. Complete first journey
 
