@@ -1,0 +1,41 @@
+{
+  "contractVersion": "0.1.0",
+  "notice": "Synthetic wire examples only. Ids, names and texts describe no real project or account.",
+  "valid": {
+    "LinkClaim": {"commandId":"00000000-0000-4000-8000-0000000000c1","code":"K7QF-3MZP"},
+    "LinkList": {"links":[{"instanceId":"00000000-0000-4000-8000-000000000010","name":"Laptop","status":"online","lastSeenAt":"2026-10-12T21:40:00Z","projects":[{"projectId":"00000000-0000-4000-8000-000000000020","name":"Synthetic Lighthouse"}]}]},
+    "PushRegistration": {"platform":"fcm","token":"synthetic-fcm-token"},
+    "TopicCreate": {"commandId":"00000000-0000-4000-8000-0000000000c2","instanceId":"00000000-0000-4000-8000-000000000010","projectId":"00000000-0000-4000-8000-000000000020"},
+    "TopicList": {"cursor":12,"topics":[{"topicId":"00000000-0000-4000-8000-000000000030","kind":"escalation","title":"Login task blocked: token refresh contract","project":{"instanceId":"00000000-0000-4000-8000-000000000010","projectId":"00000000-0000-4000-8000-000000000020","name":"Synthetic Lighthouse"},"state":"open","needsYou":true,"escalation":{"raisedBy":"planner","summary":"An executor found the login contract has no refresh operation. The Planner proposes adding refreshSession to the API contract as v2.","task":{"ref":"task:backend-login","title":"Implement login"},"plannerThreadId":"00000000-0000-4000-8000-000000000040"},"createdAt":"2026-10-12T21:30:00Z","updatedAt":"2026-10-12T21:36:00Z","lastSeq":6}]},
+    "TopicSnapshot": {"cursor":6,"topic":{"topicId":"00000000-0000-4000-8000-000000000030","kind":"escalation","title":"Login task blocked: token refresh contract","project":{"instanceId":"00000000-0000-4000-8000-000000000010","projectId":"00000000-0000-4000-8000-000000000020","name":"Synthetic Lighthouse"},"state":"open","needsYou":true,"escalation":{"raisedBy":"planner","summary":"An executor found the login contract has no refresh operation. The Planner proposes adding refreshSession to the API contract as v2.","task":{"ref":"task:backend-login","title":"Implement login"},"plannerThreadId":"00000000-0000-4000-8000-000000000040"},"createdAt":"2026-10-12T21:30:00Z","updatedAt":"2026-10-12T21:36:00Z","lastSeq":6},"entries":[
+      {"type":"escalation","entryId":"00000000-0000-4000-8000-000000000101","seq":1,"createdAt":"2026-10-12T21:30:00Z","text":"Executor stopped on Implement login: the agreed contract v1 has no way to refresh a session. Planner proposes contract v2 with refreshSession.","sources":[{"ref":{"kind":"agreement","id":"api-auth"},"version":"1","readAt":"2026-10-12T21:30:00Z","origin":"owner"},{"ref":{"kind":"planner_message","id":"00000000-0000-4000-8000-000000000041"},"version":"1","readAt":"2026-10-12T21:30:00Z","origin":"owner"}]},
+      {"type":"user_message","entryId":"00000000-0000-4000-8000-000000000102","seq":2,"createdAt":"2026-10-12T21:33:00Z","turnId":"00000000-0000-4000-8000-000000000201","text":"Explain what the Planner means.","attachments":[]},
+      {"type":"assistant_message","entryId":"00000000-0000-4000-8000-000000000103","seq":4,"createdAt":"2026-10-12T21:33:02Z","turnId":"00000000-0000-4000-8000-000000000201","text":"The login contract lets a user sign in but says nothing about renewing an expired session, so the executor cannot finish without guessing.","status":"complete","sources":[{"ref":{"kind":"agreement","id":"api-auth"},"version":"1","readAt":"2026-10-12T21:30:00Z","origin":"owner"}]},
+      {"type":"reply_draft","entryId":"00000000-0000-4000-8000-000000000104","seq":6,"createdAt":"2026-10-12T21:36:00Z","draftId":"00000000-0000-4000-8000-000000000301","to":"planner","text":"Agreed: add refreshSession in contract v2, with a 30-day absolute limit.","digest":"6f1c3c7e5b0f8a0f2b6c6f3f1a8d7e2b9c4d5e6f708192a3b4c5d6e7f8091a2b","status":"awaiting_confirmation","delivery":null}
+    ]},
+    "TopicEvents": [
+      {"type":"entry_added","seq":7,"entry":{"type":"user_message","entryId":"00000000-0000-4000-8000-000000000105","seq":7,"createdAt":"2026-10-12T21:37:00Z","turnId":"00000000-0000-4000-8000-000000000202","text":"Which function would change?","attachments":[]}},
+      {"type":"entry_added","seq":8,"entry":{"type":"assistant_message","entryId":"00000000-0000-4000-8000-000000000106","seq":8,"createdAt":"2026-10-12T21:37:01Z","turnId":"00000000-0000-4000-8000-000000000202","text":"","status":"streaming","sources":[]}},
+      {"type":"delta","seq":9,"entryId":"00000000-0000-4000-8000-000000000106","text":"The session handler in the backend part"},
+      {"type":"turn_finished","seq":10,"turnId":"00000000-0000-4000-8000-000000000202","outcome":"done"},
+      {"type":"turn_finished","seq":11,"turnId":"00000000-0000-4000-8000-000000000203","outcome":"error","code":"source_offline"},
+      {"type":"resnapshot_required","seq":12}
+    ],
+    "TurnRequest": {"commandId":"00000000-0000-4000-8000-0000000000c3","message":"Where are we on this project?","context":{"schema":"nylra-context/1","projectId":"00000000-0000-4000-8000-000000000020","revision":"r42","readAt":"2026-10-12T21:40:00Z","items":[{"ref":{"kind":"plan","id":"00000000-0000-4000-8000-000000000050"},"version":"3","title":"Login plan","text":"Approved. Two tasks; one blocked on the refresh contract."}]}},
+    "DraftConfirm": {"commandId":"00000000-0000-4000-8000-0000000000c4","digest":"6f1c3c7e5b0f8a0f2b6c6f3f1a8d7e2b9c4d5e6f708192a3b4c5d6e7f8091a2b"},
+    "DraftDecision": {"draftId":"00000000-0000-4000-8000-000000000301","status":"confirmed","delivery":"queued"},
+    "Attachment": {"attachmentId":"00000000-0000-4000-8000-000000000401","fileName":"error.log","mediaType":"text/plain","size":2048,"sha256":"0000000000000000000000000000000000000000000000000000000000000000"},
+    "AccountEvents": [{"type":"link_updated","seq":13,"link":{"instanceId":"00000000-0000-4000-8000-000000000010","name":"Laptop","status":"offline","lastSeenAt":"2026-10-12T21:45:00Z","projects":[]}}]
+  },
+  "invalid": [
+    {"schema":"TurnRequest","why":"account comes from the session, never the body","value":{"commandId":"00000000-0000-4000-8000-0000000000c3","message":"hi","accountId":"00000000-0000-4000-8000-000000000001"}},
+    {"schema":"TurnRequest","why":"message over 2000 characters","value":{"commandId":"00000000-0000-4000-8000-0000000000c3","message":"@@LONG_MESSAGE@@"}},
+    {"schema":"TurnRequest","why":"unknown context schema","value":{"commandId":"00000000-0000-4000-8000-0000000000c3","message":"hi","context":{"schema":"nylra-context/2","projectId":"00000000-0000-4000-8000-000000000020","revision":"r1","readAt":"2026-10-12T21:40:00Z","items":[]}}},
+    {"schema":"DraftConfirm","why":"confirmation needs the digest of the text shown","value":{"commandId":"00000000-0000-4000-8000-0000000000c4"}},
+    {"schema":"LinkClaim","why":"pairing code has no ambiguous characters","value":{"commandId":"00000000-0000-4000-8000-0000000000c1","code":"K7Q0-3MZP"}},
+    {"schema":"PushRegistration","why":"unknown push platform","value":{"platform":"sms","token":"x"}},
+    {"schema":"TopicEvent","why":"a terminal outcome is one of done, error, cancelled","value":{"type":"turn_finished","seq":1,"turnId":"00000000-0000-4000-8000-000000000202","outcome":"maybe"}},
+    {"schema":"TopicSnapshot","why":"timestamps are UTC","value":{"cursor":0,"entries":[],"topic":{"topicId":"00000000-0000-4000-8000-000000000030","kind":"conversation","title":"t","project":{"instanceId":"00000000-0000-4000-8000-000000000010","projectId":"00000000-0000-4000-8000-000000000020","name":"n"},"state":"open","needsYou":false,"createdAt":"2026-10-12T21:30:00+03:00","updatedAt":"2026-10-12T21:30:00Z","lastSeq":0}}}
+  ],
+  "refusals": [{"status":400,"body":{"code":"request_invalid"}},{"status":401,"body":{"code":"unauthorized"}},{"status":404,"body":{"code":"not_found"}},{"status":409,"body":{"code":"command_conflict"}},{"status":409,"body":{"code":"draft_stale"}},{"status":410,"body":{"code":"resnapshot_required"}},{"status":413,"body":{"code":"context_too_large"}},{"status":503,"body":{"code":"operation_failed"}}]
+}

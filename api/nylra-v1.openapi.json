@@ -1,0 +1,2798 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "NYLRA backend API",
+    "version": "0.1.0",
+    "description": "Contract draft for NYLRA desktop and mobile. No route serves it yet; sessions come from auth-v1."
+  },
+  "components": {
+    "securitySchemes": {
+      "backendBearer": {
+        "type": "http",
+        "scheme": "bearer"
+      }
+    },
+    "schemas": {
+      "AccountEvent": {
+        "anyOf": [
+          {
+            "additionalProperties": false,
+            "type": "object",
+            "required": [
+              "type",
+              "seq",
+              "topic"
+            ],
+            "properties": {
+              "type": {
+                "const": "topic_updated",
+                "type": "string"
+              },
+              "seq": {
+                "minimum": 0,
+                "description": "Position in one ordered stream; gapless and never reused.",
+                "type": "integer"
+              },
+              "topic": {
+                "$ref": "#/components/schemas/Topic"
+              }
+            }
+          },
+          {
+            "additionalProperties": false,
+            "type": "object",
+            "required": [
+              "type",
+              "seq",
+              "link"
+            ],
+            "properties": {
+              "type": {
+                "const": "link_updated",
+                "type": "string"
+              },
+              "seq": {
+                "minimum": 0,
+                "description": "Position in one ordered stream; gapless and never reused.",
+                "type": "integer"
+              },
+              "link": {
+                "$ref": "#/components/schemas/Link"
+              }
+            }
+          },
+          {
+            "additionalProperties": false,
+            "type": "object",
+            "required": [
+              "type",
+              "seq"
+            ],
+            "properties": {
+              "type": {
+                "const": "resnapshot_required",
+                "type": "string"
+              },
+              "seq": {
+                "minimum": 0,
+                "description": "Position in one ordered stream; gapless and never reused.",
+                "type": "integer"
+              }
+            }
+          }
+        ]
+      },
+      "AfterQuery": {
+        "additionalProperties": false,
+        "type": "object",
+        "properties": {
+          "after": {
+            "minimum": 0,
+            "description": "Position in one ordered stream; gapless and never reused.",
+            "type": "integer"
+          }
+        }
+      },
+      "Attachment": {
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "attachmentId",
+          "fileName",
+          "mediaType",
+          "size",
+          "sha256"
+        ],
+        "properties": {
+          "attachmentId": {
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+            "type": "string"
+          },
+          "fileName": {
+            "maxLength": 255,
+            "type": "string"
+          },
+          "mediaType": {
+            "maxLength": 127,
+            "type": "string"
+          },
+          "size": {
+            "minimum": 1,
+            "maximum": 10485760,
+            "type": "integer"
+          },
+          "sha256": {
+            "pattern": "^[0-9a-f]{64}$",
+            "description": "SHA-256 hex of the exact text shown to the person.",
+            "type": "string"
+          }
+        }
+      },
+      "AttachmentQuery": {
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "fileName",
+          "mediaType"
+        ],
+        "properties": {
+          "fileName": {
+            "minLength": 1,
+            "maxLength": 255,
+            "type": "string"
+          },
+          "mediaType": {
+            "minLength": 3,
+            "maxLength": 127,
+            "type": "string"
+          }
+        }
+      },
+      "ContextItem": {
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "ref",
+          "version",
+          "title",
+          "text"
+        ],
+        "properties": {
+          "ref": {
+            "additionalProperties": false,
+            "type": "object",
+            "required": [
+              "kind",
+              "id"
+            ],
+            "properties": {
+              "kind": {
+                "pattern": "^[a-z][a-z_]{0,39}$",
+                "type": "string"
+              },
+              "id": {
+                "minLength": 1,
+                "maxLength": 128,
+                "type": "string"
+              }
+            }
+          },
+          "version": {
+            "minLength": 1,
+            "maxLength": 128,
+            "type": "string"
+          },
+          "title": {
+            "maxLength": 200,
+            "type": "string"
+          },
+          "text": {
+            "maxLength": 8000,
+            "type": "string"
+          }
+        }
+      },
+      "DraftConfirm": {
+        "additionalProperties": false,
+        "description": "The person confirms this exact text. NYLRA cannot confirm for them.",
+        "type": "object",
+        "required": [
+          "commandId",
+          "digest"
+        ],
+        "properties": {
+          "commandId": {
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+            "type": "string",
+            "description": "Client-generated. The same id with the same request replays; with another, command_conflict."
+          },
+          "digest": {
+            "pattern": "^[0-9a-f]{64}$",
+            "description": "SHA-256 hex of the exact text shown to the person.",
+            "type": "string"
+          }
+        }
+      },
+      "DraftDecision": {
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "draftId",
+          "status",
+          "delivery"
+        ],
+        "properties": {
+          "draftId": {
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+            "type": "string"
+          },
+          "status": {
+            "anyOf": [
+              {
+                "const": "confirmed",
+                "type": "string"
+              },
+              {
+                "const": "discarded",
+                "type": "string"
+              }
+            ]
+          },
+          "delivery": {
+            "anyOf": [
+              {
+                "const": "queued",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        }
+      },
+      "DraftParams": {
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "topicId",
+          "draftId"
+        ],
+        "properties": {
+          "topicId": {
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+            "type": "string"
+          },
+          "draftId": {
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+            "type": "string"
+          }
+        }
+      },
+      "Empty": {
+        "additionalProperties": false,
+        "type": "object",
+        "properties": {}
+      },
+      "Entry": {
+        "anyOf": [
+          {
+            "additionalProperties": false,
+            "type": "object",
+            "required": [
+              "type",
+              "entryId",
+              "seq",
+              "createdAt",
+              "turnId",
+              "text",
+              "attachments"
+            ],
+            "properties": {
+              "type": {
+                "const": "user_message",
+                "type": "string"
+              },
+              "entryId": {
+                "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+                "type": "string"
+              },
+              "seq": {
+                "minimum": 0,
+                "description": "Position in one ordered stream; gapless and never reused.",
+                "type": "integer"
+              },
+              "createdAt": {
+                "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\\.[0-9]{1,9})?Z$",
+                "description": "UTC, RFC 3339.",
+                "type": "string"
+              },
+              "turnId": {
+                "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+                "type": "string"
+              },
+              "text": {
+                "maxLength": 2000,
+                "type": "string"
+              },
+              "attachments": {
+                "maxItems": 5,
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/Attachment"
+                }
+              }
+            }
+          },
+          {
+            "additionalProperties": false,
+            "type": "object",
+            "required": [
+              "type",
+              "entryId",
+              "seq",
+              "createdAt",
+              "turnId",
+              "text",
+              "status",
+              "sources"
+            ],
+            "properties": {
+              "type": {
+                "const": "assistant_message",
+                "type": "string"
+              },
+              "entryId": {
+                "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+                "type": "string"
+              },
+              "seq": {
+                "minimum": 0,
+                "description": "Position in one ordered stream; gapless and never reused.",
+                "type": "integer"
+              },
+              "createdAt": {
+                "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\\.[0-9]{1,9})?Z$",
+                "description": "UTC, RFC 3339.",
+                "type": "string"
+              },
+              "turnId": {
+                "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+                "type": "string"
+              },
+              "text": {
+                "maxLength": 16000,
+                "type": "string"
+              },
+              "status": {
+                "anyOf": [
+                  {
+                    "const": "streaming",
+                    "type": "string"
+                  },
+                  {
+                    "const": "complete",
+                    "type": "string"
+                  },
+                  {
+                    "const": "partial",
+                    "type": "string"
+                  }
+                ]
+              },
+              "sources": {
+                "maxItems": 50,
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/SourceRef"
+                }
+              }
+            }
+          },
+          {
+            "additionalProperties": false,
+            "type": "object",
+            "required": [
+              "type",
+              "entryId",
+              "seq",
+              "createdAt",
+              "text",
+              "sources"
+            ],
+            "properties": {
+              "type": {
+                "const": "escalation",
+                "type": "string"
+              },
+              "entryId": {
+                "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+                "type": "string"
+              },
+              "seq": {
+                "minimum": 0,
+                "description": "Position in one ordered stream; gapless and never reused.",
+                "type": "integer"
+              },
+              "createdAt": {
+                "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\\.[0-9]{1,9})?Z$",
+                "description": "UTC, RFC 3339.",
+                "type": "string"
+              },
+              "text": {
+                "maxLength": 8000,
+                "type": "string"
+              },
+              "sources": {
+                "maxItems": 50,
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/SourceRef"
+                }
+              }
+            }
+          },
+          {
+            "additionalProperties": false,
+            "type": "object",
+            "required": [
+              "type",
+              "entryId",
+              "seq",
+              "createdAt",
+              "draftId",
+              "to",
+              "text",
+              "digest",
+              "status",
+              "delivery"
+            ],
+            "properties": {
+              "type": {
+                "const": "reply_draft",
+                "type": "string"
+              },
+              "entryId": {
+                "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+                "type": "string"
+              },
+              "seq": {
+                "minimum": 0,
+                "description": "Position in one ordered stream; gapless and never reused.",
+                "type": "integer"
+              },
+              "createdAt": {
+                "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\\.[0-9]{1,9})?Z$",
+                "description": "UTC, RFC 3339.",
+                "type": "string"
+              },
+              "draftId": {
+                "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+                "type": "string"
+              },
+              "to": {
+                "const": "planner",
+                "type": "string"
+              },
+              "text": {
+                "maxLength": 4000,
+                "type": "string"
+              },
+              "digest": {
+                "pattern": "^[0-9a-f]{64}$",
+                "description": "SHA-256 hex of the exact text shown to the person.",
+                "type": "string"
+              },
+              "status": {
+                "anyOf": [
+                  {
+                    "const": "awaiting_confirmation",
+                    "type": "string"
+                  },
+                  {
+                    "const": "confirmed",
+                    "type": "string"
+                  },
+                  {
+                    "const": "discarded",
+                    "type": "string"
+                  },
+                  {
+                    "const": "superseded",
+                    "type": "string"
+                  },
+                  {
+                    "const": "expired",
+                    "type": "string"
+                  }
+                ]
+              },
+              "delivery": {
+                "anyOf": [
+                  {
+                    "anyOf": [
+                      {
+                        "const": "queued",
+                        "type": "string"
+                      },
+                      {
+                        "const": "delivered",
+                        "type": "string"
+                      },
+                      {
+                        "const": "accepted",
+                        "type": "string"
+                      },
+                      {
+                        "const": "rejected",
+                        "type": "string"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      },
+      "Escalation": {
+        "additionalProperties": false,
+        "description": "Who in Shadows raised it and about what. Present only on escalation topics.",
+        "type": "object",
+        "required": [
+          "raisedBy",
+          "summary",
+          "task",
+          "plannerThreadId"
+        ],
+        "properties": {
+          "raisedBy": {
+            "anyOf": [
+              {
+                "const": "planner",
+                "type": "string"
+              },
+              {
+                "const": "manager",
+                "type": "string"
+              },
+              {
+                "const": "executor",
+                "type": "string"
+              }
+            ]
+          },
+          "summary": {
+            "maxLength": 2000,
+            "type": "string"
+          },
+          "task": {
+            "anyOf": [
+              {
+                "additionalProperties": false,
+                "type": "object",
+                "required": [
+                  "ref",
+                  "title"
+                ],
+                "properties": {
+                  "ref": {
+                    "maxLength": 160,
+                    "type": "string"
+                  },
+                  "title": {
+                    "maxLength": 200,
+                    "type": "string"
+                  }
+                }
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "plannerThreadId": {
+            "anyOf": [
+              {
+                "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        }
+      },
+      "InstanceParams": {
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "instanceId"
+        ],
+        "properties": {
+          "instanceId": {
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+            "type": "string"
+          }
+        }
+      },
+      "Link": {
+        "additionalProperties": false,
+        "description": "One linked Shadows instance. projects lists only those the person shared with NYLRA in Shadows.",
+        "type": "object",
+        "required": [
+          "instanceId",
+          "name",
+          "status",
+          "lastSeenAt",
+          "projects"
+        ],
+        "properties": {
+          "instanceId": {
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+            "type": "string"
+          },
+          "name": {
+            "maxLength": 80,
+            "type": "string"
+          },
+          "status": {
+            "anyOf": [
+              {
+                "const": "online",
+                "type": "string"
+              },
+              {
+                "const": "offline",
+                "type": "string"
+              }
+            ]
+          },
+          "lastSeenAt": {
+            "anyOf": [
+              {
+                "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\\.[0-9]{1,9})?Z$",
+                "description": "UTC, RFC 3339.",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "projects": {
+            "maxItems": 500,
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/LinkedProject"
+            }
+          }
+        }
+      },
+      "LinkClaim": {
+        "additionalProperties": false,
+        "description": "The pairing code a Shadows daemon displays.",
+        "type": "object",
+        "required": [
+          "commandId",
+          "code"
+        ],
+        "properties": {
+          "commandId": {
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+            "type": "string",
+            "description": "Client-generated. The same id with the same request replays; with another, command_conflict."
+          },
+          "code": {
+            "pattern": "^[A-HJ-NP-Z2-9]{4}-[A-HJ-NP-Z2-9]{4}$",
+            "type": "string"
+          }
+        }
+      },
+      "LinkList": {
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "links"
+        ],
+        "properties": {
+          "links": {
+            "maxItems": 50,
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Link"
+            }
+          }
+        }
+      },
+      "LinkedProject": {
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "projectId",
+          "name"
+        ],
+        "properties": {
+          "projectId": {
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+            "type": "string"
+          },
+          "name": {
+            "maxLength": 200,
+            "type": "string"
+          }
+        }
+      },
+      "LocalContext": {
+        "additionalProperties": false,
+        "description": "What desktop read from the local Shadows for this turn. Explanation material only; over 32 KiB serialized is refused.",
+        "type": "object",
+        "required": [
+          "schema",
+          "projectId",
+          "revision",
+          "readAt",
+          "items"
+        ],
+        "properties": {
+          "schema": {
+            "const": "nylra-context/1",
+            "type": "string"
+          },
+          "projectId": {
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+            "type": "string"
+          },
+          "revision": {
+            "minLength": 1,
+            "maxLength": 128,
+            "type": "string"
+          },
+          "readAt": {
+            "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\\.[0-9]{1,9})?Z$",
+            "description": "UTC, RFC 3339.",
+            "type": "string"
+          },
+          "items": {
+            "maxItems": 200,
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ContextItem"
+            }
+          }
+        }
+      },
+      "NylraRefusal": {
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "code"
+        ],
+        "properties": {
+          "code": {
+            "anyOf": [
+              {
+                "const": "request_invalid",
+                "type": "string"
+              },
+              {
+                "const": "unauthorized",
+                "type": "string"
+              },
+              {
+                "const": "not_found",
+                "type": "string"
+              },
+              {
+                "const": "rate_limited",
+                "type": "string"
+              },
+              {
+                "const": "operation_failed",
+                "type": "string"
+              },
+              {
+                "const": "link_code_invalid",
+                "type": "string"
+              },
+              {
+                "const": "command_conflict",
+                "type": "string"
+              },
+              {
+                "const": "context_too_large",
+                "type": "string"
+              },
+              {
+                "const": "context_project_mismatch",
+                "type": "string"
+              },
+              {
+                "const": "resnapshot_required",
+                "type": "string"
+              },
+              {
+                "const": "draft_stale",
+                "type": "string"
+              },
+              {
+                "const": "source_offline",
+                "type": "string"
+              },
+              {
+                "const": "attachment_too_large",
+                "type": "string"
+              }
+            ]
+          }
+        }
+      },
+      "ProjectRef": {
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "instanceId",
+          "projectId",
+          "name"
+        ],
+        "properties": {
+          "instanceId": {
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+            "type": "string"
+          },
+          "projectId": {
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+            "type": "string"
+          },
+          "name": {
+            "maxLength": 200,
+            "type": "string"
+          }
+        }
+      },
+      "PushRegistration": {
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "platform",
+          "token"
+        ],
+        "properties": {
+          "platform": {
+            "anyOf": [
+              {
+                "const": "fcm",
+                "type": "string"
+              },
+              {
+                "const": "apns",
+                "type": "string"
+              }
+            ]
+          },
+          "token": {
+            "minLength": 1,
+            "maxLength": 4096,
+            "type": "string"
+          }
+        }
+      },
+      "SourceRef": {
+        "additionalProperties": false,
+        "description": "origin owner: read by the backend from Shadows. local_client: reported by desktop, not owner-verified.",
+        "type": "object",
+        "required": [
+          "ref",
+          "version",
+          "readAt",
+          "origin"
+        ],
+        "properties": {
+          "ref": {
+            "additionalProperties": false,
+            "type": "object",
+            "required": [
+              "kind",
+              "id"
+            ],
+            "properties": {
+              "kind": {
+                "pattern": "^[a-z][a-z_]{0,39}$",
+                "type": "string"
+              },
+              "id": {
+                "minLength": 1,
+                "maxLength": 128,
+                "type": "string"
+              }
+            }
+          },
+          "version": {
+            "minLength": 1,
+            "maxLength": 128,
+            "type": "string"
+          },
+          "readAt": {
+            "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\\.[0-9]{1,9})?Z$",
+            "description": "UTC, RFC 3339.",
+            "type": "string"
+          },
+          "origin": {
+            "anyOf": [
+              {
+                "const": "owner",
+                "type": "string"
+              },
+              {
+                "const": "local_client",
+                "type": "string"
+              }
+            ]
+          }
+        }
+      },
+      "Topic": {
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "topicId",
+          "kind",
+          "title",
+          "project",
+          "state",
+          "needsYou",
+          "createdAt",
+          "updatedAt",
+          "lastSeq"
+        ],
+        "properties": {
+          "topicId": {
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+            "type": "string"
+          },
+          "kind": {
+            "anyOf": [
+              {
+                "const": "escalation",
+                "type": "string"
+              },
+              {
+                "const": "conversation",
+                "type": "string"
+              }
+            ]
+          },
+          "title": {
+            "maxLength": 200,
+            "type": "string"
+          },
+          "project": {
+            "$ref": "#/components/schemas/ProjectRef"
+          },
+          "state": {
+            "anyOf": [
+              {
+                "const": "open",
+                "type": "string"
+              },
+              {
+                "const": "resolved",
+                "type": "string"
+              }
+            ]
+          },
+          "needsYou": {
+            "type": "boolean"
+          },
+          "escalation": {
+            "additionalProperties": false,
+            "description": "Who in Shadows raised it and about what. Present only on escalation topics.",
+            "type": "object",
+            "required": [
+              "raisedBy",
+              "summary",
+              "task",
+              "plannerThreadId"
+            ],
+            "properties": {
+              "raisedBy": {
+                "anyOf": [
+                  {
+                    "const": "planner",
+                    "type": "string"
+                  },
+                  {
+                    "const": "manager",
+                    "type": "string"
+                  },
+                  {
+                    "const": "executor",
+                    "type": "string"
+                  }
+                ]
+              },
+              "summary": {
+                "maxLength": 2000,
+                "type": "string"
+              },
+              "task": {
+                "anyOf": [
+                  {
+                    "additionalProperties": false,
+                    "type": "object",
+                    "required": [
+                      "ref",
+                      "title"
+                    ],
+                    "properties": {
+                      "ref": {
+                        "maxLength": 160,
+                        "type": "string"
+                      },
+                      "title": {
+                        "maxLength": 200,
+                        "type": "string"
+                      }
+                    }
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "plannerThreadId": {
+                "anyOf": [
+                  {
+                    "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            }
+          },
+          "createdAt": {
+            "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\\.[0-9]{1,9})?Z$",
+            "description": "UTC, RFC 3339.",
+            "type": "string"
+          },
+          "updatedAt": {
+            "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\\.[0-9]{1,9})?Z$",
+            "description": "UTC, RFC 3339.",
+            "type": "string"
+          },
+          "lastSeq": {
+            "minimum": 0,
+            "description": "Position in one ordered stream; gapless and never reused.",
+            "type": "integer"
+          }
+        }
+      },
+      "TopicCreate": {
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "commandId",
+          "instanceId",
+          "projectId"
+        ],
+        "properties": {
+          "commandId": {
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+            "type": "string",
+            "description": "Client-generated. The same id with the same request replays; with another, command_conflict."
+          },
+          "instanceId": {
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+            "type": "string"
+          },
+          "projectId": {
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+            "type": "string"
+          },
+          "title": {
+            "minLength": 1,
+            "maxLength": 200,
+            "type": "string"
+          }
+        }
+      },
+      "TopicEvent": {
+        "anyOf": [
+          {
+            "additionalProperties": false,
+            "type": "object",
+            "required": [
+              "type",
+              "seq",
+              "entry"
+            ],
+            "properties": {
+              "type": {
+                "const": "entry_added",
+                "type": "string"
+              },
+              "seq": {
+                "minimum": 0,
+                "description": "Position in one ordered stream; gapless and never reused.",
+                "type": "integer"
+              },
+              "entry": {
+                "$ref": "#/components/schemas/Entry"
+              }
+            }
+          },
+          {
+            "additionalProperties": false,
+            "type": "object",
+            "required": [
+              "type",
+              "seq",
+              "entryId",
+              "text"
+            ],
+            "properties": {
+              "type": {
+                "const": "delta",
+                "type": "string"
+              },
+              "seq": {
+                "minimum": 0,
+                "description": "Position in one ordered stream; gapless and never reused.",
+                "type": "integer"
+              },
+              "entryId": {
+                "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+                "type": "string"
+              },
+              "text": {
+                "minLength": 1,
+                "maxLength": 4000,
+                "type": "string"
+              }
+            }
+          },
+          {
+            "additionalProperties": false,
+            "type": "object",
+            "required": [
+              "type",
+              "seq",
+              "entry"
+            ],
+            "properties": {
+              "type": {
+                "const": "entry_updated",
+                "type": "string"
+              },
+              "seq": {
+                "minimum": 0,
+                "description": "Position in one ordered stream; gapless and never reused.",
+                "type": "integer"
+              },
+              "entry": {
+                "$ref": "#/components/schemas/Entry"
+              }
+            }
+          },
+          {
+            "additionalProperties": false,
+            "type": "object",
+            "required": [
+              "type",
+              "seq",
+              "turnId",
+              "outcome"
+            ],
+            "properties": {
+              "type": {
+                "const": "turn_finished",
+                "type": "string"
+              },
+              "seq": {
+                "minimum": 0,
+                "description": "Position in one ordered stream; gapless and never reused.",
+                "type": "integer"
+              },
+              "turnId": {
+                "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+                "type": "string"
+              },
+              "outcome": {
+                "anyOf": [
+                  {
+                    "const": "done",
+                    "type": "string"
+                  },
+                  {
+                    "const": "error",
+                    "type": "string"
+                  },
+                  {
+                    "const": "cancelled",
+                    "type": "string"
+                  }
+                ]
+              },
+              "code": {
+                "maxLength": 64,
+                "type": "string"
+              }
+            }
+          },
+          {
+            "additionalProperties": false,
+            "type": "object",
+            "required": [
+              "type",
+              "seq",
+              "topic"
+            ],
+            "properties": {
+              "type": {
+                "const": "topic_updated",
+                "type": "string"
+              },
+              "seq": {
+                "minimum": 0,
+                "description": "Position in one ordered stream; gapless and never reused.",
+                "type": "integer"
+              },
+              "topic": {
+                "$ref": "#/components/schemas/Topic"
+              }
+            }
+          },
+          {
+            "additionalProperties": false,
+            "type": "object",
+            "required": [
+              "type",
+              "seq"
+            ],
+            "properties": {
+              "type": {
+                "const": "resnapshot_required",
+                "type": "string"
+              },
+              "seq": {
+                "minimum": 0,
+                "description": "Position in one ordered stream; gapless and never reused.",
+                "type": "integer"
+              }
+            }
+          }
+        ]
+      },
+      "TopicList": {
+        "additionalProperties": false,
+        "description": "cursor is the account event position matching this list.",
+        "type": "object",
+        "required": [
+          "topics",
+          "cursor"
+        ],
+        "properties": {
+          "topics": {
+            "maxItems": 200,
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Topic"
+            }
+          },
+          "cursor": {
+            "minimum": 0,
+            "description": "Position in one ordered stream; gapless and never reused.",
+            "type": "integer"
+          }
+        }
+      },
+      "TopicParams": {
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "topicId"
+        ],
+        "properties": {
+          "topicId": {
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+            "type": "string"
+          }
+        }
+      },
+      "TopicSnapshot": {
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "topic",
+          "entries",
+          "cursor"
+        ],
+        "properties": {
+          "topic": {
+            "$ref": "#/components/schemas/Topic"
+          },
+          "entries": {
+            "maxItems": 1000,
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Entry"
+            }
+          },
+          "cursor": {
+            "minimum": 0,
+            "description": "Position in one ordered stream; gapless and never reused.",
+            "type": "integer"
+          }
+        }
+      },
+      "TurnAccepted": {
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "turnId",
+          "entryId",
+          "seq"
+        ],
+        "properties": {
+          "turnId": {
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+            "type": "string"
+          },
+          "entryId": {
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+            "type": "string"
+          },
+          "seq": {
+            "minimum": 0,
+            "description": "Position in one ordered stream; gapless and never reused.",
+            "type": "integer"
+          }
+        }
+      },
+      "TurnParams": {
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "topicId",
+          "turnId"
+        ],
+        "properties": {
+          "topicId": {
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+            "type": "string"
+          },
+          "turnId": {
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+            "type": "string"
+          }
+        }
+      },
+      "TurnRequest": {
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "commandId",
+          "message"
+        ],
+        "properties": {
+          "commandId": {
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+            "type": "string",
+            "description": "Client-generated. The same id with the same request replays; with another, command_conflict."
+          },
+          "message": {
+            "minLength": 1,
+            "maxLength": 2000,
+            "type": "string"
+          },
+          "context": {
+            "additionalProperties": false,
+            "description": "What desktop read from the local Shadows for this turn. Explanation material only; over 32 KiB serialized is refused.",
+            "type": "object",
+            "required": [
+              "schema",
+              "projectId",
+              "revision",
+              "readAt",
+              "items"
+            ],
+            "properties": {
+              "schema": {
+                "const": "nylra-context/1",
+                "type": "string"
+              },
+              "projectId": {
+                "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+                "type": "string"
+              },
+              "revision": {
+                "minLength": 1,
+                "maxLength": 128,
+                "type": "string"
+              },
+              "readAt": {
+                "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\\.[0-9]{1,9})?Z$",
+                "description": "UTC, RFC 3339.",
+                "type": "string"
+              },
+              "items": {
+                "maxItems": 200,
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/ContextItem"
+                }
+              }
+            }
+          },
+          "attachmentIds": {
+            "maxItems": 5,
+            "type": "array",
+            "items": {
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+              "type": "string"
+            }
+          }
+        }
+      }
+    }
+  },
+  "paths": {
+    "/v1/nylra/devices/current/push": {
+      "put": {
+        "summary": "Register this device for push notifications",
+        "security": [
+          {
+            "backendBearer": []
+          }
+        ],
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PushRegistration"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Empty"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Stop push notifications to this device",
+        "security": [
+          {
+            "backendBearer": []
+          }
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Empty"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/nylra/links/claim": {
+      "post": {
+        "summary": "Link a Shadows instance by the code it displays",
+        "security": [
+          {
+            "backendBearer": []
+          }
+        ],
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LinkClaim"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Link"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/nylra/links": {
+      "get": {
+        "summary": "Linked instances and their shared projects",
+        "security": [
+          {
+            "backendBearer": []
+          }
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LinkList"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/nylra/links/{instanceId}": {
+      "delete": {
+        "summary": "Unlink an instance; its reads and queued deliveries stop",
+        "security": [
+          {
+            "backendBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "instanceId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Empty"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/nylra/topics": {
+      "get": {
+        "summary": "Topics, newest activity first, with the account cursor",
+        "security": [
+          {
+            "backendBearer": []
+          }
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TopicList"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Start a conversation about one shared project",
+        "security": [
+          {
+            "backendBearer": []
+          }
+        ],
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TopicCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Topic"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/nylra/topics/{topicId}": {
+      "get": {
+        "summary": "Topic snapshot; events after its cursor are exactly the later ones",
+        "security": [
+          {
+            "backendBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "topicId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TopicSnapshot"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/nylra/topics/{topicId}/events": {
+      "get": {
+        "summary": "Topic events after a cursor (SSE; id = seq). Unknown or expired cursor: resnapshot_required",
+        "security": [
+          {
+            "backendBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "topicId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+              "type": "string"
+            }
+          },
+          {
+            "name": "after",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "minimum": 0,
+              "description": "Position in one ordered stream; gapless and never reused.",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Stream; each event data is one value of this schema",
+            "content": {
+              "text/event-stream": {
+                "schema": {
+                  "$ref": "#/components/schemas/TopicEvent"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          },
+          "410": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/nylra/events": {
+      "get": {
+        "summary": "Account events after a cursor (SSE; id = seq)",
+        "security": [
+          {
+            "backendBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "after",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "minimum": 0,
+              "description": "Position in one ordered stream; gapless and never reused.",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Stream; each event data is one value of this schema",
+            "content": {
+              "text/event-stream": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccountEvent"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          },
+          "410": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/nylra/topics/{topicId}/turns": {
+      "post": {
+        "summary": "Send a message; the answer arrives on the topic stream",
+        "security": [
+          {
+            "backendBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "topicId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TurnRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TurnAccepted"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/nylra/topics/{topicId}/turns/{turnId}/cancel": {
+      "post": {
+        "summary": "Stop an answer; its output so far stays, marked partial",
+        "security": [
+          {
+            "backendBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "topicId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+              "type": "string"
+            }
+          },
+          {
+            "name": "turnId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Empty"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Empty"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/nylra/topics/{topicId}/attachments": {
+      "post": {
+        "summary": "Upload one file (at most 10 MiB) for a later turn",
+        "security": [
+          {
+            "backendBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "topicId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+              "type": "string"
+            }
+          },
+          {
+            "name": "fileName",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "minLength": 1,
+              "maxLength": 255,
+              "type": "string"
+            }
+          },
+          {
+            "name": "mediaType",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "minLength": 3,
+              "maxLength": 127,
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/octet-stream": {
+              "schema": {
+                "type": "string",
+                "format": "binary"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Attachment"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/nylra/topics/{topicId}/drafts/{draftId}/confirm": {
+      "post": {
+        "summary": "The person sends this exact reply to the Planner",
+        "security": [
+          {
+            "backendBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "topicId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+              "type": "string"
+            }
+          },
+          {
+            "name": "draftId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DraftConfirm"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DraftDecision"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/nylra/topics/{topicId}/drafts/{draftId}/discard": {
+      "post": {
+        "summary": "The person drops a reply draft",
+        "security": [
+          {
+            "backendBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "topicId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+              "type": "string"
+            }
+          },
+          {
+            "name": "draftId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Empty"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DraftDecision"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

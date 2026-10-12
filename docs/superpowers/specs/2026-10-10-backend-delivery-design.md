@@ -297,39 +297,54 @@ snapshot boundary, duplicates, gaps, expired cursor, client revision mismatch an
 cross-project substitution. A new protocol version is introduced only for a real
 compatibility need. Do not assume existing Shadows SSE is this external protocol.
 
-### J1 slice 1: same-machine explanation (2026-10-12)
+### J1 client contract, nylra-v1 (2026-10-12)
 
-Decided with the user on 2026-10-12: integration starts with NYLRA desktop on
-the owning computer, through architecture's
-[same-machine context path](../../architecture.md#same-machine-context-path).
-This slice needs four of the shapes above: session (B1's, unchanged), topic,
-source reference and conversation stream. The command identity rules apply to
-its two writes. Connector messages, owner commands and confirmation wait for
-their own slices; their fields are not frozen here.
+Decided with the user on 2026-10-12: integration starts on the desktop, and the
+client contract is fixed first so NYLRA desktop and the Flutter app are built
+against one API in parallel. NYLRA talks only to Shadows; direct links to other
+coding agents are not part of it. The desktop's first context path is
+architecture's [same-machine context path](../../architecture.md#same-machine-context-path).
 
-The schema is owned here, defined in TypeBox beside its first route, and
-exported to `api/` with fixtures as auth-v1 is. Field names below are the
-review draft; the exported schema is authoritative once it exists.
+[`api/nylra-v1.openapi.json`](../../../api/nylra-v1.openapi.json) is the contract,
+version 0.1.0, exported from the TypeBox shapes in `src/transports/http/` with
+generated TypeScript and [synthetic fixtures](../../../api/nylra-v1.fixtures.json)
+(`npm run schema:nylra`; `schema:check` refuses drift). Flutter generates Dart
+from the same file. No route serves it yet; routes take their schemas from the
+same operation table. It covers:
 
-| Shape | Fields | Rule |
-| --- | --- | --- |
-| Topic | `topic_id`, `project` (`instance_id`, `project_id`, `name`), `created_at` | One topic belongs to one account and one project. The account comes from the session, never the body |
-| Local context | `schema` (`nylra-context/1`), `project_id`, `revision`, `read_at`, `items[]` | What desktop read from Shadows for this turn. Bounded at 32 KiB serialized; larger is refused, not truncated |
-| Context item | `ref` (Shadows kind + id), `version`, `title`, `text` | Shadows decides which items exist; the backend neither adds nor widens one |
-| Source reference | `ref`, `version`, `read_at`, `origin` (`local_client`) | Kept on every assistant entry that used it. `local_client` says the client reported it; it is not owner-verified |
-| Turn request | `command_id`, `message` (1–2000 chars), `context` | `command_id` replays an identical request and conflicts on a different one |
-| Topic snapshot | `topic`, `entries[]`, `cursor` | Entries and cursor share one boundary; events after the cursor are exactly the later ones |
-| Topic event | `seq` (per-topic, gapless), `turn_id`, `type`, data | `type` is `user_message`, `delta`, `done`, `error`, `cancelled`. The SSE `id` is `seq` |
-| Refusal | `code` | `unauthorized`, `operation_failed`, `topic_not_found`, `context_too_large`, `context_project_mismatch`, `command_conflict`, `resnapshot_required` |
+| Group | Operations |
+| --- | --- |
+| Push | Register or remove this device's FCM/APNs token |
+| Links | Claim a Shadows pairing code; list linked instances with online state and shared projects; unlink |
+| Topics | List with an account cursor; start a conversation; snapshot with cursor; topic and account SSE streams after a cursor |
+| Turns | Send a message, optionally with desktop's `nylra-context/1`; cancel |
+| Files | Upload one file, at most 10 MiB, for a later turn |
+| Replies | Confirm the exact text of a reply draft to the Planner, by its digest; discard it |
 
-Behavior the slice must prove: a turn ends in exactly one of `done`, `error` or
+A topic is an **escalation** raised in Shadows (Planner, and later manager or
+executor) or a **conversation** the person started. Its entries are user and
+assistant messages, the escalation itself, and reply drafts with their delivery
+state (`queued`, `delivered`, `accepted`, `rejected`). Every source carries its
+version, read time and origin: `owner` when the backend read Shadows, and
+`local_client` when desktop reported it. The account comes from the session,
+never a body field.
+
+Behavior the contract promises: a turn ends in exactly one of `done`, `error` or
 `cancelled`, and a stream that ends without one is incomplete, never success.
 Partial output before `error` or `cancelled` is kept and marked partial.
-A context whose `project_id` differs from the topic's is refused before any
+A context whose `projectId` differs from the topic's is refused before any
 model call. A reconnect with `after=<seq>` resumes without gap or duplicate; an
 expired or unknown cursor answers `resnapshot_required`. A second account cannot
 read or post to the topic. Content stays synthetic until architecture §5's
 lifecycle OPEN closes.
+
+A reply reaches the Planner only through `confirm`, sent by the person's
+client with the digest of the exact text it showed; a model answer cannot call
+it, and a changed draft answers `draft_stale`. `accepted` means Shadows
+revalidated and recorded it, under [Shadows §24.6](../../../../shadows/docs/superpowers/specs/2026-10-08-approval-authority-design.md#246-external-human-confirmation-and-assessment);
+until §24.6's external authority OPEN closes, a confirmed draft stays `queued`.
+Escalation topics and owner-read sources need the connector; until it exists,
+topics are conversations and sources are `local_client`.
 
 The model provider is configured on the backend, never in the client. This
 slice uses OpenRouter through the AI SDK OpenAI-compatible adapter, after the
