@@ -12,7 +12,7 @@ was supplied only at runtime and is absent from these repositories.
 | AI SDK `6.0.303` + `@ai-sdk/openai` `3.0.125`, MiniMax `MiniMax-M3`, mandatory selected-project tool, local Shadows owner available | Completed: two text delta events, fixture name present, one tool execution, two model steps | A real provider call and Shadows owner read crossed the standalone backend probe. The HTTP client saw `done`. |
 | Tool requests a different UUID | Refused before any owner HTTP request | `selected-project.test.mjs` verifies the fixed selected-project boundary. |
 | Shadows owner unavailable | Failed after tool error; no successful completion | The first live run exposed AI SDK's `tool-error` stream part: it had incorrectly produced `done`. Regression test and `forwardProbePart` now reject it. Repeated live run produced `failed=true`, `completed=false`, zero delta events. |
-| NYLRA Linux preview client | SSE parser tests passed; Vite served the preview and approved AYLUL idle asset | No successful browser click or native Tauri window is claimed. See the NYLRA evidence. |
+| NYLRA Linux preview client | SSE parser tests passed; Vite served the preview and approved AYLUL idle asset; native Tauri window rendered AYLUL and displayed a completed local SSE fixture after a button click | That native click used a deterministic fixture, not this real MiniMax probe. See the NYLRA evidence. |
 | Native Linux webview origin | Local `tauri://localhost` accepted; unrecognized browser origin refused before conversation | The original Vite-only CORS allowlist returned 403 to the native webview. Regression tests now cover both sides; a native click-through still needs a UI run. |
 
 `npm test` currently exercises nine probe tests. These results cover a
