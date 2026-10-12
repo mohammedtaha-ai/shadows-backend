@@ -31,12 +31,12 @@ export function forwardProbePart(part, send) {
   return 0;
 }
 
-export async function runConversation({ message, selectedId, shadowsUrl, send, signal }) {
+export async function runConversation({ message, selectedId, shadowsUrl, send, signal, providerFetch = fetch }) {
   if (!process.env.MINIMAX_API_KEY) throw new Error('provider_unavailable');
   const model = createOpenAI({
     apiKey: process.env.MINIMAX_API_KEY,
     baseURL: 'https://api.minimax.io/v1',
-    fetch: boundedMinimaxFetch(),
+    fetch: boundedMinimaxFetch(providerFetch),
   }).chat('MiniMax-M3');
   let toolExecutions = 0, steps = 0, textChars = 0;
   const result = streamText({
@@ -60,6 +60,8 @@ export async function runConversation({ message, selectedId, shadowsUrl, send, s
     stopWhen: stepCountIs(2),
     prepareStep: ({ stepNumber }) => ({ toolChoice: stepNumber === 0 ? 'required' : 'none' }),
     onStepFinish: () => { steps++; },
+    // AI SDK's default callback prints the raw provider error and request body.
+    onError: () => {},
   });
   for await (const part of result.fullStream) {
     textChars += forwardProbePart(part, send);
