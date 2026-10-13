@@ -218,3 +218,84 @@ acceptance, the intentionally preserved manifest provenance and historical
 probe statements. These boundaries remain appropriate because this slice
 adds only wire artifacts and a development replay tool; integration and real
 authority are separate required delivery work. No review finding was dropped.
+
+## Task 4: structure review, run later on 2026-10-13
+
+Task 4 was skipped above and ran afterwards as its own review of the kept
+authentication code, by a Claude reviewer, stopped early at the controller's
+request. Merged as shadows-backend#6 and nylra#7.
+
+### Commits
+
+| Repository | Commit | Change |
+| --- | --- | --- |
+| shadows-backend | `12e70bb` | Remove `withTransaction` (`platform/database/transaction.ts`, no callers), `SessionRow`, `DeviceStore`'s unread `db` argument and four unused identity re-exports; correct `app`, `identity` and `database` contract notes |
+| shadows-backend | `a44ad18` | Optional `B1_TEST_PG_ADMIN` test database, below |
+| nylra | `baeb24a` | Split `native_login/mod.rs` (420 lines, three jobs) into `loopback.rs` 217, `protected_store.rs` 158, `browser.rs` 50, `random.rs` 21 and `mod.rs` 9; code moved unchanged |
+| nylra | `7d1bf1e` | `commands::cancel_login` calls `AuthController::cancel()` instead of writing its public field |
+| nylra | `6092c80` | Drop the unused `Win32_System_Memory` windows-sys feature |
+| nylra | `0dd0bfc` | Remove references to deleted probes |
+
+### Found and left, with the reason
+
+- `src/modules/devices/store.ts:7,13` hashes inline instead of reusing
+  identity's `hash`: reuse would make devices depend on an identity runtime value.
+- `src/app/config.ts:14` and `src/modules/identity/token-vault.ts:5` check the
+  same key-id pattern: intentional defence in depth.
+- `src/modules/identity/store.ts` `revoke()` uses `returningAll()` that nobody
+  reads: removing it changes the query.
+- `nylra/apps/desktop/tests/check-auth.cjs:4` loads `yaml` from an untracked
+  local `.superpowers/validation/node_modules`.
+- `ReturnBinding::verifier` is public but only tests use it.
+
+### Checks on Windows
+
+- shadows-backend: `npm ci`, `typecheck` and `check:docs` passed.
+  `check:contracts` failed with "source without contract owner" at
+  `tests/architecture/contracts.test.ts:26`, identically on unmodified main
+  (the known path-separator comparison).
+- nylra: `npm ci`, `npm run build`, `cargo fmt --check`, `cargo clippy -D warnings`
+  and `node apps/desktop/tests/check-auth.cjs` passed; `cargo test` 17 passed,
+  1 ignored (Docker acceptance).
+
+### Integration tests: embedded PostgreSQL against a container
+
+The same six files (`enrollment`, `login-return`, `session-lifecycle`,
+`migrations`, `authorization-races`, `backchannel-logout`), run with
+`--test-concurrency=1` on Windows, Node 24.15.0:
+
+| Database | Time | Result |
+| --- | --- | --- |
+| embedded-postgres 18.4, one cluster per test | 18 min, not finished | 7 failed; each test took 9 to 27 s |
+| `postgres:18.4-bookworm` container, one database per test | 9 s | 20/20 passed |
+
+- **Cause of the embedded failures:** fixture teardown, not the tests. The one
+  captured error was `EBUSY: resource busy or locked, rmdir
+  '...\.test-runtime\pg-XXXX\cluster'` in `f.close()` after the test body passed,
+  with postgres `io_worker` processes still holding the directory. The failing
+  set changed from run to run, and each failing test passed in another run.
+  `login-return.test.ts` alone passed 6/6, then the process never exited.
+- **Container mode** (`a44ad18`): with `B1_TEST_PG_ADMIN` set to a loopback
+  PostgreSQL 18.4, the fixture creates and drops one database per test. Unset,
+  nothing changes; CI does not set it. The container uses the Compose image
+  digest with `--pull never` and tmpfs storage. README "Fast tests on Windows"
+  has the command.
+- **Whole integration suite in container mode:** 49/51 in about 9 s, and no
+  test database was left behind. The two failures are Windows-only, and this
+  branch did not touch their files:
+  - `nylra_wire snapshots match the canonical schema`: with
+    `core.autocrlf=true` the checked-out `api/nylra-v1.openapi.json` is CRLF,
+    while the export is LF.
+  - `oidc-client.test.ts`: its one test passed, then Node 24.15.0 aborted on
+    exit with `Assertion failed: !(handle->flags & UV_HANDLE_CLOSING), file
+    src\win\async.c, line 76`, so the runner marked the file failed.
+- Not run on Windows: `auth-wire`, `keycloak-login`, `session-restart` (Keycloak
+  needs the Linux suite), and the Linux suite itself. CI on Linux is the gate.
+
+### nylra CI
+
+nylra had no workflow. `873357a` added one Windows job: `npm ci`,
+`npm run build`, `cargo fmt --check`, `cargo clippy -D warnings`, `cargo test`
+(merged as nylra#8). It passed on its pull request in 6 min 49 s and on later
+runs in about 2 minutes with the cache. nylra#7 merged before this CI existed,
+so only the local checks above cover it.
