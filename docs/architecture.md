@@ -144,7 +144,7 @@ initiates it; no public inbound port is required on the user's computer.
 | Memory | Either brain to this application's store |
 | Project context | Laptop brain reads the local Shadows API's NYLRA projection |
 | Agent session steps | Agent hook to AYLUL desktop; summarized steps to the cloud for mobile |
-| Agent approval request | Agent hook to AYLUL desktop; grant match, else to the person on desktop and mobile |
+| Agent approval request | Agent hook to AYLUL desktop, then to the person on desktop and mobile; a grant is a permission rule the agent enforces, so a covered call never asks |
 | Open a local plan or navigate to local work | Desktop to local Shadows API |
 | Ask Planner or confirm a Shadows operation through NYLRA | Not in the first release; §24.6 governs it |
 
