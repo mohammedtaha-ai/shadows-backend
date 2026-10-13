@@ -1,6 +1,6 @@
 # Backend source organization
 
-Date: 2026-10-10; implementation amendment: 2026-10-11.
+Date: 2026-10-10; implementation amendment: 2026-10-11; AYLUL amendment: 2026-10-13.
 Status: full-product placement design; implemented B1 owners are listed in the
 [actual code map](codebase/README.md). Unused capability folders remain uncreated.
 This file owns source placement and dependency boundaries for this repository.
@@ -36,27 +36,28 @@ src/
     shutdown.ts                  coordinates graceful shutdown
   modules/
     identity/                    account identity
-    membership/                  team access policy
     devices/                     device trust lifecycle
-    links/                       selected Shadows access
-    topics/                      intervention lifecycle
-    confirmations/               trusted confirmation records
-    delivery/                    durable handoff lifecycle
-    conversations/               NYLRA dialogue orchestration
-    memory/                      personal preference lifecycle
-    context/                     permitted evidence assembly
-    notifications/               interruption policy
+    links/                       paired laptops and their online state
+    sessions/                    agent sessions and their summarized steps
+    approvals/                   agent approval requests, decisions, grant revocation
+    conversations/               topics, turns and the cloud brain's replies
+    memory/                      the person's preferences and project descriptions
+    notifications/               push tokens and interruption policy
+    membership/                  team access policy (later)
+    delivery/                    durable handoff lifecycle (later)
+    context/                     permitted evidence assembly (later)
   transports/
-    http/                        request/response translation
-    connector/                   scoped daemon message translation
+    http/                        request/response and SSE translation
+    laptop-link/                 AYLUL desktop's outbound WebSocket
     jobs/                        durable job invocation
   integrations/
-    shadows/                     remote Rust runtime protocol client
     providers/                   model and speech API adapters
   platform/
     database/                    pool and transaction primitives
     telemetry/                   diagnostic instrumentation
     clock/                       time source, only when needed
+packages/
+  aylul-brain/                   AYLUL's agent loop, run here and on the laptop
 migrations/                      ordered SQL migrations with named module owner
 api/                             generated public protocol snapshots
 tests/
@@ -68,6 +69,16 @@ docs/
   contracts/                    contract convention and canonical template
   evidence/                     dated observations
 ```
+
+The modules follow the nylra-v1 0.2 operation groups in the
+[delivery spec](superpowers/specs/2026-10-10-backend-delivery-design.md):
+Links, Sessions, Approvals with grant revocation, Chat and Push each have one
+owner. The account SSE stream is an HTTP translation of what those modules
+record; it has no module of its own. `links` changed meaning on 2026-10-13: it
+was selected Shadows access, and is now the person's paired laptops, because
+AYLUL desktop, not this application, reads Shadows. There is no
+`integrations/shadows`. Grants are stored and enforced on the laptop; this
+application records a revocation and relays it, and never creates or widens one.
 
 Each module exposes a small `index.ts` public surface. Within it, start with the
 files the feature actually needs: `service.ts` for operations, `model.ts` for pure
@@ -109,17 +120,45 @@ Use import restrictions for static TS boundaries; test alias and relative-path
 bypasses. Code review still checks semantic ownership. TypeScript type safety
 does not validate untrusted wire data or enforce database authorization.
 
+## AYLUL brain package
+
+`packages/aylul-brain` is the one package this repository publishes for another
+consumer: the backend application runs it as the cloud brain, and AYLUL desktop's
+Node sidecar runs it as the laptop brain. It holds the agent loop on the AI SDK,
+AYLUL's instructions and the declared tools. It owns no storage, transport or
+provider choice.
+
+- **Each tool is a port the brain declares; each host supplies its adapters.**
+  The cloud host supplies memory from the `memory` module and notifications. The
+  laptop host supplies the Shadows projection, agent sessions and memory through
+  this backend's HTTP API. A tool with no adapter in a host is absent there, so
+  the same loop knows what it can reach in each place.
+- **The provider is configuration** handed in by the host. The package never
+  reads environment variables, keys or files.
+- **It imports nothing from `src/`.** `src/` reaches it only through its package
+  entry point, and the architecture check enforces this.
+- Created with step 2(c) of the
+  [first release](../../nylra/docs/superpowers/specs/2026-10-10-nylra-delivery-design.md#first-release-and-who-builds-it),
+  not before.
+
+> **OPEN: how AYLUL desktop gets the package.** The candidates are a version tag
+> in this repository that the sidecar installs, or a registry package.
+> Cross-repository consumers use versioned artifacts, never sibling source, so a
+> relative path is not a candidate. Closes when step 2(c) first runs the brain in
+> the sidecar.
+
 ## Contracts and first delivery
 
 Use the [shared source-contract convention](contracts/README.md). A contract is
 created with inspected implementation, not for each prospective folder above.
 Generated wire schemas, source contracts and architectural specs have different jobs.
 
-The first text journey creates only the domains it exercises: authenticated device,
-selected project link, bounded evidence and topic conversation. Wire the real
-provider/connector path with cancellation and reconnect before generalizing it.
-Add confirmation and delivery capabilities with their own runnable path under the
-architecture's delivery order. Real identity/protocol/data-lifecycle prerequisites
+The first release creates folders in the order its steps need them: step 2(b)
+adds `links`, `sessions`, `approvals`, `notifications` and `transports/laptop-link`;
+step 2(c) adds `packages/aylul-brain`, `memory` and `conversations`. Wire the real
+provider and laptop-link path, with cancellation and reconnect, before
+generalizing it. Folders marked "later" wait for a runnable path of their own.
+Real identity/protocol/data-lifecycle prerequisites
 must be closed first; fake dependencies cannot establish production readiness.
 
 Before treating this structure as enforced, verify: forbidden imports fail; a
