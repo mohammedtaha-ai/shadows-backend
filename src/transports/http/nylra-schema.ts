@@ -13,7 +13,10 @@ export const Id = Type.String({ pattern: '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[
 export const Timestamp = Type.String({
   pattern: '^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\\.[0-9]{1,9})?Z$', description: 'UTC, RFC 3339.',
 });
-export const Seq = Type.Integer({ minimum: 0, description: 'Position in one ordered stream; gapless and never reused.' });
+export const Seq = Type.Integer({
+  minimum: 0, maximum: Number.MAX_SAFE_INTEGER,
+  description: 'Exact safe-integer position in one ordered stream; gapless and never reused.',
+});
 export const CommandId = Type.String({
   ...Id, description: 'Client-generated. The same id with the same request replays; with another, command_conflict.',
 });

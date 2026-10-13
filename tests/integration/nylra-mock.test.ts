@@ -53,8 +53,14 @@ test('nylra_mock replays a stream after its cursor without gap or duplicate', as
 });
 
 test('nylra_mock refuses a decided, expired or unknown approval and an invalid decision', async () => {
-  assert.equal((await decide(fixtures.mock.decidedApprovalId)).json().code, 'approval_already_decided');
-  assert.equal((await decide(fixtures.mock.expiredApprovalId)).json().code, 'approval_expired');
+  for (const [approvalId, code] of [
+    [fixtures.mock.decidedApprovalId, 'approval_already_decided'],
+    [fixtures.mock.expiredApprovalId, 'approval_expired'],
+  ]) {
+    const response = await decide(approvalId!);
+    assert.equal(response.statusCode, 409);
+    assert.deepEqual(response.json(), { code });
+  }
   assert.equal((await decide('00000000-0000-4000-8000-0000000000ff')).statusCode, 404);
   const invalid = await decide(ids.approvalId!, 'approve');
   assert.equal(invalid.statusCode, 400);
@@ -96,4 +102,22 @@ test('nylra_mock replays each stream as schema-valid SSE frames', async () => {
       assert.equal(/^event: (.+)$/m.exec(frame)![1], data.type);
     }
   }
+});
+
+test('nylra_mock refuses malformed integer cursor spellings without truncation', async () => {
+  for (const after of ['8.9', '2e1', '-1', 'Infinity', '', '9007199254740993']) {
+    const response = await app.inject({
+      method: 'GET', url: `/v1/nylra/topics/${ids.topicId}/events?after=${after}`, headers: bearer,
+    });
+    assert.equal(response.statusCode, 400, `after=${after}`);
+    assert.deepEqual(response.json(), { code: 'request_invalid' });
+  }
+});
+
+test('nylra_mock denial returns the denied approval fixture', async () => {
+  const response = await decide(ids.approvalId!, 'deny');
+  assert.equal(response.statusCode, 200);
+  assert.ok(Value.Check(S.Approval, response.json()));
+  assert.equal(response.json().state, 'denied');
+  assert.deepEqual(response.json().decidedBy, { kind: 'person' });
 });

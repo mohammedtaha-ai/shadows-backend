@@ -11,6 +11,9 @@ public_api:
   authenticateRevocation: Uses local account/session/device verification only for operations that surrender authority.
   output: Explicitly checks outgoing values before Fastify serialization.
 obligations:
+  - rule: Exported OpenAPI nullable objects accept null without losing their non-null object constraints.
+    tested_by: nylra_wire exported nullable shapes accept null while retaining object constraints
+    note: tests/integration/nylra-wire.test.ts; compiled with Fastify's real schema validator.
   - rule: The nylra-v1 OpenAPI 3.0 and generated TS snapshots equal what the canonical schema exports, with no const and no null type.
     tested_by: nylra_wire snapshots match the canonical schema
     note: tests/integration/nylra-wire.test.ts

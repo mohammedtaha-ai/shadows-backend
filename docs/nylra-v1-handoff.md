@@ -24,9 +24,13 @@ It listens on `http://127.0.0.1:4410`. An Android emulator reaches it at
   `resnapshot_required` means reload the snapshot, then stream from its cursor.
 - **Streams** are SSE with `id` = `seq`. Reconnect with `?after=<last seq>`.
   The mock replays and then closes; a real server keeps the stream open.
+  Send a nonnegative decimal integer no larger than `9007199254740991`;
+  malformed values refuse with 400 instead of being rounded or truncated.
 - **Approvals:** deciding answers the updated approval. 409
   `approval_already_decided` (AYLUL decided under a grant, or another device
   did) and `approval_expired` are normal outcomes to show, not errors.
+  The mock selects distinct allowed/denied fixtures for the decision; it
+  replays fixed examples and does not persist decisions between requests.
 - **`decidedBy`** is `{ "kind": "person" }` or
   `{ "kind": "aylul_grant", "grantId": "..." }`. Show the second as "AYLUL, on
   your behalf", with a way to revoke that grant.

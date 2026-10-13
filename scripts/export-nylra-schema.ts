@@ -11,6 +11,14 @@ const named = new Map<object, string>(Object.entries(S)
   .filter(([, value]) => typeof value === 'object' && value !== null && ('properties' in value || 'anyOf' in value))
   .map(([name, value]) => [value as object, name]));
 
+// Inline a nullable use so a non-null $ref cannot override its null branch.
+// Union members each declare their own type and null allowance in OpenAPI 3.0.
+function withNull(schema: Record<string, unknown>): Record<string, unknown> {
+  if (Array.isArray(schema.anyOf))
+    return { ...schema, anyOf: schema.anyOf.map(member => withNull(member as Record<string, unknown>)) };
+  return { ...schema, nullable: true };
+}
+
 // OpenAPI 3.0 has neither const nor a null type, and Dart generators read 3.0:
 // a literal becomes a one-value enum, a union of literals one enum, and a union
 // with null a nullable schema.
@@ -28,8 +36,9 @@ function plain(schema: unknown, own?: string): unknown {
       return { type: 'string', enum: members.map(member => member.const), ...description };
     const present = members.filter(member => member.type !== 'null');
     if (present.length === 1 && present.length < members.length) {
-      const only = plain(present[0]) as Record<string, unknown>;
-      return '$ref' in only ? { allOf: [only], nullable: true, ...description } : { ...only, nullable: true };
+      const member = present[0]!;
+      const only = plain(member, named.get(member)) as Record<string, unknown>;
+      return { ...withNull(only), ...description };
     }
   }
   return Object.fromEntries(Object.entries(value).map(([key, item]) => [key, plain(item)]));

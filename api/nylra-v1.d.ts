@@ -1483,42 +1483,42 @@ export interface components {
         AccountEvent: {
             /** @enum {string} */
             type: "approval_requested";
-            /** @description Position in one ordered stream; gapless and never reused. */
+            /** @description Exact safe-integer position in one ordered stream; gapless and never reused. */
             seq: number;
             approval: components["schemas"]["Approval"];
         } | {
             /** @enum {string} */
             type: "approval_resolved";
-            /** @description Position in one ordered stream; gapless and never reused. */
+            /** @description Exact safe-integer position in one ordered stream; gapless and never reused. */
             seq: number;
             approval: components["schemas"]["Approval"];
         } | {
             /** @enum {string} */
             type: "session_changed";
-            /** @description Position in one ordered stream; gapless and never reused. */
+            /** @description Exact safe-integer position in one ordered stream; gapless and never reused. */
             seq: number;
             session: components["schemas"]["Session"];
         } | {
             /** @enum {string} */
             type: "laptop_online";
-            /** @description Position in one ordered stream; gapless and never reused. */
+            /** @description Exact safe-integer position in one ordered stream; gapless and never reused. */
             seq: number;
             laptop: components["schemas"]["Laptop"];
         } | {
             /** @enum {string} */
             type: "laptop_offline";
-            /** @description Position in one ordered stream; gapless and never reused. */
+            /** @description Exact safe-integer position in one ordered stream; gapless and never reused. */
             seq: number;
             laptop: components["schemas"]["Laptop"];
         } | {
             /** @enum {string} */
             type: "topic_updated";
-            /** @description Position in one ordered stream; gapless and never reused. */
+            /** @description Exact safe-integer position in one ordered stream; gapless and never reused. */
             seq: number;
             topic: components["schemas"]["Topic"];
         };
         AfterQuery: {
-            /** @description Position in one ordered stream; gapless and never reused. */
+            /** @description Exact safe-integer position in one ordered stream; gapless and never reused. */
             after?: number;
         };
         /** @enum {string} */
@@ -1538,7 +1538,15 @@ export interface components {
             expiresAt: string;
             /** @enum {string} */
             state: "pending" | "allowed" | "denied" | "expired";
-            decidedBy: components["schemas"]["Decider"] | null;
+            /** @description person: the person decided. aylul_grant: AYLUL decided on their behalf under that grant. */
+            decidedBy: ({
+                /** @enum {string} */
+                kind: "person";
+            } | null) | ({
+                /** @enum {string} */
+                kind: "aylul_grant";
+                grantId: string;
+            } | null);
             /** @description UTC, RFC 3339. */
             decidedAt: string | null;
         };
@@ -1552,7 +1560,7 @@ export interface components {
         /** @description Pending requests, oldest first. cursor is the account stream position matching this list. */
         ApprovalList: {
             approvals: components["schemas"]["Approval"][];
-            /** @description Position in one ordered stream; gapless and never reused. */
+            /** @description Exact safe-integer position in one ordered stream; gapless and never reused. */
             cursor: number;
         };
         ApprovalParams: {
@@ -1572,7 +1580,7 @@ export interface components {
             /** @enum {string} */
             type: "user_message";
             entryId: string;
-            /** @description Position in one ordered stream; gapless and never reused. */
+            /** @description Exact safe-integer position in one ordered stream; gapless and never reused. */
             seq: number;
             /** @description UTC, RFC 3339. */
             createdAt: string;
@@ -1582,7 +1590,7 @@ export interface components {
             /** @enum {string} */
             type: "assistant_message";
             entryId: string;
-            /** @description Position in one ordered stream; gapless and never reused. */
+            /** @description Exact safe-integer position in one ordered stream; gapless and never reused. */
             seq: number;
             /** @description UTC, RFC 3339. */
             createdAt: string;
@@ -1655,27 +1663,37 @@ export interface components {
             startedAt: string;
             /** @description UTC, RFC 3339. */
             updatedAt: string;
-            lastStep: components["schemas"]["Step"] | null;
-            /** @description Position in one ordered stream; gapless and never reused. */
+            /** @description One agent step as the laptop summarized it. Never a diff or file content. */
+            lastStep: {
+                stepId: string;
+                /** @description Exact safe-integer position in one ordered stream; gapless and never reused. */
+                seq: number;
+                /** @description UTC, RFC 3339. */
+                at: string;
+                tool: string;
+                path: string | null;
+                summary: string;
+            } | null;
+            /** @description Exact safe-integer position in one ordered stream; gapless and never reused. */
             lastSeq: number;
         };
         SessionEvent: {
             /** @enum {string} */
             type: "step_added";
-            /** @description Position in one ordered stream; gapless and never reused. */
+            /** @description Exact safe-integer position in one ordered stream; gapless and never reused. */
             seq: number;
             step: components["schemas"]["Step"];
         } | {
             /** @enum {string} */
             type: "session_updated";
-            /** @description Position in one ordered stream; gapless and never reused. */
+            /** @description Exact safe-integer position in one ordered stream; gapless and never reused. */
             seq: number;
             session: components["schemas"]["Session"];
         };
         /** @description cursor is the account stream position matching this list. */
         SessionList: {
             sessions: components["schemas"]["Session"][];
-            /** @description Position in one ordered stream; gapless and never reused. */
+            /** @description Exact safe-integer position in one ordered stream; gapless and never reused. */
             cursor: number;
         };
         SessionParams: {
@@ -1687,7 +1705,7 @@ export interface components {
         SessionSnapshot: {
             session: components["schemas"]["Session"];
             steps: components["schemas"]["Step"][];
-            /** @description Position in one ordered stream; gapless and never reused. */
+            /** @description Exact safe-integer position in one ordered stream; gapless and never reused. */
             cursor: number;
         };
         /** @description What an answer rests on, as the brain read it. */
@@ -1701,7 +1719,7 @@ export interface components {
         /** @description One agent step as the laptop summarized it. Never a diff or file content. */
         Step: {
             stepId: string;
-            /** @description Position in one ordered stream; gapless and never reused. */
+            /** @description Exact safe-integer position in one ordered stream; gapless and never reused. */
             seq: number;
             /** @description UTC, RFC 3339. */
             at: string;
@@ -1712,14 +1730,19 @@ export interface components {
         Topic: {
             topicId: string;
             title: string;
-            project: components["schemas"]["ProjectRef"] | null;
+            /** @description A Shadows project shared with AYLUL on one laptop. */
+            project: {
+                laptopId: string;
+                projectId: string;
+                name: string;
+            } | null;
             /** @enum {string} */
             state: "open" | "resolved";
             /** @description UTC, RFC 3339. */
             createdAt: string;
             /** @description UTC, RFC 3339. */
             updatedAt: string;
-            /** @description Position in one ordered stream; gapless and never reused. */
+            /** @description Exact safe-integer position in one ordered stream; gapless and never reused. */
             lastSeq: number;
         };
         TopicCreate: {
@@ -1734,26 +1757,26 @@ export interface components {
         TopicEvent: {
             /** @enum {string} */
             type: "entry_added";
-            /** @description Position in one ordered stream; gapless and never reused. */
+            /** @description Exact safe-integer position in one ordered stream; gapless and never reused. */
             seq: number;
             entry: components["schemas"]["Entry"];
         } | {
             /** @enum {string} */
             type: "delta";
-            /** @description Position in one ordered stream; gapless and never reused. */
+            /** @description Exact safe-integer position in one ordered stream; gapless and never reused. */
             seq: number;
             entryId: string;
             text: string;
         } | {
             /** @enum {string} */
             type: "entry_updated";
-            /** @description Position in one ordered stream; gapless and never reused. */
+            /** @description Exact safe-integer position in one ordered stream; gapless and never reused. */
             seq: number;
             entry: components["schemas"]["Entry"];
         } | {
             /** @enum {string} */
             type: "turn_finished";
-            /** @description Position in one ordered stream; gapless and never reused. */
+            /** @description Exact safe-integer position in one ordered stream; gapless and never reused. */
             seq: number;
             turnId: string;
             /** @enum {string} */
@@ -1762,14 +1785,14 @@ export interface components {
         } | {
             /** @enum {string} */
             type: "topic_updated";
-            /** @description Position in one ordered stream; gapless and never reused. */
+            /** @description Exact safe-integer position in one ordered stream; gapless and never reused. */
             seq: number;
             topic: components["schemas"]["Topic"];
         };
         /** @description cursor is the account stream position matching this list. */
         TopicList: {
             topics: components["schemas"]["Topic"][];
-            /** @description Position in one ordered stream; gapless and never reused. */
+            /** @description Exact safe-integer position in one ordered stream; gapless and never reused. */
             cursor: number;
         };
         TopicParams: {
@@ -1778,13 +1801,13 @@ export interface components {
         TopicSnapshot: {
             topic: components["schemas"]["Topic"];
             entries: components["schemas"]["Entry"][];
-            /** @description Position in one ordered stream; gapless and never reused. */
+            /** @description Exact safe-integer position in one ordered stream; gapless and never reused. */
             cursor: number;
         };
         TurnAccepted: {
             turnId: string;
             entryId: string;
-            /** @description Position in one ordered stream; gapless and never reused. */
+            /** @description Exact safe-integer position in one ordered stream; gapless and never reused. */
             seq: number;
         };
         TurnParams: {

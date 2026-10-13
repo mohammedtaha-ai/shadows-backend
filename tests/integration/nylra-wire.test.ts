@@ -5,6 +5,7 @@ import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 import { resolve } from 'node:path';
 import { Value } from '@sinclair/typebox/value';
+import Fastify from 'fastify';
 import * as S from '../../src/transports/http/nylra-schema.js';
 import { nylraOperations } from '../../src/transports/http/nylra-paths.js';
 import { nylraSchema, nylraVersion } from '../../scripts/export-nylra-schema.js';
@@ -65,4 +66,31 @@ test('nylra_wire every operation has a fixture the mock can answer with', () => 
     const value = fixtures.responses[`${op.method.toUpperCase()} ${op.path}`] ?? fixtures.valid[name];
     assert.ok(value && Value.Check(op.ok, value), `${op.method} ${op.path}`);
   }
+});
+
+test('nylra_wire exported nullable shapes accept null while retaining object constraints', async () => {
+  const document = JSON.parse(nylraSchema());
+  const app = Fastify({ ajv: { customOptions: { strict: false, coerceTypes: false, removeAdditional: false } } });
+  for (const name of ['Topic', 'Session', 'Approval']) {
+    app.post(`/${name}`, {
+      schema: { body: { $ref: `#/components/schemas/${name}`, components: document.components } },
+    }, async () => ({}));
+  }
+  try {
+    for (const [name, nullableField] of [['Topic', 'project'], ['Session', 'lastStep'], ['Approval', 'decidedBy']]) {
+      assert.equal((await app.inject({ method: 'POST', url: `/${name}`, payload: fixtures.valid[name!] })).statusCode, 200);
+      assert.equal((await app.inject({
+        method: 'POST', url: `/${name}`, payload: { ...fixtures.valid[name!], [nullableField!]: null },
+      })).statusCode, 200, `${name}.${nullableField} accepts null`);
+      assert.equal((await app.inject({
+        method: 'POST', url: `/${name}`, payload: { ...fixtures.valid[name!], [nullableField!]: {} },
+      })).statusCode, 400, `${name}.${nullableField} still rejects malformed objects`);
+    }
+    for (const decidedBy of [{ kind: 'person' }, { kind: 'aylul_grant', grantId: '00000000-0000-4000-8000-000000000080' }]) {
+      assert.equal((await app.inject({ method: 'POST', url: '/Approval', payload: { ...fixtures.valid.Approval, decidedBy } })).statusCode, 200);
+    }
+    assert.equal((await app.inject({
+      method: 'POST', url: '/Approval', payload: { ...fixtures.valid.Approval, decidedBy: { kind: 'aylul_grant' } },
+    })).statusCode, 400);
+  } finally { await app.close(); }
 });

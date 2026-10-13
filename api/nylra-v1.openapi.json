@@ -32,7 +32,8 @@
               },
               "seq": {
                 "minimum": 0,
-                "description": "Position in one ordered stream; gapless and never reused.",
+                "maximum": 9007199254740991,
+                "description": "Exact safe-integer position in one ordered stream; gapless and never reused.",
                 "type": "integer"
               },
               "approval": {
@@ -57,7 +58,8 @@
               },
               "seq": {
                 "minimum": 0,
-                "description": "Position in one ordered stream; gapless and never reused.",
+                "maximum": 9007199254740991,
+                "description": "Exact safe-integer position in one ordered stream; gapless and never reused.",
                 "type": "integer"
               },
               "approval": {
@@ -82,7 +84,8 @@
               },
               "seq": {
                 "minimum": 0,
-                "description": "Position in one ordered stream; gapless and never reused.",
+                "maximum": 9007199254740991,
+                "description": "Exact safe-integer position in one ordered stream; gapless and never reused.",
                 "type": "integer"
               },
               "session": {
@@ -107,7 +110,8 @@
               },
               "seq": {
                 "minimum": 0,
-                "description": "Position in one ordered stream; gapless and never reused.",
+                "maximum": 9007199254740991,
+                "description": "Exact safe-integer position in one ordered stream; gapless and never reused.",
                 "type": "integer"
               },
               "laptop": {
@@ -132,7 +136,8 @@
               },
               "seq": {
                 "minimum": 0,
-                "description": "Position in one ordered stream; gapless and never reused.",
+                "maximum": 9007199254740991,
+                "description": "Exact safe-integer position in one ordered stream; gapless and never reused.",
                 "type": "integer"
               },
               "laptop": {
@@ -157,7 +162,8 @@
               },
               "seq": {
                 "minimum": 0,
-                "description": "Position in one ordered stream; gapless and never reused.",
+                "maximum": 9007199254740991,
+                "description": "Exact safe-integer position in one ordered stream; gapless and never reused.",
                 "type": "integer"
               },
               "topic": {
@@ -173,7 +179,8 @@
         "properties": {
           "after": {
             "minimum": 0,
-            "description": "Position in one ordered stream; gapless and never reused.",
+            "maximum": 9007199254740991,
+            "description": "Exact safe-integer position in one ordered stream; gapless and never reused.",
             "type": "integer"
           }
         }
@@ -261,12 +268,46 @@
             ]
           },
           "decidedBy": {
-            "allOf": [
+            "description": "person: the person decided. aylul_grant: AYLUL decided on their behalf under that grant.",
+            "anyOf": [
               {
-                "$ref": "#/components/schemas/Decider"
+                "additionalProperties": false,
+                "type": "object",
+                "required": [
+                  "kind"
+                ],
+                "properties": {
+                  "kind": {
+                    "type": "string",
+                    "enum": [
+                      "person"
+                    ]
+                  }
+                },
+                "nullable": true
+              },
+              {
+                "additionalProperties": false,
+                "type": "object",
+                "required": [
+                  "kind",
+                  "grantId"
+                ],
+                "properties": {
+                  "kind": {
+                    "type": "string",
+                    "enum": [
+                      "aylul_grant"
+                    ]
+                  },
+                  "grantId": {
+                    "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+                    "type": "string"
+                  }
+                },
+                "nullable": true
               }
-            ],
-            "nullable": true
+            ]
           },
           "decidedAt": {
             "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\\.[0-9]{1,9})?Z$",
@@ -317,7 +358,8 @@
           },
           "cursor": {
             "minimum": 0,
-            "description": "Position in one ordered stream; gapless and never reused.",
+            "maximum": 9007199254740991,
+            "description": "Exact safe-integer position in one ordered stream; gapless and never reused.",
             "type": "integer"
           }
         }
@@ -406,7 +448,8 @@
               },
               "seq": {
                 "minimum": 0,
-                "description": "Position in one ordered stream; gapless and never reused.",
+                "maximum": 9007199254740991,
+                "description": "Exact safe-integer position in one ordered stream; gapless and never reused.",
                 "type": "integer"
               },
               "createdAt": {
@@ -452,7 +495,8 @@
               },
               "seq": {
                 "minimum": 0,
-                "description": "Position in one ordered stream; gapless and never reused.",
+                "maximum": 9007199254740991,
+                "description": "Exact safe-integer position in one ordered stream; gapless and never reused.",
                 "type": "integer"
               },
               "createdAt": {
@@ -755,16 +799,57 @@
             "type": "string"
           },
           "lastStep": {
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/Step"
-              }
+            "additionalProperties": false,
+            "description": "One agent step as the laptop summarized it. Never a diff or file content.",
+            "type": "object",
+            "required": [
+              "stepId",
+              "seq",
+              "at",
+              "tool",
+              "path",
+              "summary"
             ],
+            "properties": {
+              "stepId": {
+                "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+                "type": "string"
+              },
+              "seq": {
+                "minimum": 0,
+                "maximum": 9007199254740991,
+                "description": "Exact safe-integer position in one ordered stream; gapless and never reused.",
+                "type": "integer"
+              },
+              "at": {
+                "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\\.[0-9]{1,9})?Z$",
+                "description": "UTC, RFC 3339.",
+                "type": "string"
+              },
+              "tool": {
+                "minLength": 1,
+                "maxLength": 64,
+                "type": "string"
+              },
+              "path": {
+                "minLength": 1,
+                "maxLength": 1024,
+                "type": "string",
+                "nullable": true
+              },
+              "summary": {
+                "minLength": 1,
+                "maxLength": 200,
+                "pattern": "^[^\\r\\n\\u2028\\u2029]+$",
+                "type": "string"
+              }
+            },
             "nullable": true
           },
           "lastSeq": {
             "minimum": 0,
-            "description": "Position in one ordered stream; gapless and never reused.",
+            "maximum": 9007199254740991,
+            "description": "Exact safe-integer position in one ordered stream; gapless and never reused.",
             "type": "integer"
           }
         }
@@ -788,7 +873,8 @@
               },
               "seq": {
                 "minimum": 0,
-                "description": "Position in one ordered stream; gapless and never reused.",
+                "maximum": 9007199254740991,
+                "description": "Exact safe-integer position in one ordered stream; gapless and never reused.",
                 "type": "integer"
               },
               "step": {
@@ -813,7 +899,8 @@
               },
               "seq": {
                 "minimum": 0,
-                "description": "Position in one ordered stream; gapless and never reused.",
+                "maximum": 9007199254740991,
+                "description": "Exact safe-integer position in one ordered stream; gapless and never reused.",
                 "type": "integer"
               },
               "session": {
@@ -841,7 +928,8 @@
           },
           "cursor": {
             "minimum": 0,
-            "description": "Position in one ordered stream; gapless and never reused.",
+            "maximum": 9007199254740991,
+            "description": "Exact safe-integer position in one ordered stream; gapless and never reused.",
             "type": "integer"
           }
         }
@@ -890,7 +978,8 @@
           },
           "cursor": {
             "minimum": 0,
-            "description": "Position in one ordered stream; gapless and never reused.",
+            "maximum": 9007199254740991,
+            "description": "Exact safe-integer position in one ordered stream; gapless and never reused.",
             "type": "integer"
           }
         }
@@ -946,7 +1035,8 @@
           },
           "seq": {
             "minimum": 0,
-            "description": "Position in one ordered stream; gapless and never reused.",
+            "maximum": 9007199254740991,
+            "description": "Exact safe-integer position in one ordered stream; gapless and never reused.",
             "type": "integer"
           },
           "at": {
@@ -996,11 +1086,30 @@
             "type": "string"
           },
           "project": {
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/ProjectRef"
-              }
+            "additionalProperties": false,
+            "description": "A Shadows project shared with AYLUL on one laptop.",
+            "type": "object",
+            "required": [
+              "laptopId",
+              "projectId",
+              "name"
             ],
+            "properties": {
+              "laptopId": {
+                "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+                "type": "string"
+              },
+              "projectId": {
+                "minLength": 1,
+                "maxLength": 128,
+                "type": "string"
+              },
+              "name": {
+                "minLength": 0,
+                "maxLength": 200,
+                "type": "string"
+              }
+            },
             "nullable": true
           },
           "state": {
@@ -1022,7 +1131,8 @@
           },
           "lastSeq": {
             "minimum": 0,
-            "description": "Position in one ordered stream; gapless and never reused.",
+            "maximum": 9007199254740991,
+            "description": "Exact safe-integer position in one ordered stream; gapless and never reused.",
             "type": "integer"
           }
         }
@@ -1084,7 +1194,8 @@
               },
               "seq": {
                 "minimum": 0,
-                "description": "Position in one ordered stream; gapless and never reused.",
+                "maximum": 9007199254740991,
+                "description": "Exact safe-integer position in one ordered stream; gapless and never reused.",
                 "type": "integer"
               },
               "entry": {
@@ -1110,7 +1221,8 @@
               },
               "seq": {
                 "minimum": 0,
-                "description": "Position in one ordered stream; gapless and never reused.",
+                "maximum": 9007199254740991,
+                "description": "Exact safe-integer position in one ordered stream; gapless and never reused.",
                 "type": "integer"
               },
               "entryId": {
@@ -1141,7 +1253,8 @@
               },
               "seq": {
                 "minimum": 0,
-                "description": "Position in one ordered stream; gapless and never reused.",
+                "maximum": 9007199254740991,
+                "description": "Exact safe-integer position in one ordered stream; gapless and never reused.",
                 "type": "integer"
               },
               "entry": {
@@ -1167,7 +1280,8 @@
               },
               "seq": {
                 "minimum": 0,
-                "description": "Position in one ordered stream; gapless and never reused.",
+                "maximum": 9007199254740991,
+                "description": "Exact safe-integer position in one ordered stream; gapless and never reused.",
                 "type": "integer"
               },
               "turnId": {
@@ -1206,7 +1320,8 @@
               },
               "seq": {
                 "minimum": 0,
-                "description": "Position in one ordered stream; gapless and never reused.",
+                "maximum": 9007199254740991,
+                "description": "Exact safe-integer position in one ordered stream; gapless and never reused.",
                 "type": "integer"
               },
               "topic": {
@@ -1234,7 +1349,8 @@
           },
           "cursor": {
             "minimum": 0,
-            "description": "Position in one ordered stream; gapless and never reused.",
+            "maximum": 9007199254740991,
+            "description": "Exact safe-integer position in one ordered stream; gapless and never reused.",
             "type": "integer"
           }
         }
@@ -1273,7 +1389,8 @@
           },
           "cursor": {
             "minimum": 0,
-            "description": "Position in one ordered stream; gapless and never reused.",
+            "maximum": 9007199254740991,
+            "description": "Exact safe-integer position in one ordered stream; gapless and never reused.",
             "type": "integer"
           }
         }
@@ -1297,7 +1414,8 @@
           },
           "seq": {
             "minimum": 0,
-            "description": "Position in one ordered stream; gapless and never reused.",
+            "maximum": 9007199254740991,
+            "description": "Exact safe-integer position in one ordered stream; gapless and never reused.",
             "type": "integer"
           }
         }
@@ -1967,7 +2085,8 @@
             "required": false,
             "schema": {
               "minimum": 0,
-              "description": "Position in one ordered stream; gapless and never reused.",
+              "maximum": 9007199254740991,
+              "description": "Exact safe-integer position in one ordered stream; gapless and never reused.",
               "type": "integer"
             }
           }
@@ -2431,7 +2550,8 @@
             "required": false,
             "schema": {
               "minimum": 0,
-              "description": "Position in one ordered stream; gapless and never reused.",
+              "maximum": 9007199254740991,
+              "description": "Exact safe-integer position in one ordered stream; gapless and never reused.",
               "type": "integer"
             }
           }
@@ -2784,7 +2904,8 @@
             "required": false,
             "schema": {
               "minimum": 0,
-              "description": "Position in one ordered stream; gapless and never reused.",
+              "maximum": 9007199254740991,
+              "description": "Exact safe-integer position in one ordered stream; gapless and never reused.",
               "type": "integer"
             }
           }
