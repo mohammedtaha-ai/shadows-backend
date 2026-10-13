@@ -1,5 +1,8 @@
 # B0 real MiniMax provider supplement
 
+Probe sources and raw artifacts named here were removed from the tree on
+2026-10-13; `git show db27eb5:<path>` retrieves any of them.
+
 Date: 2026-10-11, Asia/Aden. Four bounded calls were executed against the official
 `https://api.minimax.io/v1` endpoint using requested model `MiniMax-M3`.
 User supplied the root `.env`, identified MiniMax and authorized runtime loading.
@@ -22,8 +25,8 @@ for M3. This is a narrow non-reasoning compatibility test, not acceptance of
 interleaved reasoning or multiple tool rounds. Requested model identity was not
 independently checked against the response model field.
 
-Source: [probe](../../probes/b0-2026-10-10/ai-minimax.mjs).
-Measurements: [JSON results](../../probes/b0-2026-10-10/artifacts/ai-minimax-results.json).
+Source: probe (`probes/b0-2026-10-10/ai-minimax.mjs` at `db27eb5`).
+Measurements: JSON results (`probes/b0-2026-10-10/artifacts/ai-minimax-results.json` at `db27eb5`).
 Configuration basis: [official MiniMax OpenAI compatibility documentation](https://platform.minimax.io/docs/api-reference/text-openai-api).
 
 ## Observations

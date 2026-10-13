@@ -1,7 +1,0 @@
-node_modules/
-.cluster/
-.dart_tool/
-consumer.exe
-*.log
-.identity-runtime/
-.identity-cluster/

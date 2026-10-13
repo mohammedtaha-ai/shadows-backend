@@ -1,5 +1,8 @@
 # Backend capability probes - 2026-10-10
 
+Probe sources and raw artifacts named here were removed from the tree on
+2026-10-13; `git show db27eb5:<path>` retrieves any of them.
+
 Later evidence: [2026-10-11 MiniMax supplement](2026-10-11-minimax-provider-probe.md)
 records four real-endpoint cases. The observations below remain the original run;
 its blocked provider availability is historical, not the latest combined status.
@@ -18,8 +21,8 @@ is claimed. No sibling repository was edited; no commit/push/PR was created.
   Windows x64. Run date uses Asia/Aden, 2026-10-10.
 - Read AGENTS, README, architecture, delivery spec, source structure, contract
   convention/template and initial plan before adding fixtures.
-- Retained reproduction: [non-product probes](../../probes/b0-2026-10-10/README.md).
-  [Source/setup hashes](../../probes/b0-2026-10-10/artifacts/provenance.json) tie
+- Retained reproduction: non-product probes (`probes/b0-2026-10-10/README.md` at `db27eb5`).
+  Source/setup hashes (`probes/b0-2026-10-10/artifacts/provenance.json` at `db27eb5`) tie
   the uncommitted reproduction to this baseline. Generated artifacts are fixtures,
   not public J1 schemas or product modules. No product code map was created.
 
@@ -46,11 +49,11 @@ is claimed. No sibling repository was edited; no commit/push/PR was created.
 | zod / yaml | 4.6.5 / 2.9.1 | MIT / ISC |
 | @types/node / @types/pg | 24.19.2 / 8.23.1 | MIT / MIT |
 
-[Installed manifest](../../probes/b0-2026-10-10/artifacts/versions.json) records
-package engine declarations; [lockfile](../../probes/b0-2026-10-10/package-lock.json)
+Installed manifest (`probes/b0-2026-10-10/artifacts/versions.json` at `db27eb5`) records
+package engine declarations; lockfile (`probes/b0-2026-10-10/package-lock.json` at `db27eb5`)
 pins transitive versions and integrity. Absent package engines are not proof of
 support on arbitrary Node versions. Only this Windows/Node 24 environment ran.
-[Host toolchain](../../probes/b0-2026-10-10/artifacts/toolchain.json) records
+Host toolchain (`probes/b0-2026-10-10/artifacts/toolchain.json` at `db27eb5`) records
 the shell, Dart build string and Docker CLI version.
 
 Initial `ai@7.0.137` resolution returned ETARGET for provider 4.0.26 and then
@@ -60,8 +63,8 @@ metadata differed; another cached resolution failed on process-warning ^5.1.0.
 Fresh metadata completed installation. AI 6.0.116 / OpenAI 3.0.30 initially
 executed but had a low-severity provider-utils resource-consumption advisory.
 They were replaced with 6.0.303 / 3.0.125 and the entire probe suite reran.
-[Initial audit](../../probes/b0-2026-10-10/artifacts/npm-audit-initial.json) preserves
-the four affected package findings. [Final audit](../../probes/b0-2026-10-10/artifacts/npm-audit.json)
+Initial audit (`probes/b0-2026-10-10/artifacts/npm-audit-initial.json` at `db27eb5`) preserves
+the four affected package findings. Final audit (`probes/b0-2026-10-10/artifacts/npm-audit.json` at `db27eb5`)
 reports zero vulnerabilities. Neither result guarantees absence of defects.
 
 ## Reproduction and isolation
@@ -131,12 +134,12 @@ PASS below means the named local assertion passed, not production acceptance.
 | Windows browser/deployed identity | System browser and one-time native return, persisted sessions, device revocation | Only in-app browser exposed; no authorized issuer/tenant; no native return listener | BLOCKED |
 | Full Dart generator / J1 stream envelopes | Versioned rich schemas, unions/nullability/replay rules | Only flat DTO exported/compiled; stream transport fixture is not J1 | UNRESOLVED |
 
-Machine-readable evidence: [HTTP](../../probes/b0-2026-10-10/artifacts/http-results.json),
-[database](../../probes/b0-2026-10-10/artifacts/database-results.json),
-[synthetic AI](../../probes/b0-2026-10-10/artifacts/ai-synthetic-results.json),
-[synthetic OIDC](../../probes/b0-2026-10-10/artifacts/oidc-synthetic-results.json),
-[blocked availability](../../probes/b0-2026-10-10/artifacts/availability.json),
-[process exits](../../probes/b0-2026-10-10/artifacts/run-results.json).
+Machine-readable evidence: HTTP (`probes/b0-2026-10-10/artifacts/http-results.json` at `db27eb5`),
+database (`probes/b0-2026-10-10/artifacts/database-results.json` at `db27eb5`),
+synthetic AI (`probes/b0-2026-10-10/artifacts/ai-synthetic-results.json` at `db27eb5`),
+synthetic OIDC (`probes/b0-2026-10-10/artifacts/oidc-synthetic-results.json` at `db27eb5`),
+blocked availability (`probes/b0-2026-10-10/artifacts/availability.json` at `db27eb5`),
+process exits (`probes/b0-2026-10-10/artifacts/run-results.json` at `db27eb5`).
 
 ## Important observations and decisions
 
@@ -227,7 +230,7 @@ with a negative type fixture; OpenAPI parser validation; Dart analysis, native
 compile and executed consumer; final `npm audit --json` (zero findings); YAML
 parsing and local Markdown target/anchor validation via `node docs-check.mjs`;
 `git diff --check`. Exact documentation counts are in the
-[documentation check artifact](../../probes/b0-2026-10-10/artifacts/docs-check.json).
+documentation check artifact (`probes/b0-2026-10-10/artifacts/docs-check.json` at `db27eb5`).
 No repository-wide product tests exist and no remote CI ran. External citations
 were inspected as references; link checks do not claim every URL reachable.
 
@@ -237,7 +240,7 @@ corrected; negative PKCE/nonce rejection coverage remains a named nonblocking
 follow-up with no rejection claim. The reviewer declined to judge actual-provider
 behavior, deployed identity security, native return handling, rich Dart/J1
 conformance and real Shadows authority; each remains gated rather than inferred.
-The [review record](../../probes/b0-2026-10-10/artifacts/review.json) preserves scope
+The review record (`probes/b0-2026-10-10/artifacts/review.json` at `db27eb5`) preserves scope
 and these decisions. No second review or production-readiness claim was made.
 
 Reviewer decisions/prerequisites:

@@ -137,5 +137,6 @@ provides path/pattern restrictions suitable for enforcing static dependency rule
 Checked 2026-10-10. Component selection is owned by
 [architecture section 2](architecture.md#2-languages-and-technology-direction),
 with [partial B0 evidence](evidence/2026-10-10-backend-capability-probes.md).
-Non-product experiments live under `probes/b0-2026-10-10/`; they are not product
+Non-product experiments are deleted once their evidence file is written; the
+B0 probes are at `db27eb5` and the J1 Linux probe at `7fc59a7`. They are not product
 modules, the implemented code map, or permission to scaffold the layout above.
