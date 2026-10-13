@@ -15,7 +15,7 @@
 - Work on the existing local branch `spec/aylul-companion` in each of the three repositories (`E:/Globalprojects/shadows`, `E:/Globalprojects/nylra`, `E:/Globalprojects/shadows-backend`). Commit locally; never push, tag or delete a remote branch (Task 8 is the controller's).
 - Commits end with `Co-Authored-By:` naming the executing model.
 - Repository rule: "Spike code is deleted once its evidence file is written." Evidence files are dated facts; each names the commit that holds the deleted source.
-- Commits that hold deleted probe material: shadows-backend `main` at `db27eb5`; nylra `main` at `41b8e84`; branch `codex/linux-integration-probe` at shadows `60b9edc`, nylra `f9789af`, shadows-backend `7fc59a7`. Task 8 tags those branch heads before deleting the branches, so the commits stay reachable.
+- Commits that hold deleted probe material: shadows-backend `main` at `db27eb5`; nylra `main` at `41b8e84`; branch `codex/linux-integration-probe` at shadows `60b9edc`, nylra `f9789af`, shadows-backend `7fc59a7`. Those branch heads are tagged `probe/2026-10-12-linux-integration` in each repository (pushed 2026-10-13); the branches are deleted. Read probe files from the tag.
 - Contract version is `0.2.0`. The contract's source is TypeBox in `src/transports/http/`; `api/nylra-v1.openapi.json` and `api/nylra-v1.d.ts` are generated and never edited by hand.
 - A session step carries the tool name, file path and a one-line summary (at most 200 characters), never a diff or file content.
 - The account comes from the session, never a request body field.
@@ -49,8 +49,8 @@ The probe changed `crates/shadows-agent/src/claude.rs` and `crates/shadows/tests
 
 ```bash
 cd E:/Globalprojects/shadows
-git fetch origin
-git show origin/codex/linux-integration-probe:docs/evidence/2026-10-12-minimax-linux-acp-cross-project.md > docs/evidence/2026-10-12-minimax-linux-acp-cross-project.md
+git fetch origin --tags
+git show probe/2026-10-12-linux-integration:docs/evidence/2026-10-12-minimax-linux-acp-cross-project.md > docs/evidence/2026-10-12-minimax-linux-acp-cross-project.md
 ```
 
 - [ ] **Step 2: Add the provenance note under its title**
@@ -85,8 +85,8 @@ git commit -m "docs(evidence): keep the Linux ACP probe's findings; its code sta
 
 ```bash
 cd E:/Globalprojects/shadows-backend
-git fetch origin
-B=origin/codex/linux-integration-probe
+git fetch origin --tags
+B=probe/2026-10-12-linux-integration
 {
   printf '# J1 Linux cross-project probe (2026-10-12)\n\n'
   printf 'Probe source: `probes/j1-linux-2026-10-12/` at `7fc59a7`, tagged\n`probe/2026-10-12-linux-integration`. It was not merged; this file keeps its\nfindings. Sections below are the probe'"'"'s own records, unchanged.\n\n'
@@ -209,11 +209,11 @@ The docs check now skips fenced code: quoted Markdown is an example."
 
 ```bash
 cd E:/Globalprojects/nylra
-git fetch origin
+git fetch origin --tags
 {
   printf '# Linux AYLUL window and streamed chat probe (2026-10-12)\n\n'
   printf 'Probe source: the `linux_probe` module, `apps/desktop/src/app/linux-probe.tsx`,\n`probe-stream.ts` and `docs/evidence/probes/2026-10-12-linux/` at `f9789af`, tagged\n`probe/2026-10-12-linux-integration`. It was not merged; this file keeps its findings.\n\n'
-  git show origin/codex/linux-integration-probe:docs/evidence/probes/2026-10-12-linux/README.md | sed '1{/^# /d}'
+  git show probe/2026-10-12-linux-integration:docs/evidence/probes/2026-10-12-linux/README.md | sed '1{/^# /d}'
 } > docs/evidence/2026-10-12-linux-probe.md
 ```
 
@@ -1114,15 +1114,10 @@ Not for the executor. The controller runs it after reviewing Tasks 1 to 7, with 
 - [ ] **Step 1: shadows gate** (spec-only change plus one evidence file): `cargo fmt --all --check` and the 100-column check on changed Markdown; the Rust gate is unaffected.
 - [ ] **Step 2: shadows-backend gate:** `npm run typecheck`, `npm run schema:check`, `npm run check:contracts`, `npm run check:docs`, `npm test`.
 - [ ] **Step 3: nylra gate:** `npm run build` in `apps/desktop`; `cargo fmt --check`, `cargo clippy -- -D warnings`, `cargo test` in `apps/desktop/src-tauri`.
-- [ ] **Step 4: Tag the probe branch heads, then push the tags**
+- [ ] **Step 4: Push `spec/aylul-companion`** in each repository and open one PR per repository; Mohammed merges them.
+- [ ] **Step 5: Delete `spec/aylul-companion`** locally and on GitHub after its merge.
 
-```bash
-git -C E:/Globalprojects/shadows tag probe/2026-10-12-linux-integration 60b9edc
-git -C E:/Globalprojects/nylra tag probe/2026-10-12-linux-integration f9789af
-git -C E:/Globalprojects/shadows-backend tag probe/2026-10-12-linux-integration 7fc59a7
-```
-
-Push each tag with `git -c http.version=HTTP/1.1 push origin probe/2026-10-12-linux-integration`.
-
-- [ ] **Step 5: Push `spec/aylul-companion` in each repository and open one PR per repository.**
-- [ ] **Step 6: After the PRs merge, delete the remote branches `codex/linux-integration-probe` and `ccr-189943e1-8l71wu` in all three repositories, and `spec/aylul-companion`.**
+Done on 2026-10-13, before execution: the probe and draft branch heads were tagged
+(`probe/2026-10-12-linux-integration`, `draft/2026-10-12-nylra-v1-0.1`) and pushed, and
+the branches `codex/linux-integration-probe` and `ccr-189943e1-8l71wu` were deleted in all
+three repositories. The friend's `feature/aylul-*` branches in nylra are his and stay.

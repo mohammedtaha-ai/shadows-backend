@@ -305,8 +305,8 @@ Decided with Mohammed on 2026-10-13. One contract serves the Flutter app and
 AYLUL desktop, so both are built against it in parallel. Its source is TypeBox
 in `src/transports/http/`; OpenAPI, TypeScript and the fixtures are exported
 from it, and Flutter generates Dart from the OpenAPI file. A route takes its
-schema from the same operation table. The 0.1.0 draft on the deleted
-`ccr-189943e1-8l71wu` branch is its starting point.
+schema from the same operation table. The 0.1.0 draft, tagged
+`draft/2026-10-12-nylra-v1-0.1`, was its starting point.
 
 | Group | Operations |
 | --- | --- |
