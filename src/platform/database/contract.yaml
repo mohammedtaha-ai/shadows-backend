@@ -2,10 +2,9 @@
 name: backend-database
 status: current
 source: src/platform/database
-owns: pg pool, Kysely transaction primitives, typed table declarations and node-pg-migrate history.
+owns: pg pool, the Kysely instance whose transactions each workflow opens itself, typed table declarations and node-pg-migrate history.
 public_api:
   createDatabase: Constructs pool with deadlines and safe error handling.
-  withTransaction: Delegates transaction lifetime to the calling workflow.
   runMigrations: Executes ordered SQL up/down migrations; maps errors to migration_failed.
 obligations:
   - rule: Enrollment upgrade preserves legacy sessions without silently minting reusable proof.

@@ -43,7 +43,7 @@ obligations:
     note: tests/integration/session-lifecycle.test.ts
   - rule: Signed logout validates RS256 issuer/audience/event/sid/iat/jti, excludes nonce and accepts key rotation.
     tested_by: signed_logout wrong_issuer_audience_event_nonce_refused signing_key_rotation_verified
-    note: tests/integration/oidc-client.test.ts; TLS synthetic JWKS, not provider-triggered delivery.
+    note: tests/integration/oidc-client.test.ts; TLS synthetic JWKS, not provider-triggered delivery. No case signs with another algorithm or omits jti; those refusals rest on jwtVerify's algorithms and requiredClaims options.
   - rule: Back-channel logout blocks redemption of pending tickets for that provider session.
     tested_by: backchannel_logout_blocks_pending_return_session_resurrection
     note: tests/integration/authorization-races.test.ts
