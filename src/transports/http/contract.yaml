@@ -1,14 +1,31 @@
-# HTTP owns authentication wire schemas and translation, never domain authority.
-name: authentication-http
+# HTTP owns canonical wire schemas, never domain authority.
+name: http-wire
 status: current
 source: src/transports/http
-owns: Canonical auth-v1 TypeBox schema, strict request/output validation, bearer translation and safe refusals.
+owns: Canonical auth-v1 and nylra-v1 TypeBox schemas, strict request/output validation, bearer translation and safe refusals.
 public_api:
+  nylraOperations: The nylra-v1 operation table; exported to api/nylra-v1.openapi.json. No route serves it yet; scripts/mock-nylra.ts answers it from fixtures.
+  NylraRefusal: The one refusal shape every nylra-v1 operation returns.
   registerAuth: Registers login/return/session/device and provider/logout callback routes.
   authenticate: Translates a bearer through persisted identity authorization.
   authenticateRevocation: Uses local account/session/device verification only for operations that surrender authority.
   output: Explicitly checks outgoing values before Fastify serialization.
 obligations:
+  - rule: Exported OpenAPI nullable objects accept null without losing their non-null object constraints.
+    tested_by: nylra_wire exported nullable shapes accept null while retaining object constraints
+    note: tests/integration/nylra-wire.test.ts; compiled with Fastify's real schema validator.
+  - rule: The nylra-v1 OpenAPI 3.0 and generated TS snapshots equal what the canonical schema exports, with no const and no null type.
+    tested_by: nylra_wire snapshots match the canonical schema
+    note: tests/integration/nylra-wire.test.ts
+  - rule: Every nylra-v1 operation declares bearer security and the shared refusal shape.
+    tested_by: nylra_wire every operation is bearer-protected and refuses with the shared shape
+    note: tests/integration/nylra-wire.test.ts
+  - rule: Every nylra-v1 operation with a JSON answer has a fixture its schema accepts.
+    tested_by: nylra_wire every operation has a fixture the mock can answer with
+    note: tests/integration/nylra-wire.test.ts
+  - rule: Synthetic nylra-v1 fixtures pass and streams are gapless; invalid bounds, account fields, step content and multiline step summaries refuse.
+    tested_by: nylra_wire fixtures pass and invalid samples refuse for their stated reason
+    note: tests/integration/nylra-wire.test.ts
   - rule: Session verification maps provider outage to 503; recovered provider can validate the same session.
     tested_by: provider_outage_is_retryable_503_without_revoking_session
     note: tests/integration/provider-status.test.ts; invalid or revoked authorization still maps to 401.
@@ -25,5 +42,6 @@ obligations:
     tested_by: backchannel_standard_form_transport_and_duplicate_field_refusal
     note: tests/integration/auth-wire.test.ts; signed-token form/replay assertions also run in tests/integration/oidc-client.test.ts.
 open_questions:
+  - nylra-v1 0.2 has no routes, services or stores yet; they arrive with the backend relay plan and take their schemas from nylraOperations.
   - Native Windows browser/loopback/secure-store and later Flutter conformance remain client integration work.
   - Temporary in-process rate buckets do not establish distributed production abuse controls.

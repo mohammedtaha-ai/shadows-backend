@@ -12,7 +12,8 @@
 
 ## Global Constraints
 
-- Work on the existing local branch `spec/aylul-companion` in each of the three repositories (`E:/Globalprojects/shadows`, `E:/Globalprojects/nylra`, `E:/Globalprojects/shadows-backend`). Commit locally; never push, tag or delete a remote branch (Task 8 is the controller's).
+- Start each branch from freshly fetched `origin/main`. Tasks 1, 2 and 3 use `chore/fold-probes` in their respective repositories. After the backend cleanup branch is pushed, Tasks 5, 6 and 7 use a separate backend `feat/nylra-v1-contract` branch from `origin/main`; it does not inherit the unmerged cleanup. Commit locally and push with `git -c http.version=HTTP/1.1 push -u origin <branch>`. Do not open PRs, merge, tag or delete branches. Tasks 4 and 8 are excluded from this execution by Mohammed's 2026-10-13 instruction.
+- Set `CARGO_TARGET_DIR` to a path on `C:` for every Cargo build or test. Never build into a repository's `target/`.
 - Commits end with `Co-Authored-By:` naming the executing model.
 - Repository rule: "Spike code is deleted once its evidence file is written." Evidence files are dated facts; each names the commit that holds the deleted source.
 - Commits that hold deleted probe material: shadows-backend `main` at `db27eb5`; nylra `main` at `41b8e84`; branch `codex/linux-integration-probe` at shadows `60b9edc`, nylra `f9789af`, shadows-backend `7fc59a7`. Those branch heads are tagged `probe/2026-10-12-linux-integration` in each repository (pushed 2026-10-13); the branches are deleted. Read probe files from the tag.
@@ -24,7 +25,48 @@
 - Fixtures are synthetic. No real account, project, path, token or key appears in them.
 - The mock server is development-only and holds no product rule. It lives in `scripts/`, not `src/`.
 - File size rule: at 300 lines a file states its single responsibility in the commit message; at 500 it splits by responsibility.
-- Backend tests run with `node --import tsx --test <file>`. The snapshot test that spawns `node_modules/.bin/openapi-typescript` runs on Linux (CI); on Windows it fails at the spawn (`ENOENT`, a `.cmd` shim), like the existing `auth-wire` test. Report that failure as Windows-only; do not change it.
+- Backend tests run with `node --import tsx --test <file>`. The snapshot test that spawns `node_modules/.bin/openapi-typescript` runs on Linux (CI); on Windows it fails at the spawn (`ENOENT`, a `.cmd` shim), like the existing `scripts/check-auth-schema.ts` check. Report that failure as Windows-only; do not change it.
+
+## Execution corrections (2026-10-13)
+
+- The branch workflow above replaces the removed `spec/aylul-companion` and the
+  earlier push prohibition, as explicitly instructed by Mohammed. Keep cleanup
+  and the contract independently reviewable until their branches are merged.
+- Task 5's step summary must reject line breaks as well as exceeding 200 characters.
+  The original `text(200, 1)` accepted multiline text; a new invalid fixture failed
+  before adding the pattern. A file-content fixture also pins the closed shape.
+- Update the HTTP source contract in Task 5 when its schemas arrive, then add
+  Task 6's operation obligations. Waiting until Task 6 conflicted with the
+  repository's requirement to update a module's contract in the same change.
+- Task 7 parses cursor query strings as decimal safe integers; JSON bodies remain strict. Converting JSON bodies accepted numeric
+  messages that the wire contract rejects; a regression test demonstrated 200
+  instead of 400. Required JSON bodies are checked without an empty-object fallback.
+- Task 7 maps Fastify parse errors to the shared refusal shape. Malformed JSON
+  previously returned framework diagnostics instead of `{ "code": "request_invalid" }`.
+  A regression test failed before this correction. All three SSE groups now have
+  schema-valid frame checks, in addition to the original replay-boundary test.
+- Final review found that nullable `$ref` wrappers lacked their own `type` and
+  kept a non-null `allOf` constraint. Inline nullable object uses and make each
+  nullable union branch explicit. A real Fastify schema compilation test failed
+  before the fix and now accepts null plus valid objects while refusing bad ones.
+  See [OpenAPI 3.0.3 schema rules](https://spec.openapis.org/oas/v3.0.3.html#schema-object).
+- `Value.Convert` also mutated/truncated cursors (`8.9` to `8`, `2e1` to `2`).
+  Reject fractions, exponent spellings and unsafe integers before replay. Bound
+  canonical `Seq` at `Number.MAX_SAFE_INTEGER` so the TypeScript producer cannot
+  round or reuse stream positions. Invalid and unavailable cursors stay distinct.
+- Approval denial previously returned the fixed allowed fixture. Select separate
+  allow/deny fixtures without persistent decision logic. The denial test failed
+  before the fix. The decided/expired test now asserts both required 409 statuses
+  and complete shared responses; the original snippet checked only the codes.
+- Run owner/document checks in Linux as well: the current Windows ownership
+  check compares paths using `/`, and the document check treats Windows local
+  links as external. Preserve the existing checks; use Linux plus a direct
+  relative-link and historical-target audit for reliable evidence.
+- The Task 2 grep command also matches its own literal example in this plan.
+  Exclude that fenced example when judging whether an actual link remains.
+- Copied probe records change heading nesting and historical links only; they
+  are historical observations, not current product decisions. Preserve local
+  untracked build artifacts outside the checkout when removing probe directories.
 
 ## Review Focus
 
@@ -89,7 +131,7 @@ git fetch origin --tags
 B=probe/2026-10-12-linux-integration
 {
   printf '# J1 Linux cross-project probe (2026-10-12)\n\n'
-  printf 'Probe source: `probes/j1-linux-2026-10-12/` at `7fc59a7`, tagged\n`probe/2026-10-12-linux-integration`. It was not merged; this file keeps its\nfindings. Sections below are the probe'"'"'s own records, unchanged.\n\n'
+  printf 'Probe source: `probes/j1-linux-2026-10-12/` at `7fc59a7`, tagged\n`probe/2026-10-12-linux-integration`. It was not merged; this file keeps its\nfindings. Sections below retain the probe'"'"'s own records, with heading nesting\nand historical links adjusted.\n\n'
   for f in RESULTS OPENROUTER LIBRARIES; do
     printf '## %s\n\n' "$f"
     git show "$B:probes/j1-linux-2026-10-12/$f.md" | sed '1{/^# /d}' | sed 's/^#/##/'
@@ -293,7 +335,7 @@ cargo test
 
 ## Step 1: The nylra-v1 0.2 contract
 
-All tasks below are in `E:/Globalprojects/shadows-backend` on `spec/aylul-companion`. The code in them was run on 2026-10-13 against the pinned libraries: the typecheck passed, and every test passed except the Windows-only spawn noted in Global Constraints.
+All tasks below are in `E:/Globalprojects/shadows-backend` on `feat/nylra-v1-contract`, independently started from `origin/main` after Task 2's push. The original snippets were run on 2026-10-13 against the pinned libraries; the corrections above describe defects found during execution. Current observed results belong in the execution evidence, not this plan.
 
 ### Task 5: the schema and its fixtures
 
@@ -304,7 +346,7 @@ All tasks below are in `E:/Globalprojects/shadows-backend` on `spec/aylul-compan
 
 **Interfaces:**
 - Produces: the exported TypeBox schemas named in the file below (`Laptop`, `Topic`, `Entry`, `TopicEvent`, `Session`, `Step`, `SessionEvent`, `Approval`, `Decider`, `ApprovalDecide`, `GrantRevoked`, `AccountEvent`, `NylraRefusal`, `Empty`, and the rest), and `type Schema = TSchema`.
-- Produces: `api/nylra-v1.fixtures.json` with keys `contractVersion`, `notice`, `valid` (one value per schema name; `TopicEvents`, `SessionEvents`, `AccountEvents` are arrays), `responses` (per-operation overrides keyed `"METHOD /path"`), `mock` (`decidedApprovalId`, `expiredApprovalId`), `invalid` (`schema`, `why`, `value`; markers `@@LONG_MESSAGE@@` and `@@LONG_SUMMARY@@`), `refusals`.
+- Produces: `api/nylra-v1.fixtures.json` with keys `contractVersion`, `notice`, `valid` (one value per schema name; `TopicEvents`, `SessionEvents`, `AccountEvents` are arrays), `responses` (per-operation overrides keyed `"METHOD /path"`), `mock` (`decidedApprovalId`, `expiredApprovalId`, `approvalDecisions` keyed by `allow`/`deny`), `invalid` (`schema`, `why`, `value`; markers `@@LONG_MESSAGE@@` and `@@LONG_SUMMARY@@`), `refusals`.
 
 - [ ] **Step 1: Write the fixture test**
 
@@ -366,7 +408,10 @@ export const Id = Type.String({ pattern: '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[
 export const Timestamp = Type.String({
   pattern: '^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\\.[0-9]{1,9})?Z$', description: 'UTC, RFC 3339.',
 });
-export const Seq = Type.Integer({ minimum: 0, description: 'Position in one ordered stream; gapless and never reused.' });
+export const Seq = Type.Integer({
+  minimum: 0, maximum: Number.MAX_SAFE_INTEGER,
+  description: 'Exact safe-integer position in one ordered stream; gapless and never reused.',
+});
 export const CommandId = Type.String({
   ...Id, description: 'Client-generated. The same id with the same request replays; with another, command_conflict.',
 });
@@ -426,7 +471,8 @@ export const TurnParams = closed({ topicId: Id, turnId: Id });
 // Sessions: what Claude Code and Codex are doing on each laptop.
 export const Agent = literals(['claude_code', 'codex']);
 export const Step = closed({
-  stepId: Id, seq: Seq, at: Timestamp, tool: text(64, 1), path: nullable(text(1024, 1)), summary: text(200, 1),
+  stepId: Id, seq: Seq, at: Timestamp, tool: text(64, 1), path: nullable(text(1024, 1)),
+  summary: Type.String({ minLength: 1, maxLength: 200, pattern: '^[^\\r\\n\\u2028\\u2029]+$' }),
 }, 'One agent step as the laptop summarized it. Never a diff or file content.');
 export const Session = closed({
   sessionId: Id, laptopId: Id, agent: Agent, projectName: text(200), cwd: text(1024, 1),
@@ -534,8 +580,11 @@ export type Schema = TSchema;
   ]
  },
  "responses":{"POST /v1/nylra/approvals/{approvalId}/decide":{"approvalId":"00000000-0000-4000-8000-000000000070","sessionId":"00000000-0000-4000-8000-000000000060","laptopId":"00000000-0000-4000-8000-000000000010","agent":"claude_code","tool":"Bash","path":null,"command":"npm test","summary":"Run the test suite","requestedAt":"2026-10-13T09:22:00Z","expiresAt":"2026-10-13T09:32:00Z","state":"allowed","decidedBy":{"kind":"person"},"decidedAt":"2026-10-13T09:23:00Z"}},
- "mock":{"decidedApprovalId":"00000000-0000-4000-8000-000000000071","expiredApprovalId":"00000000-0000-4000-8000-000000000072"},
+ "mock":{"decidedApprovalId":"00000000-0000-4000-8000-000000000071","expiredApprovalId":"00000000-0000-4000-8000-000000000072","approvalDecisions":{"allow":{"approvalId":"00000000-0000-4000-8000-000000000070","sessionId":"00000000-0000-4000-8000-000000000060","laptopId":"00000000-0000-4000-8000-000000000010","agent":"claude_code","tool":"Bash","path":null,"command":"npm test","summary":"Run the test suite","requestedAt":"2026-10-13T09:22:00Z","expiresAt":"2026-10-13T09:32:00Z","state":"allowed","decidedBy":{"kind":"person"},"decidedAt":"2026-10-13T09:23:00Z"},"deny":{"approvalId":"00000000-0000-4000-8000-000000000070","sessionId":"00000000-0000-4000-8000-000000000060","laptopId":"00000000-0000-4000-8000-000000000010","agent":"claude_code","tool":"Bash","path":null,"command":"npm test","summary":"Run the test suite","requestedAt":"2026-10-13T09:22:00Z","expiresAt":"2026-10-13T09:32:00Z","state":"denied","decidedBy":{"kind":"person"},"decidedAt":"2026-10-13T09:23:00Z"}}},
  "invalid":[
+  {"schema":"Step","why":"stream positions must remain exact safe integers","value":{"stepId":"00000000-0000-4000-8000-000000000061","seq":9007199254740992,"at":"2026-10-13T09:20:00Z","tool":"Read","path":"src/auth/login.ts","summary":"Read the login handler"}},
+  {"schema":"Step","why":"a summary is one line","value":{"stepId":"00000000-0000-4000-8000-000000000061","seq":1,"at":"2026-10-13T09:20:00Z","tool":"Read","path":"src/auth/login.ts","summary":"Read the handler\nRead another file"}},
+  {"schema":"Step","why":"no file content leaves the laptop","value":{"stepId":"00000000-0000-4000-8000-000000000061","seq":1,"at":"2026-10-13T09:20:00Z","tool":"Read","path":"src/auth/login.ts","summary":"Read the login handler","content":"synthetic file text"}},
   {"schema":"LinkClaim","why":"0 and O are excluded from pairing codes","value":{"commandId":"00000000-0000-4000-8000-0000000000c1","code":"K7QF-3MZ0"}},
   {"schema":"ApprovalDecide","why":"a decision is allow or deny","value":{"commandId":"00000000-0000-4000-8000-0000000000c4","decision":"approve"}},
   {"schema":"ApprovalDecide","why":"the account comes from the session, never the body","value":{"commandId":"00000000-0000-4000-8000-0000000000c4","decision":"allow","accountId":"00000000-0000-4000-8000-000000000001"}},
@@ -585,12 +634,13 @@ import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 import { resolve } from 'node:path';
 import { Value } from '@sinclair/typebox/value';
+import Fastify from 'fastify';
 import * as S from '../../src/transports/http/nylra-schema.js';
 import { nylraOperations } from '../../src/transports/http/nylra-paths.js';
 import { nylraSchema, nylraVersion } from '../../scripts/export-nylra-schema.js';
 ```
 
-Then add these three tests after the existing one:
+Then add these four tests after the existing one:
 
 ```ts
 test('nylra_wire snapshots match the canonical schema', async () => {
@@ -626,6 +676,33 @@ test('nylra_wire every operation has a fixture the mock can answer with', () => 
     const value = fixtures.responses[`${op.method.toUpperCase()} ${op.path}`] ?? fixtures.valid[name];
     assert.ok(value && Value.Check(op.ok, value), `${op.method} ${op.path}`);
   }
+});
+
+test('nylra_wire exported nullable shapes accept null while retaining object constraints', async () => {
+  const document = JSON.parse(nylraSchema());
+  const app = Fastify({ ajv: { customOptions: { strict: false, coerceTypes: false, removeAdditional: false } } });
+  for (const name of ['Topic', 'Session', 'Approval']) {
+    app.post(`/${name}`, {
+      schema: { body: { $ref: `#/components/schemas/${name}`, components: document.components } },
+    }, async () => ({}));
+  }
+  try {
+    for (const [name, nullableField] of [['Topic', 'project'], ['Session', 'lastStep'], ['Approval', 'decidedBy']]) {
+      assert.equal((await app.inject({ method: 'POST', url: `/${name}`, payload: fixtures.valid[name!] })).statusCode, 200);
+      assert.equal((await app.inject({
+        method: 'POST', url: `/${name}`, payload: { ...fixtures.valid[name!], [nullableField!]: null },
+      })).statusCode, 200, `${name}.${nullableField} accepts null`);
+      assert.equal((await app.inject({
+        method: 'POST', url: `/${name}`, payload: { ...fixtures.valid[name!], [nullableField!]: {} },
+      })).statusCode, 400, `${name}.${nullableField} still rejects malformed objects`);
+    }
+    for (const decidedBy of [{ kind: 'person' }, { kind: 'aylul_grant', grantId: '00000000-0000-4000-8000-000000000080' }]) {
+      assert.equal((await app.inject({ method: 'POST', url: '/Approval', payload: { ...fixtures.valid.Approval, decidedBy } })).statusCode, 200);
+    }
+    assert.equal((await app.inject({
+      method: 'POST', url: '/Approval', payload: { ...fixtures.valid.Approval, decidedBy: { kind: 'aylul_grant' } },
+    })).statusCode, 400);
+  } finally { await app.close(); }
 });
 ```
 
@@ -700,6 +777,14 @@ const named = new Map<object, string>(Object.entries(S)
   .filter(([, value]) => typeof value === 'object' && value !== null && ('properties' in value || 'anyOf' in value))
   .map(([name, value]) => [value as object, name]));
 
+// Inline a nullable use so a non-null $ref cannot override its null branch.
+// Union members each declare their own type and null allowance in OpenAPI 3.0.
+function withNull(schema: Record<string, unknown>): Record<string, unknown> {
+  if (Array.isArray(schema.anyOf))
+    return { ...schema, anyOf: schema.anyOf.map(member => withNull(member as Record<string, unknown>)) };
+  return { ...schema, nullable: true };
+}
+
 // OpenAPI 3.0 has neither const nor a null type, and Dart generators read 3.0:
 // a literal becomes a one-value enum, a union of literals one enum, and a union
 // with null a nullable schema.
@@ -717,8 +802,9 @@ function plain(schema: unknown, own?: string): unknown {
       return { type: 'string', enum: members.map(member => member.const), ...description };
     const present = members.filter(member => member.type !== 'null');
     if (present.length === 1 && present.length < members.length) {
-      const only = plain(present[0]) as Record<string, unknown>;
-      return '$ref' in only ? { allOf: [only], nullable: true, ...description } : { ...only, nullable: true };
+      const member = present[0]!;
+      const only = plain(member, named.get(member)) as Record<string, unknown>;
+      return { ...withNull(only), ...description };
     }
   }
   return Object.fromEntries(Object.entries(value).map(([key, item]) => [key, plain(item)]));
@@ -782,7 +868,7 @@ node --import tsx --test tests/integration/nylra-wire.test.ts
 npm run typecheck
 ```
 
-Expected: `api/nylra-v1.openapi.json` (about 2,850 lines) and `api/nylra-v1.d.ts` exist; 4 tests PASS on Linux (on Windows the snapshot test fails only at the spawn); typecheck passes.
+Expected: `api/nylra-v1.openapi.json` and `api/nylra-v1.d.ts` exist; 5 tests PASS on Linux (on Windows the snapshot test fails only at the spawn); typecheck passes.
 
 - [ ] **Step 7: Record the contract in the HTTP owner's `contract.yaml`**
 
@@ -915,12 +1001,73 @@ test('nylra_mock replays a stream after its cursor without gap or duplicate', as
 });
 
 test('nylra_mock refuses a decided, expired or unknown approval and an invalid decision', async () => {
-  assert.equal((await decide(fixtures.mock.decidedApprovalId)).json().code, 'approval_already_decided');
-  assert.equal((await decide(fixtures.mock.expiredApprovalId)).json().code, 'approval_expired');
+  for (const [approvalId, code] of [
+    [fixtures.mock.decidedApprovalId, 'approval_already_decided'],
+    [fixtures.mock.expiredApprovalId, 'approval_expired'],
+  ]) {
+    const response = await decide(approvalId!);
+    assert.equal(response.statusCode, 409);
+    assert.deepEqual(response.json(), { code });
+  }
   assert.equal((await decide('00000000-0000-4000-8000-0000000000ff')).statusCode, 404);
   const invalid = await decide(ids.approvalId!, 'approve');
   assert.equal(invalid.statusCode, 400);
   assert.deepEqual(invalid.json(), { code: 'request_invalid' });
+});
+
+test('nylra_mock refuses JSON body types that differ from the wire contract', async () => {
+  const response = await app.inject({
+    method: 'POST', url: `/v1/nylra/topics/${ids.topicId}/turns`, headers: bearer,
+    payload: { commandId: '00000000-0000-4000-8000-0000000000c3', message: 123 },
+  });
+  assert.equal(response.statusCode, 400);
+  assert.deepEqual(response.json(), { code: 'request_invalid' });
+});
+
+test('nylra_mock malformed JSON uses the shared refusal shape', async () => {
+  const response = await app.inject({
+    method: 'POST', url: `/v1/nylra/approvals/${ids.approvalId}/decide`,
+    headers: { ...bearer, 'content-type': 'application/json' }, payload: '{',
+  });
+  assert.equal(response.statusCode, 400);
+  assert.deepEqual(response.json(), { code: 'request_invalid' });
+});
+
+test('nylra_mock replays each stream as schema-valid SSE frames', async () => {
+  for (const [url, schema, expected] of [
+    [`/v1/nylra/topics/${ids.topicId}/events?after=4`, S.TopicEvent, [5, 6, 7, 8]],
+    [`/v1/nylra/sessions/${ids.sessionId}/events?after=2`, S.SessionEvent, [3, 4]],
+    ['/v1/nylra/events?after=12', S.AccountEvent, [13, 14, 15, 16, 17, 18]],
+  ] as const) {
+    const response = await app.inject({ method: 'GET', url, headers: bearer });
+    assert.equal(response.statusCode, 200);
+    assert.match(response.headers['content-type']!, /^text\/event-stream/);
+    assert.deepEqual(seqs(response.body), expected);
+    for (const frame of response.body.trim().split('\n\n')) {
+      const data = JSON.parse(/^data: (.+)$/m.exec(frame)![1]!);
+      assert.ok(Value.Check(schema, data));
+      assert.equal(Number(/^id: (\d+)$/m.exec(frame)![1]), data.seq);
+      assert.equal(/^event: (.+)$/m.exec(frame)![1], data.type);
+    }
+  }
+});
+
+test('nylra_mock refuses malformed integer cursor spellings without truncation', async () => {
+  for (const after of ['8.9', '2e1', '-1', 'Infinity', '', '9007199254740993']) {
+    const response = await app.inject({
+      method: 'GET', url: `/v1/nylra/topics/${ids.topicId}/events?after=${after}`, headers: bearer,
+    });
+    assert.equal(response.statusCode, 400, `after=${after}`);
+    assert.deepEqual(response.json(), { code: 'request_invalid' });
+  }
+});
+
+test('nylra_mock denial returns the denied approval fixture', async () => {
+  const response = await decide(ids.approvalId!, 'deny');
+  assert.equal(response.statusCode, 200);
+  assert.ok(Value.Check(S.Approval, response.json()));
+  assert.equal(response.json().state, 'denied');
+  assert.deepEqual(response.json().decidedBy, { kind: 'person' });
 });
 ```
 
@@ -947,7 +1094,10 @@ import * as S from '../src/transports/http/nylra-schema.js';
 export interface NylraFixtures {
   valid: Record<string, unknown>;
   responses: Record<string, unknown>;
-  mock: { decidedApprovalId: string; expiredApprovalId: string };
+  mock: {
+    decidedApprovalId: string; expiredApprovalId: string;
+    approvalDecisions: Record<'allow' | 'deny', unknown>;
+  };
 }
 type StreamEvent = { seq: number; type: string };
 
@@ -958,6 +1108,12 @@ const refuse = (reply: FastifyReply, status: number, code: string) => reply.code
 
 export function buildNylraMock(fixtures: NylraFixtures): FastifyInstance {
   const app = Fastify({ logger: false });
+  app.setErrorHandler((error, _request, reply) => {
+    const status = (error as { statusCode?: number }).statusCode;
+    return status !== undefined && status < 500
+      ? refuse(reply, 400, 'request_invalid')
+      : refuse(reply, 503, 'operation_failed');
+  });
   const known = new Set(JSON.stringify(fixtures).match(uuid));
   for (const op of nylraOperations)
     app.route({
@@ -970,26 +1126,37 @@ export function buildNylraMock(fixtures: NylraFixtures): FastifyInstance {
 
 function answer(op: NylraOperation, fixtures: NylraFixtures, known: Set<string>, request: FastifyRequest, reply: FastifyReply) {
   if (!/^Bearer \S+$/.test(request.headers.authorization ?? '')) return refuse(reply, 401, 'unauthorized');
-  for (const [schema, value] of [[op.params, request.params], [op.query, request.query], [op.body, request.body]] as const)
-    if (schema && !Value.Check(schema, Value.Convert(schema, value ?? {}))) return refuse(reply, 400, 'request_invalid');
+  for (const [schema, value] of [[op.params, request.params], [op.body, request.body]] as const)
+    if (schema && !Value.Check(schema, value)) return refuse(reply, 400, 'request_invalid');
+  // A replay position is a decimal integer, never a truncated/coerced number.
+  const query = { ...(request.query as Record<string, unknown>) };
+  if (op.query === S.AfterQuery && query.after !== undefined) {
+    const raw = query.after;
+    if (typeof raw !== 'string' || !/^[0-9]+$/.test(raw) || !Number.isSafeInteger(Number(raw)))
+      return refuse(reply, 400, 'request_invalid');
+    query.after = Number(raw);
+  }
+  if (op.query && !Value.Check(op.query, query))
+    return refuse(reply, 400, 'request_invalid');
   const params = (request.params ?? {}) as Record<string, string>;
   if (Object.values(params).some(id => !known.has(id))) return refuse(reply, 404, 'not_found');
   if (params.approvalId === fixtures.mock.decidedApprovalId) return refuse(reply, 409, 'approval_already_decided');
   if (params.approvalId === fixtures.mock.expiredApprovalId) return refuse(reply, 409, 'approval_expired');
   if (op.okType === 'text/event-stream') {
     const events = fixtures.valid[streamFixture[schemaName(op.ok)!]!] as StreamEvent[];
-    return replay(reply, events, (request.query as { after?: string }).after);
+    return replay(reply, events, query.after as number | undefined);
   }
+  if (op.body === S.ApprovalDecide)
+    return reply.send(fixtures.mock.approvalDecisions[(request.body as { decision: 'allow' | 'deny' }).decision]);
   return reply.send(fixtures.responses[`${op.method.toUpperCase()} ${op.path}`] ?? fixtures.valid[schemaName(op.ok)!] ?? {});
 }
 
 // Replays the events after the cursor, then ends the response; a real server keeps
 // it open. A cursor before the first retained event or after the last is unknown.
-function replay(reply: FastifyReply, events: StreamEvent[], after: string | undefined) {
+function replay(reply: FastifyReply, events: StreamEvent[], after: number | undefined) {
   if (after !== undefined) {
-    const position = Number(after);
-    if (position < events[0]!.seq - 1 || position > events.at(-1)!.seq) return refuse(reply, 410, 'resnapshot_required');
-    events = events.filter(event => event.seq > position);
+    if (after < events[0]!.seq - 1 || after > events.at(-1)!.seq) return refuse(reply, 410, 'resnapshot_required');
+    events = events.filter(event => event.seq > after);
   }
   const body = events.map(event => `id: ${event.seq}\nevent: ${event.type}\ndata: ${JSON.stringify(event)}\n\n`).join('');
   return reply.header('content-type', 'text/event-stream; charset=utf-8').header('cache-control', 'no-store').send(body);
@@ -1011,7 +1178,7 @@ node --import tsx --test tests/integration/nylra-mock.test.ts
 npm run typecheck
 ```
 
-Expected: 4 tests PASS; typecheck passes.
+Expected: 9 tests PASS (the original four plus the execution regressions); typecheck passes.
 
 - [ ] **Step 5: Try the mock by hand**
 
@@ -1059,9 +1226,13 @@ It listens on `http://127.0.0.1:4410`. An Android emulator reaches it at
   `resnapshot_required` means reload the snapshot, then stream from its cursor.
 - **Streams** are SSE with `id` = `seq`. Reconnect with `?after=<last seq>`.
   The mock replays and then closes; a real server keeps the stream open.
+  Send a nonnegative decimal integer no larger than `9007199254740991`;
+  malformed values refuse with 400 instead of being rounded or truncated.
 - **Approvals:** deciding answers the updated approval. 409
   `approval_already_decided` (AYLUL decided under a grant, or another device
   did) and `approval_expired` are normal outcomes to show, not errors.
+  The mock selects distinct allowed/denied fixtures for the decision; it
+  replays fixed examples and does not persist decisions between requests.
 - **`decidedBy`** is `{ "kind": "person" }` or
   `{ "kind": "aylul_grant", "grantId": "..." }`. Show the second as "AYLUL, on
   your behalf", with a way to revoke that grant.
@@ -1097,8 +1268,8 @@ Not for the executor. The controller runs it after reviewing Tasks 1 to 7, with 
 - [ ] **Step 1: shadows gate** (spec-only change plus one evidence file): `cargo fmt --all --check` and the 100-column check on changed Markdown; the Rust gate is unaffected.
 - [ ] **Step 2: shadows-backend gate:** `npm run typecheck`, `npm run schema:check`, `npm run check:contracts`, `npm run check:docs`, `npm test`.
 - [ ] **Step 3: nylra gate:** `npm run build` in `apps/desktop`; `cargo fmt --check`, `cargo clippy -- -D warnings`, `cargo test` in `apps/desktop/src-tauri`.
-- [ ] **Step 4: Push `spec/aylul-companion`** in each repository and open one PR per repository; Mohammed merges them.
-- [ ] **Step 5: Delete `spec/aylul-companion`** locally and on GitHub after its merge.
+- [ ] **Step 4: Separately authorize integration** of each repository's `chore/fold-probes` and backend `feat/nylra-v1-contract`. The branches were authorized for push during execution; PRs and merges are still the controller's later work. Merge backend cleanup before reconciling the contract branch with `main`.
+- [ ] **Step 5: Delete each short branch** locally and on GitHub only after its authorized merge. The removed `spec/aylul-companion` is not an integration target.
 
 Done on 2026-10-13, before execution: the probe and draft branch heads were tagged
 (`probe/2026-10-12-linux-integration`, `draft/2026-10-12-nylra-v1-0.1`) and pushed, and

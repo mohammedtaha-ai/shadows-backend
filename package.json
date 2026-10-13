@@ -17,8 +17,10 @@
     "test:restart": "node --import tsx --test tests/journeys/session-restart.test.ts",
     "test:lifecycle": "node scripts/lifecycle-gate.mjs",
     "db:migrate": "node --import tsx scripts/migrate.ts up",
+    "schema:nylra": "node --import tsx scripts/export-nylra-schema.ts && openapi-typescript api/nylra-v1.openapi.json -o api/nylra-v1.d.ts",
+    "mock:nylra": "node --import tsx scripts/mock-nylra.ts",
     "schema:generate": "node --import tsx scripts/export-auth-schema.ts && openapi-typescript api/auth-v1.openapi.json -o api/auth-v1.d.ts",
-    "schema:check": "node --import tsx scripts/check-auth-schema.ts && node --import tsx --test tests/integration/auth-wire.test.ts",
+    "schema:check": "node --import tsx scripts/check-auth-schema.ts && node --import tsx --test tests/integration/auth-wire.test.ts tests/integration/nylra-wire.test.ts",
     "check:contracts": "node --import tsx --test tests/architecture/contracts.test.ts",
     "check:docs": "node --import tsx scripts/check-docs.ts",
     "check:secrets": "node --import tsx scripts/check-secrets.ts"

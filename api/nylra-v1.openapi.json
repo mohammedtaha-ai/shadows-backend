@@ -1,0 +1,2978 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "NYLRA backend API",
+    "version": "0.2.0",
+    "description": "Client contract for the Flutter app and AYLUL desktop. Sessions come from auth-v1. Until routes exist, scripts/mock-nylra.ts serves it from api/nylra-v1.fixtures.json."
+  },
+  "components": {
+    "securitySchemes": {
+      "backendBearer": {
+        "type": "http",
+        "scheme": "bearer"
+      }
+    },
+    "schemas": {
+      "AccountEvent": {
+        "anyOf": [
+          {
+            "additionalProperties": false,
+            "type": "object",
+            "required": [
+              "type",
+              "seq",
+              "approval"
+            ],
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": [
+                  "approval_requested"
+                ]
+              },
+              "seq": {
+                "minimum": 0,
+                "maximum": 9007199254740991,
+                "description": "Exact safe-integer position in one ordered stream; gapless and never reused.",
+                "type": "integer"
+              },
+              "approval": {
+                "$ref": "#/components/schemas/Approval"
+              }
+            }
+          },
+          {
+            "additionalProperties": false,
+            "type": "object",
+            "required": [
+              "type",
+              "seq",
+              "approval"
+            ],
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": [
+                  "approval_resolved"
+                ]
+              },
+              "seq": {
+                "minimum": 0,
+                "maximum": 9007199254740991,
+                "description": "Exact safe-integer position in one ordered stream; gapless and never reused.",
+                "type": "integer"
+              },
+              "approval": {
+                "$ref": "#/components/schemas/Approval"
+              }
+            }
+          },
+          {
+            "additionalProperties": false,
+            "type": "object",
+            "required": [
+              "type",
+              "seq",
+              "session"
+            ],
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": [
+                  "session_changed"
+                ]
+              },
+              "seq": {
+                "minimum": 0,
+                "maximum": 9007199254740991,
+                "description": "Exact safe-integer position in one ordered stream; gapless and never reused.",
+                "type": "integer"
+              },
+              "session": {
+                "$ref": "#/components/schemas/Session"
+              }
+            }
+          },
+          {
+            "additionalProperties": false,
+            "type": "object",
+            "required": [
+              "type",
+              "seq",
+              "laptop"
+            ],
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": [
+                  "laptop_online"
+                ]
+              },
+              "seq": {
+                "minimum": 0,
+                "maximum": 9007199254740991,
+                "description": "Exact safe-integer position in one ordered stream; gapless and never reused.",
+                "type": "integer"
+              },
+              "laptop": {
+                "$ref": "#/components/schemas/Laptop"
+              }
+            }
+          },
+          {
+            "additionalProperties": false,
+            "type": "object",
+            "required": [
+              "type",
+              "seq",
+              "laptop"
+            ],
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": [
+                  "laptop_offline"
+                ]
+              },
+              "seq": {
+                "minimum": 0,
+                "maximum": 9007199254740991,
+                "description": "Exact safe-integer position in one ordered stream; gapless and never reused.",
+                "type": "integer"
+              },
+              "laptop": {
+                "$ref": "#/components/schemas/Laptop"
+              }
+            }
+          },
+          {
+            "additionalProperties": false,
+            "type": "object",
+            "required": [
+              "type",
+              "seq",
+              "topic"
+            ],
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": [
+                  "topic_updated"
+                ]
+              },
+              "seq": {
+                "minimum": 0,
+                "maximum": 9007199254740991,
+                "description": "Exact safe-integer position in one ordered stream; gapless and never reused.",
+                "type": "integer"
+              },
+              "topic": {
+                "$ref": "#/components/schemas/Topic"
+              }
+            }
+          }
+        ]
+      },
+      "AfterQuery": {
+        "additionalProperties": false,
+        "type": "object",
+        "properties": {
+          "after": {
+            "minimum": 0,
+            "maximum": 9007199254740991,
+            "description": "Exact safe-integer position in one ordered stream; gapless and never reused.",
+            "type": "integer"
+          }
+        }
+      },
+      "Agent": {
+        "type": "string",
+        "enum": [
+          "claude_code",
+          "codex"
+        ]
+      },
+      "Approval": {
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "approvalId",
+          "sessionId",
+          "laptopId",
+          "agent",
+          "tool",
+          "path",
+          "command",
+          "summary",
+          "requestedAt",
+          "expiresAt",
+          "state",
+          "decidedBy",
+          "decidedAt"
+        ],
+        "properties": {
+          "approvalId": {
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+            "type": "string"
+          },
+          "sessionId": {
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+            "type": "string"
+          },
+          "laptopId": {
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+            "type": "string"
+          },
+          "agent": {
+            "$ref": "#/components/schemas/Agent"
+          },
+          "tool": {
+            "minLength": 1,
+            "maxLength": 64,
+            "type": "string"
+          },
+          "path": {
+            "minLength": 1,
+            "maxLength": 1024,
+            "type": "string",
+            "nullable": true
+          },
+          "command": {
+            "minLength": 1,
+            "maxLength": 2000,
+            "type": "string",
+            "nullable": true
+          },
+          "summary": {
+            "minLength": 1,
+            "maxLength": 200,
+            "type": "string"
+          },
+          "requestedAt": {
+            "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\\.[0-9]{1,9})?Z$",
+            "description": "UTC, RFC 3339.",
+            "type": "string"
+          },
+          "expiresAt": {
+            "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\\.[0-9]{1,9})?Z$",
+            "description": "UTC, RFC 3339.",
+            "type": "string"
+          },
+          "state": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "allowed",
+              "denied",
+              "expired"
+            ]
+          },
+          "decidedBy": {
+            "description": "person: the person decided. aylul_grant: AYLUL decided on their behalf under that grant.",
+            "anyOf": [
+              {
+                "additionalProperties": false,
+                "type": "object",
+                "required": [
+                  "kind"
+                ],
+                "properties": {
+                  "kind": {
+                    "type": "string",
+                    "enum": [
+                      "person"
+                    ]
+                  }
+                },
+                "nullable": true
+              },
+              {
+                "additionalProperties": false,
+                "type": "object",
+                "required": [
+                  "kind",
+                  "grantId"
+                ],
+                "properties": {
+                  "kind": {
+                    "type": "string",
+                    "enum": [
+                      "aylul_grant"
+                    ]
+                  },
+                  "grantId": {
+                    "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+                    "type": "string"
+                  }
+                },
+                "nullable": true
+              }
+            ]
+          },
+          "decidedAt": {
+            "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\\.[0-9]{1,9})?Z$",
+            "description": "UTC, RFC 3339.",
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "ApprovalDecide": {
+        "additionalProperties": false,
+        "description": "The person decides. The account comes from the session, never the body.",
+        "type": "object",
+        "required": [
+          "commandId",
+          "decision"
+        ],
+        "properties": {
+          "commandId": {
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+            "type": "string",
+            "description": "Client-generated. The same id with the same request replays; with another, command_conflict."
+          },
+          "decision": {
+            "type": "string",
+            "enum": [
+              "allow",
+              "deny"
+            ]
+          }
+        }
+      },
+      "ApprovalList": {
+        "additionalProperties": false,
+        "description": "Pending requests, oldest first. cursor is the account stream position matching this list.",
+        "type": "object",
+        "required": [
+          "approvals",
+          "cursor"
+        ],
+        "properties": {
+          "approvals": {
+            "maxItems": 200,
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Approval"
+            }
+          },
+          "cursor": {
+            "minimum": 0,
+            "maximum": 9007199254740991,
+            "description": "Exact safe-integer position in one ordered stream; gapless and never reused.",
+            "type": "integer"
+          }
+        }
+      },
+      "ApprovalParams": {
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "approvalId"
+        ],
+        "properties": {
+          "approvalId": {
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+            "type": "string"
+          }
+        }
+      },
+      "Decider": {
+        "description": "person: the person decided. aylul_grant: AYLUL decided on their behalf under that grant.",
+        "anyOf": [
+          {
+            "additionalProperties": false,
+            "type": "object",
+            "required": [
+              "kind"
+            ],
+            "properties": {
+              "kind": {
+                "type": "string",
+                "enum": [
+                  "person"
+                ]
+              }
+            }
+          },
+          {
+            "additionalProperties": false,
+            "type": "object",
+            "required": [
+              "kind",
+              "grantId"
+            ],
+            "properties": {
+              "kind": {
+                "type": "string",
+                "enum": [
+                  "aylul_grant"
+                ]
+              },
+              "grantId": {
+                "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+                "type": "string"
+              }
+            }
+          }
+        ]
+      },
+      "Empty": {
+        "additionalProperties": false,
+        "type": "object",
+        "properties": {}
+      },
+      "Entry": {
+        "anyOf": [
+          {
+            "additionalProperties": false,
+            "type": "object",
+            "required": [
+              "type",
+              "entryId",
+              "seq",
+              "createdAt",
+              "turnId",
+              "text"
+            ],
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": [
+                  "user_message"
+                ]
+              },
+              "entryId": {
+                "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+                "type": "string"
+              },
+              "seq": {
+                "minimum": 0,
+                "maximum": 9007199254740991,
+                "description": "Exact safe-integer position in one ordered stream; gapless and never reused.",
+                "type": "integer"
+              },
+              "createdAt": {
+                "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\\.[0-9]{1,9})?Z$",
+                "description": "UTC, RFC 3339.",
+                "type": "string"
+              },
+              "turnId": {
+                "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+                "type": "string"
+              },
+              "text": {
+                "minLength": 1,
+                "maxLength": 2000,
+                "type": "string"
+              }
+            }
+          },
+          {
+            "additionalProperties": false,
+            "type": "object",
+            "required": [
+              "type",
+              "entryId",
+              "seq",
+              "createdAt",
+              "turnId",
+              "text",
+              "status",
+              "answeredBy",
+              "sources"
+            ],
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": [
+                  "assistant_message"
+                ]
+              },
+              "entryId": {
+                "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+                "type": "string"
+              },
+              "seq": {
+                "minimum": 0,
+                "maximum": 9007199254740991,
+                "description": "Exact safe-integer position in one ordered stream; gapless and never reused.",
+                "type": "integer"
+              },
+              "createdAt": {
+                "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\\.[0-9]{1,9})?Z$",
+                "description": "UTC, RFC 3339.",
+                "type": "string"
+              },
+              "turnId": {
+                "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+                "type": "string"
+              },
+              "text": {
+                "minLength": 0,
+                "maxLength": 16000,
+                "type": "string"
+              },
+              "status": {
+                "type": "string",
+                "enum": [
+                  "streaming",
+                  "complete",
+                  "partial"
+                ]
+              },
+              "answeredBy": {
+                "type": "string",
+                "enum": [
+                  "laptop",
+                  "cloud"
+                ]
+              },
+              "sources": {
+                "maxItems": 50,
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/SourceRef"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "GrantParams": {
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "grantId"
+        ],
+        "properties": {
+          "grantId": {
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+            "type": "string"
+          }
+        }
+      },
+      "GrantRevoke": {
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "commandId"
+        ],
+        "properties": {
+          "commandId": {
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+            "type": "string",
+            "description": "Client-generated. The same id with the same request replays; with another, command_conflict."
+          }
+        }
+      },
+      "GrantRevoked": {
+        "additionalProperties": false,
+        "description": "Revoking an already revoked grant answers the same value again.",
+        "type": "object",
+        "required": [
+          "grantId",
+          "revokedAt"
+        ],
+        "properties": {
+          "grantId": {
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+            "type": "string"
+          },
+          "revokedAt": {
+            "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\\.[0-9]{1,9})?Z$",
+            "description": "UTC, RFC 3339.",
+            "type": "string"
+          }
+        }
+      },
+      "Laptop": {
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "laptopId",
+          "name",
+          "status",
+          "lastSeenAt"
+        ],
+        "properties": {
+          "laptopId": {
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+            "type": "string"
+          },
+          "name": {
+            "minLength": 1,
+            "maxLength": 80,
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "online",
+              "offline"
+            ]
+          },
+          "lastSeenAt": {
+            "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\\.[0-9]{1,9})?Z$",
+            "description": "UTC, RFC 3339.",
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "LaptopList": {
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "laptops"
+        ],
+        "properties": {
+          "laptops": {
+            "maxItems": 20,
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Laptop"
+            }
+          }
+        }
+      },
+      "LaptopParams": {
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "laptopId"
+        ],
+        "properties": {
+          "laptopId": {
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+            "type": "string"
+          }
+        }
+      },
+      "LinkClaim": {
+        "additionalProperties": false,
+        "description": "The pairing code AYLUL desktop displays.",
+        "type": "object",
+        "required": [
+          "commandId",
+          "code"
+        ],
+        "properties": {
+          "commandId": {
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+            "type": "string",
+            "description": "Client-generated. The same id with the same request replays; with another, command_conflict."
+          },
+          "code": {
+            "pattern": "^[A-HJ-NP-Z2-9]{4}-[A-HJ-NP-Z2-9]{4}$",
+            "type": "string"
+          }
+        }
+      },
+      "NylraRefusal": {
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "code"
+        ],
+        "properties": {
+          "code": {
+            "type": "string",
+            "enum": [
+              "request_invalid",
+              "unauthorized",
+              "not_found",
+              "rate_limited",
+              "operation_failed",
+              "link_code_invalid",
+              "command_conflict",
+              "resnapshot_required",
+              "approval_already_decided",
+              "approval_expired"
+            ]
+          }
+        }
+      },
+      "ProjectRef": {
+        "additionalProperties": false,
+        "description": "A Shadows project shared with AYLUL on one laptop.",
+        "type": "object",
+        "required": [
+          "laptopId",
+          "projectId",
+          "name"
+        ],
+        "properties": {
+          "laptopId": {
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+            "type": "string"
+          },
+          "projectId": {
+            "minLength": 1,
+            "maxLength": 128,
+            "type": "string"
+          },
+          "name": {
+            "minLength": 0,
+            "maxLength": 200,
+            "type": "string"
+          }
+        }
+      },
+      "PushRegistration": {
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "platform",
+          "token"
+        ],
+        "properties": {
+          "platform": {
+            "type": "string",
+            "enum": [
+              "fcm",
+              "apns"
+            ]
+          },
+          "token": {
+            "minLength": 1,
+            "maxLength": 4096,
+            "type": "string"
+          }
+        }
+      },
+      "Session": {
+        "additionalProperties": false,
+        "description": "offline: its laptop is not connected, and the rest is as last reported.",
+        "type": "object",
+        "required": [
+          "sessionId",
+          "laptopId",
+          "agent",
+          "projectName",
+          "cwd",
+          "state",
+          "startedAt",
+          "updatedAt",
+          "lastStep",
+          "lastSeq"
+        ],
+        "properties": {
+          "sessionId": {
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+            "type": "string"
+          },
+          "laptopId": {
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+            "type": "string"
+          },
+          "agent": {
+            "$ref": "#/components/schemas/Agent"
+          },
+          "projectName": {
+            "minLength": 0,
+            "maxLength": 200,
+            "type": "string"
+          },
+          "cwd": {
+            "minLength": 1,
+            "maxLength": 1024,
+            "type": "string"
+          },
+          "state": {
+            "type": "string",
+            "enum": [
+              "running",
+              "waiting",
+              "ended",
+              "offline"
+            ]
+          },
+          "startedAt": {
+            "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\\.[0-9]{1,9})?Z$",
+            "description": "UTC, RFC 3339.",
+            "type": "string"
+          },
+          "updatedAt": {
+            "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\\.[0-9]{1,9})?Z$",
+            "description": "UTC, RFC 3339.",
+            "type": "string"
+          },
+          "lastStep": {
+            "additionalProperties": false,
+            "description": "One agent step as the laptop summarized it. Never a diff or file content.",
+            "type": "object",
+            "required": [
+              "stepId",
+              "seq",
+              "at",
+              "tool",
+              "path",
+              "summary"
+            ],
+            "properties": {
+              "stepId": {
+                "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+                "type": "string"
+              },
+              "seq": {
+                "minimum": 0,
+                "maximum": 9007199254740991,
+                "description": "Exact safe-integer position in one ordered stream; gapless and never reused.",
+                "type": "integer"
+              },
+              "at": {
+                "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\\.[0-9]{1,9})?Z$",
+                "description": "UTC, RFC 3339.",
+                "type": "string"
+              },
+              "tool": {
+                "minLength": 1,
+                "maxLength": 64,
+                "type": "string"
+              },
+              "path": {
+                "minLength": 1,
+                "maxLength": 1024,
+                "type": "string",
+                "nullable": true
+              },
+              "summary": {
+                "minLength": 1,
+                "maxLength": 200,
+                "pattern": "^[^\\r\\n\\u2028\\u2029]+$",
+                "type": "string"
+              }
+            },
+            "nullable": true
+          },
+          "lastSeq": {
+            "minimum": 0,
+            "maximum": 9007199254740991,
+            "description": "Exact safe-integer position in one ordered stream; gapless and never reused.",
+            "type": "integer"
+          }
+        }
+      },
+      "SessionEvent": {
+        "anyOf": [
+          {
+            "additionalProperties": false,
+            "type": "object",
+            "required": [
+              "type",
+              "seq",
+              "step"
+            ],
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": [
+                  "step_added"
+                ]
+              },
+              "seq": {
+                "minimum": 0,
+                "maximum": 9007199254740991,
+                "description": "Exact safe-integer position in one ordered stream; gapless and never reused.",
+                "type": "integer"
+              },
+              "step": {
+                "$ref": "#/components/schemas/Step"
+              }
+            }
+          },
+          {
+            "additionalProperties": false,
+            "type": "object",
+            "required": [
+              "type",
+              "seq",
+              "session"
+            ],
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": [
+                  "session_updated"
+                ]
+              },
+              "seq": {
+                "minimum": 0,
+                "maximum": 9007199254740991,
+                "description": "Exact safe-integer position in one ordered stream; gapless and never reused.",
+                "type": "integer"
+              },
+              "session": {
+                "$ref": "#/components/schemas/Session"
+              }
+            }
+          }
+        ]
+      },
+      "SessionList": {
+        "additionalProperties": false,
+        "description": "cursor is the account stream position matching this list.",
+        "type": "object",
+        "required": [
+          "sessions",
+          "cursor"
+        ],
+        "properties": {
+          "sessions": {
+            "maxItems": 200,
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Session"
+            }
+          },
+          "cursor": {
+            "minimum": 0,
+            "maximum": 9007199254740991,
+            "description": "Exact safe-integer position in one ordered stream; gapless and never reused.",
+            "type": "integer"
+          }
+        }
+      },
+      "SessionParams": {
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "sessionId"
+        ],
+        "properties": {
+          "sessionId": {
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+            "type": "string"
+          }
+        }
+      },
+      "SessionQuery": {
+        "additionalProperties": false,
+        "type": "object",
+        "properties": {
+          "laptopId": {
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+            "type": "string"
+          }
+        }
+      },
+      "SessionSnapshot": {
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "session",
+          "steps",
+          "cursor"
+        ],
+        "properties": {
+          "session": {
+            "$ref": "#/components/schemas/Session"
+          },
+          "steps": {
+            "maxItems": 500,
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Step"
+            }
+          },
+          "cursor": {
+            "minimum": 0,
+            "maximum": 9007199254740991,
+            "description": "Exact safe-integer position in one ordered stream; gapless and never reused.",
+            "type": "integer"
+          }
+        }
+      },
+      "SourceRef": {
+        "additionalProperties": false,
+        "description": "What an answer rests on, as the brain read it.",
+        "type": "object",
+        "required": [
+          "kind",
+          "id",
+          "version",
+          "readAt"
+        ],
+        "properties": {
+          "kind": {
+            "pattern": "^[a-z][a-z_]{0,39}$",
+            "type": "string"
+          },
+          "id": {
+            "minLength": 1,
+            "maxLength": 128,
+            "type": "string"
+          },
+          "version": {
+            "minLength": 1,
+            "maxLength": 128,
+            "type": "string"
+          },
+          "readAt": {
+            "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\\.[0-9]{1,9})?Z$",
+            "description": "UTC, RFC 3339.",
+            "type": "string"
+          }
+        }
+      },
+      "Step": {
+        "additionalProperties": false,
+        "description": "One agent step as the laptop summarized it. Never a diff or file content.",
+        "type": "object",
+        "required": [
+          "stepId",
+          "seq",
+          "at",
+          "tool",
+          "path",
+          "summary"
+        ],
+        "properties": {
+          "stepId": {
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+            "type": "string"
+          },
+          "seq": {
+            "minimum": 0,
+            "maximum": 9007199254740991,
+            "description": "Exact safe-integer position in one ordered stream; gapless and never reused.",
+            "type": "integer"
+          },
+          "at": {
+            "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\\.[0-9]{1,9})?Z$",
+            "description": "UTC, RFC 3339.",
+            "type": "string"
+          },
+          "tool": {
+            "minLength": 1,
+            "maxLength": 64,
+            "type": "string"
+          },
+          "path": {
+            "minLength": 1,
+            "maxLength": 1024,
+            "type": "string",
+            "nullable": true
+          },
+          "summary": {
+            "minLength": 1,
+            "maxLength": 200,
+            "pattern": "^[^\\r\\n\\u2028\\u2029]+$",
+            "type": "string"
+          }
+        }
+      },
+      "Topic": {
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "topicId",
+          "title",
+          "project",
+          "state",
+          "createdAt",
+          "updatedAt",
+          "lastSeq"
+        ],
+        "properties": {
+          "topicId": {
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+            "type": "string"
+          },
+          "title": {
+            "minLength": 0,
+            "maxLength": 200,
+            "type": "string"
+          },
+          "project": {
+            "additionalProperties": false,
+            "description": "A Shadows project shared with AYLUL on one laptop.",
+            "type": "object",
+            "required": [
+              "laptopId",
+              "projectId",
+              "name"
+            ],
+            "properties": {
+              "laptopId": {
+                "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+                "type": "string"
+              },
+              "projectId": {
+                "minLength": 1,
+                "maxLength": 128,
+                "type": "string"
+              },
+              "name": {
+                "minLength": 0,
+                "maxLength": 200,
+                "type": "string"
+              }
+            },
+            "nullable": true
+          },
+          "state": {
+            "type": "string",
+            "enum": [
+              "open",
+              "resolved"
+            ]
+          },
+          "createdAt": {
+            "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\\.[0-9]{1,9})?Z$",
+            "description": "UTC, RFC 3339.",
+            "type": "string"
+          },
+          "updatedAt": {
+            "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\\.[0-9]{1,9})?Z$",
+            "description": "UTC, RFC 3339.",
+            "type": "string"
+          },
+          "lastSeq": {
+            "minimum": 0,
+            "maximum": 9007199254740991,
+            "description": "Exact safe-integer position in one ordered stream; gapless and never reused.",
+            "type": "integer"
+          }
+        }
+      },
+      "TopicCreate": {
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "commandId"
+        ],
+        "properties": {
+          "commandId": {
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+            "type": "string",
+            "description": "Client-generated. The same id with the same request replays; with another, command_conflict."
+          },
+          "title": {
+            "minLength": 1,
+            "maxLength": 200,
+            "type": "string"
+          },
+          "project": {
+            "additionalProperties": false,
+            "type": "object",
+            "required": [
+              "laptopId",
+              "projectId"
+            ],
+            "properties": {
+              "laptopId": {
+                "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+                "type": "string"
+              },
+              "projectId": {
+                "minLength": 1,
+                "maxLength": 128,
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
+      "TopicEvent": {
+        "anyOf": [
+          {
+            "additionalProperties": false,
+            "type": "object",
+            "required": [
+              "type",
+              "seq",
+              "entry"
+            ],
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": [
+                  "entry_added"
+                ]
+              },
+              "seq": {
+                "minimum": 0,
+                "maximum": 9007199254740991,
+                "description": "Exact safe-integer position in one ordered stream; gapless and never reused.",
+                "type": "integer"
+              },
+              "entry": {
+                "$ref": "#/components/schemas/Entry"
+              }
+            }
+          },
+          {
+            "additionalProperties": false,
+            "type": "object",
+            "required": [
+              "type",
+              "seq",
+              "entryId",
+              "text"
+            ],
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": [
+                  "delta"
+                ]
+              },
+              "seq": {
+                "minimum": 0,
+                "maximum": 9007199254740991,
+                "description": "Exact safe-integer position in one ordered stream; gapless and never reused.",
+                "type": "integer"
+              },
+              "entryId": {
+                "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+                "type": "string"
+              },
+              "text": {
+                "minLength": 1,
+                "maxLength": 4000,
+                "type": "string"
+              }
+            }
+          },
+          {
+            "additionalProperties": false,
+            "type": "object",
+            "required": [
+              "type",
+              "seq",
+              "entry"
+            ],
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": [
+                  "entry_updated"
+                ]
+              },
+              "seq": {
+                "minimum": 0,
+                "maximum": 9007199254740991,
+                "description": "Exact safe-integer position in one ordered stream; gapless and never reused.",
+                "type": "integer"
+              },
+              "entry": {
+                "$ref": "#/components/schemas/Entry"
+              }
+            }
+          },
+          {
+            "additionalProperties": false,
+            "type": "object",
+            "required": [
+              "type",
+              "seq",
+              "turnId",
+              "outcome"
+            ],
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": [
+                  "turn_finished"
+                ]
+              },
+              "seq": {
+                "minimum": 0,
+                "maximum": 9007199254740991,
+                "description": "Exact safe-integer position in one ordered stream; gapless and never reused.",
+                "type": "integer"
+              },
+              "turnId": {
+                "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+                "type": "string"
+              },
+              "outcome": {
+                "type": "string",
+                "enum": [
+                  "done",
+                  "error",
+                  "cancelled"
+                ]
+              },
+              "code": {
+                "minLength": 1,
+                "maxLength": 64,
+                "type": "string"
+              }
+            }
+          },
+          {
+            "additionalProperties": false,
+            "type": "object",
+            "required": [
+              "type",
+              "seq",
+              "topic"
+            ],
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": [
+                  "topic_updated"
+                ]
+              },
+              "seq": {
+                "minimum": 0,
+                "maximum": 9007199254740991,
+                "description": "Exact safe-integer position in one ordered stream; gapless and never reused.",
+                "type": "integer"
+              },
+              "topic": {
+                "$ref": "#/components/schemas/Topic"
+              }
+            }
+          }
+        ]
+      },
+      "TopicList": {
+        "additionalProperties": false,
+        "description": "cursor is the account stream position matching this list.",
+        "type": "object",
+        "required": [
+          "topics",
+          "cursor"
+        ],
+        "properties": {
+          "topics": {
+            "maxItems": 200,
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Topic"
+            }
+          },
+          "cursor": {
+            "minimum": 0,
+            "maximum": 9007199254740991,
+            "description": "Exact safe-integer position in one ordered stream; gapless and never reused.",
+            "type": "integer"
+          }
+        }
+      },
+      "TopicParams": {
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "topicId"
+        ],
+        "properties": {
+          "topicId": {
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+            "type": "string"
+          }
+        }
+      },
+      "TopicSnapshot": {
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "topic",
+          "entries",
+          "cursor"
+        ],
+        "properties": {
+          "topic": {
+            "$ref": "#/components/schemas/Topic"
+          },
+          "entries": {
+            "maxItems": 1000,
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Entry"
+            }
+          },
+          "cursor": {
+            "minimum": 0,
+            "maximum": 9007199254740991,
+            "description": "Exact safe-integer position in one ordered stream; gapless and never reused.",
+            "type": "integer"
+          }
+        }
+      },
+      "TurnAccepted": {
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "turnId",
+          "entryId",
+          "seq"
+        ],
+        "properties": {
+          "turnId": {
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+            "type": "string"
+          },
+          "entryId": {
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+            "type": "string"
+          },
+          "seq": {
+            "minimum": 0,
+            "maximum": 9007199254740991,
+            "description": "Exact safe-integer position in one ordered stream; gapless and never reused.",
+            "type": "integer"
+          }
+        }
+      },
+      "TurnParams": {
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "topicId",
+          "turnId"
+        ],
+        "properties": {
+          "topicId": {
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+            "type": "string"
+          },
+          "turnId": {
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+            "type": "string"
+          }
+        }
+      },
+      "TurnRequest": {
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "commandId",
+          "message"
+        ],
+        "properties": {
+          "commandId": {
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+            "type": "string",
+            "description": "Client-generated. The same id with the same request replays; with another, command_conflict."
+          },
+          "message": {
+            "minLength": 1,
+            "maxLength": 2000,
+            "type": "string"
+          }
+        }
+      }
+    }
+  },
+  "paths": {
+    "/v1/nylra/devices/current/push": {
+      "put": {
+        "summary": "Register this phone for push notifications",
+        "security": [
+          {
+            "backendBearer": []
+          }
+        ],
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PushRegistration"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Empty"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Stop push notifications to this phone",
+        "security": [
+          {
+            "backendBearer": []
+          }
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Empty"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/nylra/laptops/claim": {
+      "post": {
+        "summary": "Pair a laptop by the code AYLUL desktop shows",
+        "security": [
+          {
+            "backendBearer": []
+          }
+        ],
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LinkClaim"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Laptop"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/nylra/laptops": {
+      "get": {
+        "summary": "Paired laptops and whether each is online",
+        "security": [
+          {
+            "backendBearer": []
+          }
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LaptopList"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/nylra/laptops/{laptopId}": {
+      "delete": {
+        "summary": "Unpair a laptop; its sessions and approvals stop reaching this account",
+        "security": [
+          {
+            "backendBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "laptopId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Empty"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/nylra/topics": {
+      "get": {
+        "summary": "Topics, newest activity first, with the account cursor",
+        "security": [
+          {
+            "backendBearer": []
+          }
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TopicList"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Start a conversation, optionally about one shared project",
+        "security": [
+          {
+            "backendBearer": []
+          }
+        ],
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TopicCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Topic"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/nylra/topics/{topicId}": {
+      "get": {
+        "summary": "Topic snapshot; its events after the cursor are exactly the later ones",
+        "security": [
+          {
+            "backendBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "topicId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TopicSnapshot"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/nylra/topics/{topicId}/events": {
+      "get": {
+        "summary": "Topic events after a cursor (SSE; id = seq). Unknown or expired cursor: 410 resnapshot_required",
+        "security": [
+          {
+            "backendBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "topicId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+              "type": "string"
+            }
+          },
+          {
+            "name": "after",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "minimum": 0,
+              "maximum": 9007199254740991,
+              "description": "Exact safe-integer position in one ordered stream; gapless and never reused.",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Stream; each event data is one value of this schema",
+            "content": {
+              "text/event-stream": {
+                "schema": {
+                  "$ref": "#/components/schemas/TopicEvent"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          },
+          "410": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/nylra/topics/{topicId}/turns": {
+      "post": {
+        "summary": "Send a message; the answer arrives on the topic stream",
+        "security": [
+          {
+            "backendBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "topicId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TurnRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TurnAccepted"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/nylra/topics/{topicId}/turns/{turnId}/cancel": {
+      "post": {
+        "summary": "Stop an answer; its output so far stays, marked partial",
+        "security": [
+          {
+            "backendBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "topicId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+              "type": "string"
+            }
+          },
+          {
+            "name": "turnId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Empty"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Empty"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/nylra/sessions": {
+      "get": {
+        "summary": "Agent sessions on every paired laptop, or one",
+        "security": [
+          {
+            "backendBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "laptopId",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessionList"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/nylra/sessions/{sessionId}": {
+      "get": {
+        "summary": "Session snapshot with its recent steps",
+        "security": [
+          {
+            "backendBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "sessionId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessionSnapshot"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/nylra/sessions/{sessionId}/events": {
+      "get": {
+        "summary": "Session events after a cursor (SSE; id = seq). Unknown or expired cursor: 410 resnapshot_required",
+        "security": [
+          {
+            "backendBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "sessionId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+              "type": "string"
+            }
+          },
+          {
+            "name": "after",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "minimum": 0,
+              "maximum": 9007199254740991,
+              "description": "Exact safe-integer position in one ordered stream; gapless and never reused.",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Stream; each event data is one value of this schema",
+            "content": {
+              "text/event-stream": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessionEvent"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          },
+          "410": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/nylra/approvals": {
+      "get": {
+        "summary": "Pending approval requests, oldest first",
+        "security": [
+          {
+            "backendBearer": []
+          }
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApprovalList"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/nylra/approvals/{approvalId}/decide": {
+      "post": {
+        "summary": "The person allows or denies one request. Already decided or expired: 409",
+        "security": [
+          {
+            "backendBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "approvalId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ApprovalDecide"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Approval"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/nylra/grants/{grantId}/revoke": {
+      "post": {
+        "summary": "Revoke a grant; its next match goes to the person",
+        "security": [
+          {
+            "backendBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "grantId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GrantRevoke"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GrantRevoked"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/nylra/events": {
+      "get": {
+        "summary": "Account events after a cursor (SSE; id = seq). Unknown or expired cursor: 410 resnapshot_required",
+        "security": [
+          {
+            "backendBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "after",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "minimum": 0,
+              "maximum": 9007199254740991,
+              "description": "Exact safe-integer position in one ordered stream; gapless and never reused.",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Stream; each event data is one value of this schema",
+            "content": {
+              "text/event-stream": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccountEvent"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          },
+          "410": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
