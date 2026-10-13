@@ -326,8 +326,9 @@ content leaves the laptop until architecture §5's lifecycle closes. An unknown
 or expired cursor answers `resnapshot_required`. The account comes from the
 session, never a body field. A mock server in this repository replays the
 fixtures, SSE included, so the Flutter app is built before the routes exist.
-Real content waits for architecture §5's lifecycle defaults to be approved; the
-first release's acceptance with real agent sessions needs that approval first.
+Architecture §5's lifecycle defaults were approved on 2026-10-13. Real content,
+and so the first release's acceptance with real agent sessions, still waits for
+its deletion, invalidation and restore tests to pass.
 
 ## 5. Complete first journey
 
