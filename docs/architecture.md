@@ -29,6 +29,14 @@ context retrieval, model calls, notification policy, and human-intervention
 workflow. Accounts, trusted devices, and project linking serve both products.
 NYLRA remains a distinct optional product domain within that application.
 
+Since 2026-10-13 AYLUL is an independent companion that observes and talks to
+Shadows, Claude Code, Codex and later agents, and is none of them; the
+[NYLRA delivery spec](../../nylra/docs/superpowers/specs/2026-10-10-nylra-delivery-design.md#independent-companion)
+owns that decision. Its brain is one `aylul-brain` TypeScript package on the AI
+SDK, run by AYLUL desktop's sidecar on the laptop and by this application in
+the cloud. This application holds its memory and its cloud half; the
+[source structure](source-structure.md) places the package.
+
 Shadows works locally without NYLRA. Its local daemon owns local projects,
 plans, contracts, Planner sessions, and execution as those capabilities are
 delivered. Cloud integration does not require replacing its SQLite storage.
@@ -110,34 +118,35 @@ future paths. It is a design for review, not an existing code map or scaffolding
 
 ## 4. Connection topology
 
+Decided 2026-10-13: AYLUL desktop, not the Shadows daemon, owns the link to the
+cloud.
+
 ```text
-NYLRA Desktop <------ local API ------> Shadows local daemon
-      |                                      |
-      | cloud client                         | authenticated outbound link
-      v                                      v
-                    shadows-backend
-                           ^
-                           | cloud client
-                     NYLRA Mobile
+NYLRA Mobile --HTTPS/SSE--> shadows-backend <--outbound WebSocket-- AYLUL desktop
+                            identity, memory,                        laptop brain, hooks
+                            cloud brain, push                          |--> Claude Code / Codex (hooks)
+                                                                       '--> Shadows (local API)
 ```
 
 Desktop presentation runs in TypeScript. Native desktop capabilities run in
 Tauri's Rust side, including windows, tray behavior, shortcuts, and integration
 with the local daemon. Its frontend reaches those functions through Tauri IPC.
+The laptop brain runs as a Node sidecar of the Tauri app.
 
-Shadows' cloud connector belongs to the daemon's lifecycle, not to the NYLRA
-desktop window. Closing NYLRA desktop does not terminate that connection while
-the Shadows daemon is running. The local daemon initiates the connection;
-no public inbound port is required on the user's computer.
+The cloud link belongs to AYLUL desktop's lifecycle, not to its main window:
+closing the window does not close the link, quitting AYLUL does. AYLUL desktop
+initiates it; no public inbound port is required on the user's computer.
 
 | Operation | Path |
 | --- | --- |
-| NYLRA chat, personal memory, explanation | Desktop or mobile to shared backend |
+| Chat while the laptop is on | Desktop or mobile to the laptop brain, mobile through the cloud relay |
+| Chat while the laptop is off | Mobile to the cloud brain |
+| Memory | Either brain to this application's store |
+| Project context | Laptop brain reads the local Shadows API's NYLRA projection |
+| Agent session steps | Agent hook to AYLUL desktop; summarized steps to the cloud for mobile |
+| Agent approval request | Agent hook to AYLUL desktop; grant match, else to the person on desktop and mobile |
 | Open a local plan or navigate to local work | Desktop to local Shadows API |
-| Ask Planner through NYLRA | Client to cloud to local connector to Planner |
-| Confirm through NYLRA | Client confirmation flow to cloud to local owner validation |
-| Planner requests human intervention | Local owner to cloud to desktop/mobile notification |
-| Retrieve additional context | Cloud request through the scoped local connector |
+| Ask Planner or confirm a Shadows operation through NYLRA | Not in the first release; §24.6 governs it |
 
 Direct desktop integration supports local presentation and navigation. It does
 not introduce an alternative hidden route for NYLRA approvals. Local Shadows
@@ -302,24 +311,27 @@ handle; a locally checked JWT may remain valid until expiry. Backend revocation
 does not certify provider logout or recall already disclosed data. Existing SQL
 fixtures prove only proposed mechanics, not this service or device trust.
 
-### Content lifecycle defaults — PROPOSED FOR USER REVIEW
+### Content lifecycle defaults
 
-Every row below is **PROPOSED FOR USER REVIEW**. No retention policy is approved.
-Section 13's data-lifecycle OPEN remains open until the user reviews these values,
-provider terms are resolved, and deletion/invalidation/restore tests pass.
+Mohammed reviewed these on 2026-10-13. Rows marked **Approved 2026-10-13** are
+decided; the one row still marked **PROPOSED FOR USER REVIEW** was not discussed.
+Section 13's data-lifecycle OPEN now waits only on deletion, invalidation and
+restore tests passing; runtime stays in synthetic data mode until they do.
 
-| Data / owner | Recommended default and tradeoff |
+| Data / owner | Default and tradeoff |
 | --- | --- |
-| Conversations / conversations | **PROPOSED FOR USER REVIEW:** retain NYLRA messages and source bindings for 90 days after the topic's last user activity; explicit deletion can occur sooner. Automated cache refresh does not extend that deadline. Disclose expiry in clients. Finite retention reduces exposure/storage but loses older conversational continuity; an explicit future keep/export choice requires separate review. |
+| Conversations / conversations | **Approved 2026-10-13:** retain NYLRA messages and source bindings for 90 days after the topic's last user activity; explicit deletion can occur sooner. Automated cache refresh does not extend that deadline. Disclose expiry in clients. Finite retention reduces exposure/storage but loses older conversational continuity; an explicit future keep/export choice requires separate review. |
 | Scoped project evidence / context | **PROPOSED FOR USER REVIEW:** retain only selected excerpts, version/digest, acquisition time, owner grant and exact instance/workspace/project/work/thread scope; expire content seven days after acquisition or at the source grant/content deadline, whichever comes first. Re-fetch only through a still-valid grant. No whole-history or automatic source-tree upload. This favors minimization over long offline explanation. |
-| Derived summaries, embeddings and caches / deriving module | **PROPOSED FOR USER REVIEW:** retrieval caches expire within 24 hours; summaries/embeddings within 30 days, always capped by every source's earlier deadline. Track all contributing source ids/versions, grant revisions and deletion ids; derived access requires permission for every source. Mixed-project derivation remains constrained by all scopes; it never becomes account-wide. Invalidate at source change/revocation/deletion before further use and rebuild only from permitted sources. Recompute cost is preferable to stale or broadened access. |
-| Personal memory / memory | **PROPOSED FOR USER REVIEW:** disabled until explicit opt-in; retain user-inspectable communication preferences until correction/deletion/account deletion, with an annual review reminder. Record origin and consent time. No automatic conversion of project facts, retrieved instructions, approvals or team content into personal memory. Opt-in gives less automatic personalization but preserves source authority. |
-| Deletion / each owning module | **PROPOSED FOR USER REVIEW:** hide/refuse deleted content synchronously with a durable deletion marker; purge live content and all dependent derivatives within 24 hours, with idempotent progress and visible failure. Account deletion revokes sessions immediately and propagates to each owner plus the identity provider; its provider purge remains pending until acknowledged. Tombstones carry only opaque ids and deadlines for 35 days after deletion. This allows retry/restore protection without retaining content. |
-| Backups / deployment operator | **PROPOSED FOR USER REVIEW:** encrypted daily backups with a maximum 30-day lifetime, including incremental chains/replicas and identity backups; initial recovery objectives are RPO 24 hours and RTO 24 hours, to be demonstrated before deployment. Deleted content can remain inaccessible in backups until expiry. Restore in quarantine and replay deletion/revocation markers before serving traffic. A failed purge/restore audit blocks release; do not claim instant physical deletion from immutable backups. |
-| Minimal audit metadata / operation owner | **PROPOSED FOR USER REVIEW:** retain for 90 days: opaque event/account/device/object ids, operation type, timestamp, outcome/refusal category and policy revision. Exclude message text, reasoning, prompts, excerpts, email, IP, user-agent, tokens, keys and request/response bodies. Record deletion progress without source content. A shorter forensic window trades investigation depth for minimization; audit data has separate restricted access and expiry. |
-| Revoked links / links and context | **PROPOSED FOR USER REVIEW:** immediately deny new reads, explanation context use and queued dispatch; recheck grants before acquisition, provider send and owner dispatch. Hide all affected scoped evidence/derived entries immediately and purge their live copies within 24 hours, including conversation entries carrying that source if safe removal cannot be proven. Preserve only untainted dialogue with scope/freshness status. Revocation does not delete the local owner's project. |
-| Revoked devices / devices and clients | **PROPOSED FOR USER REVIEW:** deny backend sessions immediately; clear credentials and scoped client caches on the next reachable client sync. Device revocation alone does not delete the account's conversations or revoke unrelated project links. An offline/lost device's previously downloaded data cannot be guaranteed erased; do not promise a physical purge deadline for it. |
-| Provider processing / provider adapter and operator | **PROPOSED FOR USER REVIEW:** send only the minimum permitted text; disable optional provider history/training where supported and prefer contractual zero retention. Do not persist reasoning as conversation content or diagnostics. Provider retention, deletion capability and subprocessors must be reviewed before real content; backend deletion cannot certify deletion by a provider. No MiniMax B0 test established those contractual controls. |
+| Agent session steps / sessions | **Approved 2026-10-13:** a step carries the agent, tool name, file path and a one-line summary, never a diff or file content; retain 7 days after the step. Enough to see what happened this week; older history lives only in approval records. |
+| Approval records / approvals | **Approved 2026-10-13:** retain 90 days: the agent, the request (tool name with path or command), the decider (`person`, or `aylul_grant` with the grant id) and the time. The person can delete any record sooner. This is what shows what AYLUL approved on the person's behalf. |
+| Derived summaries, embeddings and caches / deriving module | **Approved 2026-10-13:** retrieval caches expire within 24 hours; summaries/embeddings within 30 days, always capped by every source's earlier deadline. Track all contributing source ids/versions, grant revisions and deletion ids; derived access requires permission for every source. Mixed-project derivation remains constrained by all scopes; it never becomes account-wide. Invalidate at source change/revocation/deletion before further use and rebuild only from permitted sources. Recompute cost is preferable to stale or broadened access. |
+| Personal memory / memory | **Approved 2026-10-13:** enabled from the start, and visible, editable and deletable by the person. It holds how the person likes to be spoken to, where they are (current project, what they were last doing) and one short description per shared project, naming its source and date (for example from that project's vision file). The description is deleted when the project's sharing is turned off. No project content (files, plans, code) enters memory; it is read from its owner at question time. Retain until corrected, deleted or the account is deleted. |
+| Deletion / each owning module | **Approved 2026-10-13:** hide/refuse deleted content synchronously with a durable deletion marker; purge live content and all dependent derivatives within 24 hours, with idempotent progress and visible failure. Account deletion revokes sessions immediately and propagates to each owner plus the identity provider; its provider purge remains pending until acknowledged. Tombstones carry only opaque ids and deadlines for 35 days after deletion. This allows retry/restore protection without retaining content. |
+| Backups / deployment operator | **Approved 2026-10-13:** encrypted daily backups with a maximum 30-day lifetime, including incremental chains/replicas and identity backups; initial recovery objectives are RPO 24 hours and RTO 24 hours, to be demonstrated before deployment. Deleted content can remain inaccessible in backups until expiry. Restore in quarantine and replay deletion/revocation markers before serving traffic. A failed purge/restore audit blocks release; do not claim instant physical deletion from immutable backups. |
+| Minimal audit metadata / operation owner | **Approved 2026-10-13:** retain for 90 days: opaque event/account/device/object ids, operation type, timestamp, outcome/refusal category and policy revision. Exclude message text, reasoning, prompts, excerpts, email, IP, user-agent, tokens, keys and request/response bodies. Record deletion progress without source content. A shorter forensic window trades investigation depth for minimization; audit data has separate restricted access and expiry. |
+| Revoked links / links and context | **Approved 2026-10-13:** immediately deny new reads, explanation context use and queued dispatch; recheck grants before acquisition, provider send and owner dispatch. Hide all affected scoped evidence/derived entries immediately and purge their live copies within 24 hours, including conversation entries carrying that source if safe removal cannot be proven. Preserve only untainted dialogue with scope/freshness status. Revocation does not delete the local owner's project. |
+| Revoked devices / devices and clients | **Approved 2026-10-13:** deny backend sessions immediately; clear credentials and scoped client caches on the next reachable client sync. Device revocation alone does not delete the account's conversations or revoke unrelated project links. An offline/lost device's previously downloaded data cannot be guaranteed erased; do not promise a physical purge deadline for it. |
+| Provider processing / provider adapter | **Approved 2026-10-13:** the person chooses the model provider and accepts that provider's retention and training terms. Settings state plainly that chat, project descriptions and session summaries go to the chosen provider. Send only the minimum permitted text and do not persist reasoning as conversation content or diagnostics. Backend deletion cannot certify deletion by a provider. |
 
 ## 6. Current work context, not transcript replication
 
@@ -389,6 +401,11 @@ client displays the exact operation/proposal independently of generated chat and
 requires a deliberate confirmation action. Voice may prepare a proposal; it cannot
 automatically sign a model's interpretation. Voice-only confirmation requires a
 separately reviewed mechanism. Preferences never become delegated authority.
+
+Delegated authority is an explicit grant the person creates on the laptop, owned
+by the NYLRA delivery spec's delegation rule. A decision made under one records
+`aylul_grant` and the grant's id, never `person`. This application and mobile
+clients can revoke a grant; they cannot create or widen one.
 
 ## 9. Reliability and disconnected devices
 
@@ -502,8 +519,8 @@ These items are deliberately unresolved, with an explicit closing trigger:
 - **Data lifecycle:** close before persisting real user/project content by setting
   retention periods, backup purge deadlines and testable deletion/invalidation
   propagation for section 5's sharing rules, including provider retention. The
-  section 5 defaults are PROPOSED FOR USER REVIEW; only explicit user review plus
-  behavioral deletion/restore evidence closes this OPEN.
+  section 5 defaults were reviewed on 2026-10-13 (one evidence row remains
+  proposed); behavioral deletion/invalidation/restore evidence closes this OPEN.
 - **Voice and native client capabilities:** close before the corresponding client
   implementation plan by demonstrating capture, playback, interruption,
   background/lock-screen notification behavior, reconnect, and the same topic
@@ -531,6 +548,11 @@ plan does not close section 13's capability prerequisites.
 
 The full local Shadows roadmap remains intact. NYLRA needs neither the future
 manager nor executors to demonstrate value; cloud accounts never gate local use.
+
+Amended 2026-10-13: the first release is the NYLRA delivery spec's
+[first release](../../nylra/docs/superpowers/specs/2026-10-10-nylra-delivery-design.md#first-release-and-who-builds-it):
+chat, live agent sessions and approvals on desktop and phone. Step 1 below
+follows it; steps 2 to 5 keep their order.
 
 1. **Text integration:** close identity, context/protocol and data-lifecycle OPENs;
    connect one selected personal project, explain bounded current work after a

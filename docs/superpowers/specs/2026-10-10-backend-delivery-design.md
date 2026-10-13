@@ -1,5 +1,11 @@
 # Backend delivery design
 
+Companion amendment, 2026-10-13: AYLUL is an independent companion and its
+first release is chat, live agent sessions and approvals on desktop and phone
+([NYLRA delivery spec](../../../../nylra/docs/superpowers/specs/2026-10-10-nylra-delivery-design.md#independent-companion)).
+§4's nylra-v1 0.2 is that release's contract. Earlier amendments below remain
+the record of their dates.
+
 Joint native amendment, 2026-10-11: NYLRA consumes auth-v1 1.1.0 in Rust with
 protected enrollment/session storage; [joint evidence](../../evidence/2026-10-11-joint-native-auth.md)
 owns measured acceptance and browser limitations. Session infrastructure failure
@@ -292,6 +298,37 @@ Pin producer schema revision and consumer artifact versions. Test reconnect at t
 snapshot boundary, duplicates, gaps, expired cursor, client revision mismatch and
 cross-project substitution. A new protocol version is introduced only for a real
 compatibility need. Do not assume existing Shadows SSE is this external protocol.
+
+### nylra-v1 0.2, the first release's client contract (2026-10-13)
+
+Decided with Mohammed on 2026-10-13. One contract serves the Flutter app and
+AYLUL desktop, so both are built against it in parallel. Its source is TypeBox
+in `src/transports/http/`; OpenAPI, TypeScript and the fixtures are exported
+from it, and Flutter generates Dart from the OpenAPI file. A route takes its
+schema from the same operation table. The 0.1.0 draft, tagged
+`draft/2026-10-12-nylra-v1-0.1`, was its starting point.
+
+| Group | Operations |
+| --- | --- |
+| Sign-in | auth-v1, unchanged |
+| Push | Register or remove this phone's FCM/APNs token |
+| Links | Pair a laptop by the code AYLUL desktop shows; list linked laptops with online state; unlink |
+| Chat | Topics with an account cursor; send a turn; topic SSE ending in exactly one of `done`, `error`, `cancelled`; cancel |
+| Sessions | Per laptop: agent (`claude_code`, `codex`), project, state (`running`, `waiting`, `ended`, `offline`), last step; a session's step snapshot, then SSE after a cursor |
+| Approvals | Pending requests; decide with `allow` or `deny` and a `commandId`; the answer names the decider, `person` or `aylul_grant` with the grant id; a request already decided or expired refuses with 409 |
+| Grant revocation | Revoke a grant by id; there is no create or widen operation |
+| Account SSE | Approval requested, approval resolved, session changed, laptop online, laptop offline |
+
+Removed until a slice needs them: file attachments and Planner reply drafts.
+
+A step carries the tool name, file path and a one-line summary; no diff or file
+content leaves the laptop until architecture §5's lifecycle closes. An unknown
+or expired cursor answers `resnapshot_required`. The account comes from the
+session, never a body field. A mock server in this repository replays the
+fixtures, SSE included, so the Flutter app is built before the routes exist.
+Architecture §5's lifecycle defaults were approved on 2026-10-13. Real content,
+and so the first release's acceptance with real agent sessions, still waits for
+its deletion, invalidation and restore tests to pass.
 
 ## 5. Complete first journey
 
