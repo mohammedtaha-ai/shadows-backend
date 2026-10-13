@@ -1,8 +1,7 @@
 import { randomUUID,randomBytes,createHash } from 'node:crypto';
-import type { Kysely,Transaction } from 'kysely';
+import type { Transaction } from 'kysely';
 import type { Database } from '../../platform/database/schema.js';
 export class DeviceStore {
- constructor(private readonly db:Kysely<Database>) {}
  async enroll(tx:Transaction<Database>,accountId:string):Promise<{deviceId:string;credential:string}> {
   const deviceId=randomUUID(),credential=randomBytes(32).toString('base64url');
   await tx.insertInto('devices').values({id:deviceId,account_id:accountId,enrollment_hash:createHash('sha256').update(credential).digest('base64url')}).execute();

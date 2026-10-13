@@ -3,7 +3,6 @@ import { randomUUID } from 'node:crypto';
 import type { Kysely, Transaction, Selectable } from 'kysely';
 import type { Database } from '../../platform/database/schema.js';
 type Connection = Kysely<Database> | Transaction<Database>;
-export type SessionRow = Selectable<Database['identity_sessions']>;
 export class IdentityStore {
  constructor(private readonly db: Kysely<Database>) {}
  async insertAttempt(row: Selectable<Database['identity_login_attempts']>) { await this.db.insertInto('identity_login_attempts').values(row).execute(); }

@@ -10,7 +10,7 @@ export interface IdentityOperations {
 }
 export class DeviceService {
  private readonly store:DeviceStore; private identity?:IdentityOperations;
- constructor(private readonly db:Kysely<Database>,private readonly clock:()=>Date=()=>new Date()) { this.store=new DeviceStore(db); }
+ constructor(private readonly db:Kysely<Database>,private readonly clock:()=>Date=()=>new Date()) { this.store=new DeviceStore(); }
  readonly registration={enroll:(tx:Transaction<Database>,accountId:string)=>this.store.enroll(tx,accountId),
   reuse:(tx:Transaction<Database>,accountId:string,credential:string)=>this.store.reuse(tx,accountId,credential)};
  readonly trust={isActive:(tx:Transaction<Database>,accountId:string,deviceId:string)=>this.store.isActive(tx,accountId,deviceId)};
