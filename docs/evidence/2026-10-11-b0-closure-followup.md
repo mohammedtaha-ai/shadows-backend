@@ -1,5 +1,8 @@
 # B0 closure follow-up — local checkpoint and cloud continuation
 
+Probe sources and raw artifacts named here were removed from the tree on
+2026-10-13; `git show db27eb5:<path>` retrieves any of them.
+
 ## Retained local checkpoint — historical observations
 
 Date: 2026-10-11, Asia/Aden. Starting revision:
@@ -139,19 +142,19 @@ files. Its intended restart test uses development H2, not production PostgreSQL.
 Synthetic OIDC uses 45905, with 45906 as registered callback URI; device PostgreSQL
 uses 45904 and database b0_identity_followup. Existing databases are never consumed.
 
-- [Binding probe](../../probes/b0-2026-10-10/identity-bindings.mjs) and
-  [results](../../probes/b0-2026-10-10/followup-artifacts/identity-bindings-results.json).
-- [Device probe](../../probes/b0-2026-10-10/identity-devices.mjs),
-  [policy fixture](../../probes/b0-2026-10-10/identity-device-fixture.mjs),
-  [fresh-process verifier](../../probes/b0-2026-10-10/identity-device-child.mjs), and
-  [results](../../probes/b0-2026-10-10/followup-artifacts/identity-devices-results.json).
-- [Unexecuted Keycloak behavioral reproduction](../../probes/b0-2026-10-10/identity-keycloak.mjs)
-  and [blocked preflight](../../probes/b0-2026-10-10/followup-artifacts/identity-keycloak-results.json).
-- [MiniMax source](../../probes/b0-2026-10-10/minimax-rounds.mjs),
-  [corrected continuity](../../probes/b0-2026-10-10/followup-artifacts/minimax-rounds-results.json),
-  [initial results including cancellation](../../probes/b0-2026-10-10/followup-artifacts/minimax-rounds-initial-results.json),
-  and [initial source snapshot](../../probes/b0-2026-10-10/followup-artifacts/minimax-rounds-initial-source.txt).
-- [Focused static/link/YAML/secret checks and provenance](../../probes/b0-2026-10-10/followup-artifacts/checks.json).
+- Binding probe (`probes/b0-2026-10-10/identity-bindings.mjs` at `db27eb5`) and
+  results (`probes/b0-2026-10-10/followup-artifacts/identity-bindings-results.json` at `db27eb5`).
+- Device probe (`probes/b0-2026-10-10/identity-devices.mjs` at `db27eb5`),
+  policy fixture (`probes/b0-2026-10-10/identity-device-fixture.mjs` at `db27eb5`),
+  fresh-process verifier (`probes/b0-2026-10-10/identity-device-child.mjs` at `db27eb5`), and
+  results (`probes/b0-2026-10-10/followup-artifacts/identity-devices-results.json` at `db27eb5`).
+- Unexecuted Keycloak behavioral reproduction (`probes/b0-2026-10-10/identity-keycloak.mjs` at `db27eb5`)
+  and blocked preflight (`probes/b0-2026-10-10/followup-artifacts/identity-keycloak-results.json` at `db27eb5`).
+- MiniMax source (`probes/b0-2026-10-10/minimax-rounds.mjs` at `db27eb5`),
+  corrected continuity (`probes/b0-2026-10-10/followup-artifacts/minimax-rounds-results.json` at `db27eb5`),
+  initial results including cancellation (`probes/b0-2026-10-10/followup-artifacts/minimax-rounds-initial-results.json` at `db27eb5`),
+  and initial source snapshot (`probes/b0-2026-10-10/followup-artifacts/minimax-rounds-initial-source.txt` at `db27eb5`).
+- Focused static/link/YAML/secret checks and provenance (`probes/b0-2026-10-10/followup-artifacts/checks.json` at `db27eb5`).
 
 Executed focused checks: seven new JavaScript syntax checks, two YAML parsings,
 83 local Markdown target/anchor checks, and literal comparison of 21 candidate
@@ -220,7 +223,7 @@ attempt and its producing source snapshot.
 - Runtime image reports Keycloak 26.8.0, JVM 21.0.12.1 / OpenJDK
   21.0.12.1+1-LTS. Pinned pull digest:
   `sha256:27b3230fbabb8c9ff3c66c864cf09dcd8a41aca82e5100679d109ef0eeb05741`.
-  [Runtime/provenance artifact](../../probes/b0-2026-10-10/followup-artifacts/cloud-runtime.json)
+  Runtime/provenance artifact (`probes/b0-2026-10-10/followup-artifacts/cloud-runtime.json` at `db27eb5`)
   records versions and hashes of preserved evidence.
 - Environment readiness reports current/enforced restricted HTTP policy,
   package-manager/registry access and MiniMax endpoint access, no VPN and no TCP
@@ -266,15 +269,15 @@ independent capabilities or a product test suite.
 
 Artifacts remain separate:
 
-- [First cloud Keycloak results](../../probes/b0-2026-10-10/followup-artifacts/identity-keycloak-cloud-results.json)
-  and [typed refusal results](../../probes/b0-2026-10-10/followup-artifacts/identity-keycloak-cloud-refusals-results.json),
-  produced by [Keycloak probe](../../probes/b0-2026-10-10/identity-keycloak.mjs).
-- Local [synthetic binding results](../../probes/b0-2026-10-10/followup-artifacts/identity-bindings-results.json)
-  and [device SQL prototype](../../probes/b0-2026-10-10/followup-artifacts/identity-devices-results.json)
+- First cloud Keycloak results (`probes/b0-2026-10-10/followup-artifacts/identity-keycloak-cloud-results.json` at `db27eb5`)
+  and typed refusal results (`probes/b0-2026-10-10/followup-artifacts/identity-keycloak-cloud-refusals-results.json` at `db27eb5`),
+  produced by Keycloak probe (`probes/b0-2026-10-10/identity-keycloak.mjs` at `db27eb5`).
+- Local synthetic binding results (`probes/b0-2026-10-10/followup-artifacts/identity-bindings-results.json` at `db27eb5`)
+  and device SQL prototype (`probes/b0-2026-10-10/followup-artifacts/identity-devices-results.json` at `db27eb5`)
   were reused unchanged. Neither is Keycloak or a product authentication service.
-- [Runtime loader](../../probes/b0-2026-10-10/runtime-api-key.mjs),
-  [configuration-only tests](../../probes/b0-2026-10-10/runtime-api-key.test.mjs) and
-  [cloud checks](../../probes/b0-2026-10-10/followup-artifacts/cloud-checks.json)
+- Runtime loader (`probes/b0-2026-10-10/runtime-api-key.mjs` at `db27eb5`),
+  configuration-only tests (`probes/b0-2026-10-10/runtime-api-key.test.mjs` at `db27eb5`) and
+  cloud checks (`probes/b0-2026-10-10/followup-artifacts/cloud-checks.json` at `db27eb5`)
   retain the source and focused validation provenance.
 
 ### Cloud identity recommendation

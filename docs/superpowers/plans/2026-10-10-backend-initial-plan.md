@@ -80,7 +80,7 @@ or Windows acceptance. H2 persistence is not production PostgreSQL recovery.
 The flat Dart fixture does not select a full J1 generator. B0 remains partially
 verified; native and operational gates stay open.
 
-**Retained artifacts:** [non-product fixture package](../../../probes/b0-2026-10-10/README.md),
+**Retained artifacts:** non-product fixture package (`probes/b0-2026-10-10/README.md` at `db27eb5`),
 its exact lockfile, generated OpenAPI/TS/Dart artifacts and JSON results. The
 report records baseline Git state and source/setup hashes. Do not delete the only
 reproduction before reviewer inspection. No product source or code map is created.

@@ -71,7 +71,7 @@ the application against an unproven choice and promise a later rewrite.
 
 ### B0 evidence amendment - 2026-10-10
 
-Retained [non-product reproduction](../../../probes/b0-2026-10-10/README.md)
+Retained non-product reproduction (`probes/b0-2026-10-10/README.md` at `db27eb5`)
 pins Node 24.15.0 and the inspected dependencies. Fifteen local assertions pass;
 the original actual-provider/deployed-identity blockers have later supplements.
 B0 remains partially verified because Windows native and production identity
