@@ -446,6 +446,21 @@ policy approval and Windows/confidential-flow evidence must be recorded. Product
 TLS/identity DB/backup deadlines/provider terms remain deployment gates. B1 cannot
 close content deletion, real Shadows authority, rich J1 or later device journeys.
 
+> **Superseded 2026-10-13: B2, B3, B4 and the B5/B6 rows below.** They assumed the
+> Shadows daemon owns the cloud link and the backend reads Shadows. Since AYLUL
+> became an independent companion, AYLUL desktop owns the link and reads Shadows,
+> and the work follows the NYLRA delivery spec's first-release order instead.
+> Their folder names are replaced; [source structure](../../source-structure.md)
+> owns the new ones. Do not execute these sections. They stay as the record of
+> what was planned.
+>
+> | Old slice | Old folders | Replaced by |
+> | --- | --- | --- |
+> | B2 links and J1 | `links`, `context`, `topics`, `integrations/shadows`, `transports/connector` | Step 2(b): `links` (paired laptops), `sessions`, `transports/laptop-link`; no `integrations/shadows` |
+> | B3 conversation | `conversations`, `integrations/providers`, `transports/jobs` | Step 2(c): `packages/aylul-brain`, `conversations`, `memory` |
+> | B4 confirmation and handoff | `confirmations`, `delivery` | Step 2(b): `approvals` for agent requests; Step 2(d): grants on the laptop; `delivery` later |
+> | B5/B6 rows | `notifications`, `memory` | Step 2(b) push in `notifications`; step 2(c) `memory` |
+
 ### B2: Selected links, bounded sources and J1
 
 **Intended files:** `src/modules/links/`, `src/modules/context/`,
