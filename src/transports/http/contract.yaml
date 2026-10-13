@@ -2,13 +2,17 @@
 name: authentication-http
 status: current
 source: src/transports/http
-owns: Canonical auth-v1 TypeBox schema, strict request/output validation, bearer translation and safe refusals.
+owns: Canonical auth-v1 and nylra-v1 TypeBox schemas, strict request/output validation, bearer translation and safe refusals.
 public_api:
+  NylraRefusal: The one refusal shape every nylra-v1 operation returns.
   registerAuth: Registers login/return/session/device and provider/logout callback routes.
   authenticate: Translates a bearer through persisted identity authorization.
   authenticateRevocation: Uses local account/session/device verification only for operations that surrender authority.
   output: Explicitly checks outgoing values before Fastify serialization.
 obligations:
+  - rule: Synthetic nylra-v1 fixtures pass and streams are gapless; invalid bounds, account fields, step content and multiline step summaries refuse.
+    tested_by: nylra_wire fixtures pass and invalid samples refuse for their stated reason
+    note: tests/integration/nylra-wire.test.ts
   - rule: Session verification maps provider outage to 503; recovered provider can validate the same session.
     tested_by: provider_outage_is_retryable_503_without_revoking_session
     note: tests/integration/provider-status.test.ts; invalid or revoked authorization still maps to 401.
