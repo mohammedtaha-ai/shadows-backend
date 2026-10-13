@@ -8,7 +8,8 @@ let files=0,external=0;const failures:string[]=[];
 for(const path of [...await docs('docs'),...await docs('src'),resolve('README.md'),resolve('AGENTS.md')]) {
  const text=await readFile(path,'utf8');files++;
  if(path.endsWith('.yaml')) {YAML.parse(text);continue;}
- for(const match of text.matchAll(/\[[^\]]*\]\(([^)]+)\)/g)) {
+ const prose=text.replace(/^(`{3,})[^\n]*\n[\s\S]*?^\1[ \t]*$/gm,'');
+ for(const match of prose.matchAll(/\[[^\]]*\]\(([^)]+)\)/g)) {
   const target=match[1]!.split('#')[0]!;if(!target || /^(https?:|mailto:)/.test(target))continue;
   const absolute=resolve(dirname(path),target);
   if(!absolute.startsWith(resolve('.')+'/')){external++;continue;}

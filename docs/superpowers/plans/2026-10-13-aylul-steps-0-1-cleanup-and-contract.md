@@ -165,22 +165,7 @@ git grep -n "](.*probes/b0-2026-10-10" -- '*.md'
 
 Expected: the grep prints nothing.
 
-- [ ] **Step 6: Teach the documentation check to skip quoted Markdown**
-
-This plan quotes whole Markdown files inside code fences, and their links are relative to where those files will live, not to the plan. A link inside a fence is an example, not a link. In `scripts/check-docs.ts`, replace:
-
-```ts
- for(const match of text.matchAll(/\[[^\]]*\]\(([^)]+)\)/g)) {
-```
-
-with:
-
-```ts
- const prose=text.replace(/^(`{3,})[^\n]*\n[\s\S]*?^\1[ \t]*$/gm,'');
- for(const match of prose.matchAll(/\[[^\]]*\]\(([^)]+)\)/g)) {
-```
-
-- [ ] **Step 7: Run the documentation check**
+- [ ] **Step 6: Run the documentation check**
 
 ```bash
 npm ci
@@ -189,13 +174,11 @@ npm run check:docs
 
 Expected: `{"result":"PASS",...}`.
 
-- [ ] **Step 8: Commit**
+- [ ] **Step 7: Commit**
 
 ```bash
-git add -A docs probes scripts/check-docs.ts
-git commit -m "chore: fold the B0 and J1 probes into evidence and delete their code
-
-The docs check now skips fenced code: quoted Markdown is an example."
+git add -A docs probes
+git commit -m "chore: fold the B0 and J1 probes into evidence and delete their code"
 ```
 
 ### Task 3: nylra, fold the probes into evidence and delete them
