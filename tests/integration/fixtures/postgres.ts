@@ -14,9 +14,32 @@ export async function freePort(): Promise<number> {
   return address.port;
 }
 
+// B1_TEST_PG_ADMIN names a throwaway loopback PostgreSQL 18.4 (README, "Fast tests on
+// Windows"). Each test still gets a database of its own, created here and dropped on close.
+async function containerFixture(admin: string) {
+  const base = new URL(admin);
+  if (!['127.0.0.1', 'localhost', '[::1]'].includes(base.hostname)) throw new Error('fixture_admin_not_loopback');
+  const name = `b1_${randomBytes(8).toString('hex')}`;
+  const adminQuery = async (sql: string) => {
+    const client = new pg.Client({ connectionString: admin }); await client.connect();
+    try { await client.query(sql); } finally { await client.end(); }
+  };
+  await adminQuery(`CREATE DATABASE ${name}`);
+  const connection = { host: base.hostname, port: Number(base.port), user: decodeURIComponent(base.username),
+    password: decodeURIComponent(base.password), database: name };
+  const pool = new pg.Pool(connection); let closing = false;
+  pool.on('error', () => { if (!closing) throw new Error('fixture_database_error'); });
+  const drop = async () => { closing = true; await pool.end(); await adminQuery(`DROP DATABASE IF EXISTS ${name} WITH (FORCE)`); };
+  const version = (await pool.query('SHOW server_version')).rows[0].server_version as string;
+  if (!version.startsWith('18.4')) { await drop(); throw new Error('fixture_version'); }
+  const url = new URL(admin); url.pathname = `/${name}`;
+  return { connection, pool, version, url: url.toString(), close: drop };
+}
+
 export async function postgresFixture() {
+  if (process.env.B1_TEST_PG_ADMIN) return containerFixture(process.env.B1_TEST_PG_ADMIN);
   if (process.getuid?.() === 0) throw new Error('fixture_refuses_root');
-  // Never reads DATABASE_URL; all resources originate here.
+  // Never reads DATABASE_URL; without B1_TEST_PG_ADMIN every resource originates here.
   const root = resolve('.test-runtime'); await mkdir(root, { recursive: true });
   const directory = await mkdtemp(resolve(root, 'pg-'));
   const port = await freePort(), password = randomBytes(32).toString('hex');

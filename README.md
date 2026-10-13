@@ -69,6 +69,25 @@ volumes. Migrate explicitly before starting backend. Stop with `docker compose
 stop` or `docker compose down` without volume deletion. Tests use a separate Linux
 test-runtime volume and owned disposable fixtures, not development data.
 
+### Fast tests on Windows
+
+By default each test launches its own embedded PostgreSQL, which on Windows costs
+10-27 seconds a test and fails in teardown when a server process still holds its
+directory. Instead, start one throwaway PostgreSQL from the Compose image, in memory
+and on loopback only, and the fixture creates and drops a fresh database per test.
+The development databases are never touched. CI does not set the variable.
+
+```powershell
+$pw = -join ((48..57 + 97..102) | Get-Random -Count 32 | ForEach-Object { [char]$_ })
+docker run -d --rm --pull never --name b1-test-pg -e POSTGRES_USER=b1 -e POSTGRES_PASSWORD=$pw `
+  -p 127.0.0.1:55432:5432 --tmpfs /var/lib/postgresql `
+  postgres:18.4-bookworm@sha256:882236b897e39051d2368c5ccc6cda944904723506b2dfc97f2a8f5bc9afa382 `
+  -c fsync=off -c max_connections=300
+$env:B1_TEST_PG_ADMIN = "postgresql://b1:$pw@127.0.0.1:55432/postgres"
+node --import tsx --test tests/integration/*.test.ts
+docker stop b1-test-pg
+```
+
 Auth-v1 **1.1.0** requires explicit new enrollment or proof of an existing
 installation at return redemption. Sessions and enrollment credentials are
 different secrets; logout preserves enrollment, device revocation invalidates it.
