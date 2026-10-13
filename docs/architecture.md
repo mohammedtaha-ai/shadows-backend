@@ -29,6 +29,14 @@ context retrieval, model calls, notification policy, and human-intervention
 workflow. Accounts, trusted devices, and project linking serve both products.
 NYLRA remains a distinct optional product domain within that application.
 
+Since 2026-10-13 AYLUL is an independent companion that observes and talks to
+Shadows, Claude Code, Codex and later agents, and is none of them; the
+[NYLRA delivery spec](../../nylra/docs/superpowers/specs/2026-10-10-nylra-delivery-design.md#independent-companion)
+owns that decision. Its brain is one `aylul-brain` TypeScript package on the AI
+SDK, run by AYLUL desktop's sidecar on the laptop and by this application in
+the cloud. This application holds its memory and its cloud half; the
+[source structure](source-structure.md) places the package.
+
 Shadows works locally without NYLRA. Its local daemon owns local projects,
 plans, contracts, Planner sessions, and execution as those capabilities are
 delivered. Cloud integration does not require replacing its SQLite storage.
@@ -110,34 +118,35 @@ future paths. It is a design for review, not an existing code map or scaffolding
 
 ## 4. Connection topology
 
+Decided 2026-10-13: AYLUL desktop, not the Shadows daemon, owns the link to the
+cloud.
+
 ```text
-NYLRA Desktop <------ local API ------> Shadows local daemon
-      |                                      |
-      | cloud client                         | authenticated outbound link
-      v                                      v
-                    shadows-backend
-                           ^
-                           | cloud client
-                     NYLRA Mobile
+NYLRA Mobile --HTTPS/SSE--> shadows-backend <--outbound WebSocket-- AYLUL desktop
+                            identity, memory,                        laptop brain, hooks
+                            cloud brain, push                          |--> Claude Code / Codex (hooks)
+                                                                       '--> Shadows (local API)
 ```
 
 Desktop presentation runs in TypeScript. Native desktop capabilities run in
 Tauri's Rust side, including windows, tray behavior, shortcuts, and integration
 with the local daemon. Its frontend reaches those functions through Tauri IPC.
+The laptop brain runs as a Node sidecar of the Tauri app.
 
-Shadows' cloud connector belongs to the daemon's lifecycle, not to the NYLRA
-desktop window. Closing NYLRA desktop does not terminate that connection while
-the Shadows daemon is running. The local daemon initiates the connection;
-no public inbound port is required on the user's computer.
+The cloud link belongs to AYLUL desktop's lifecycle, not to its main window:
+closing the window does not close the link, quitting AYLUL does. AYLUL desktop
+initiates it; no public inbound port is required on the user's computer.
 
 | Operation | Path |
 | --- | --- |
-| NYLRA chat, personal memory, explanation | Desktop or mobile to shared backend |
+| Chat while the laptop is on | Desktop or mobile to the laptop brain, mobile through the cloud relay |
+| Chat while the laptop is off | Mobile to the cloud brain |
+| Memory | Either brain to this application's store |
+| Project context | Laptop brain reads the local Shadows API's NYLRA projection |
+| Agent session steps | Agent hook to AYLUL desktop; summarized steps to the cloud for mobile |
+| Agent approval request | Agent hook to AYLUL desktop; grant match, else to the person on desktop and mobile |
 | Open a local plan or navigate to local work | Desktop to local Shadows API |
-| Ask Planner through NYLRA | Client to cloud to local connector to Planner |
-| Confirm through NYLRA | Client confirmation flow to cloud to local owner validation |
-| Planner requests human intervention | Local owner to cloud to desktop/mobile notification |
-| Retrieve additional context | Cloud request through the scoped local connector |
+| Ask Planner or confirm a Shadows operation through NYLRA | Not in the first release; §24.6 governs it |
 
 Direct desktop integration supports local presentation and navigation. It does
 not introduce an alternative hidden route for NYLRA approvals. Local Shadows
@@ -390,6 +399,11 @@ requires a deliberate confirmation action. Voice may prepare a proposal; it cann
 automatically sign a model's interpretation. Voice-only confirmation requires a
 separately reviewed mechanism. Preferences never become delegated authority.
 
+Delegated authority is an explicit grant the person creates on the laptop, owned
+by the NYLRA delivery spec's delegation rule. A decision made under one records
+`aylul_grant` and the grant's id, never `person`. This application and mobile
+clients can revoke a grant; they cannot create or widen one.
+
 ## 9. Reliability and disconnected devices
 
 Topics and pending deliveries are durable. Requests carry stable identifiers,
@@ -531,6 +545,11 @@ plan does not close section 13's capability prerequisites.
 
 The full local Shadows roadmap remains intact. NYLRA needs neither the future
 manager nor executors to demonstrate value; cloud accounts never gate local use.
+
+Amended 2026-10-13: the first release is the NYLRA delivery spec's
+[first release](../../nylra/docs/superpowers/specs/2026-10-10-nylra-delivery-design.md#first-release-and-who-builds-it):
+chat, live agent sessions and approvals on desktop and phone. Step 1 below
+follows it; steps 2 to 5 keep their order.
 
 1. **Text integration:** close identity, context/protocol and data-lifecycle OPENs;
    connect one selected personal project, explain bounded current work after a
