@@ -5,7 +5,7 @@ import { resolve } from 'node:path';
 import YAML from 'yaml';
 import ts from 'typescript';
 import { sourceFiles } from '../../scripts/check-boundaries.js';
-const paths=['src/app','src/platform/database','src/modules/identity','src/modules/devices','src/transports/http','src/transports/laptop-link'];
+const paths=['src/app','src/platform/database','src/modules/identity','src/modules/devices','src/modules/activity','src/transports/http','src/transports/laptop-link'];
 test('contracts_reference_real_symbols_tests source_coverage',async()=>{
  for(const path of paths) {
   const contract=YAML.parse(await readFile(resolve(path,'contract.yaml'),'utf8'));
@@ -25,4 +25,3 @@ test('contracts_reference_real_symbols_tests source_coverage',async()=>{
  }
  for(const file of await sourceFiles()) assert.ok(file.endsWith('/src/main.ts')||paths.some(path=>file.startsWith(resolve(path)+'/')),'source without contract owner');
 });
-

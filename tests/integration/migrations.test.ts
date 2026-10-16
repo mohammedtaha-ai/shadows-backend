@@ -8,7 +8,7 @@ test('empty_schema_up previous_schema_upgrade repeat_up_no_change down_up_reappl
     await runMigrations(f.connection, 'up', 1);
     assert.equal((await f.pool.query("SELECT to_regclass('identity_sessions') AS name")).rows[0].name, null);
     await runMigrations(f.connection, 'up'); await runMigrations(f.connection, 'up');
-    assert.equal((await f.pool.query('SELECT count(*)::int AS n FROM backend_migrations')).rows[0].n, 5);
+    assert.equal((await f.pool.query('SELECT count(*)::int AS n FROM backend_migrations')).rows[0].n, 6);
     await runMigrations(f.connection, 'down');
     assert.equal((await f.pool.query("SELECT to_regclass('identity_accounts') AS name")).rows[0].name, null);
     await runMigrations(f.connection, 'up');

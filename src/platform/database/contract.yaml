@@ -18,3 +18,5 @@ obligations:
     note: tests/integration/migrations.test.ts
 open_questions:
   - Production TLS, identity database restore and physical backup expiry are not established by disposable PG acceptance.
+
+# Activity tables are typed here; ActivityStore alone queries them.

@@ -1,0 +1,13 @@
+# Owns the persisted account ordering boundary shared by real publishers.
+name: activity
+status: current
+source: src/modules/activity
+owns: Transactional account journal and non-reusable safe cursors, replay floor and expiry.
+public_api:
+  createActivity: Creates transaction-scoped append, cursor, read, invalidateLaptop and prune operations.
+obligations:
+  - rule: Rollbacks preserve gapless committed order; accounts, invalidation, expiry and overflow are isolated.
+    tested_by: activity_journal_rollback_concurrency_scope_floor_expiry_and_overflow
+    note: tests/integration/activity-journal.test.ts
+open_questions:
+  - Full real-data deletion and quarantine restore acceptance remain deferred.

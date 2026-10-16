@@ -27,3 +27,5 @@ journey. They do not introduce another identity implementation. The
 [NYLRA handoff](../nylra-local-auth-handoff.md) describes their exact commands.
 
 - [Laptop link](../../src/transports/laptop-link/contract.yaml): canonical frame v1 schemas; generated JSON Schema and TypeScript, no runtime relay yet.
+
+- [Activity](../../src/modules/activity/contract.yaml): transaction-scoped durable account journal, expiry and replay floor; Links and Sessions are future publishers.
