@@ -1,4 +1,4 @@
-import type {Transaction} from 'kysely';
+import type {Kysely,Transaction} from 'kysely';
 import type {Database} from '../../platform/database/schema.js';
 import type {AccountChange,AccountEvent} from './model.js';
 type Tx=Transaction<Database>;
@@ -6,6 +6,7 @@ export function safeCursor(value:string|number):number {
  const n=Number(value);if(!Number.isSafeInteger(n)||n<0)throw new Error('cursor_exhausted');return n;
 }
 export class ActivityStore {
+ async expiredAccounts(db:Kysely<Database>,now:Date){return db.selectFrom('activity_events').select('account_id').distinct().where('expires_at','<=',now).orderBy('account_id').limit(100).execute();}
  async lock(tx:Tx,accountId:string) {
   await tx.insertInto('activity_cursors').values({account_id:accountId}).onConflict(oc=>oc.column('account_id').doNothing()).execute();
   return tx.selectFrom('activity_cursors').selectAll().where('account_id','=',accountId).forUpdate().executeTakeFirstOrThrow();

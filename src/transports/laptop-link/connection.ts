@@ -33,7 +33,7 @@ export function attachConnection(socket:WebSocket,principal:Principal,links:Link
   try{
    while(queue.length&&!closed){const bytes=queue.shift()!;pendingBytes-=bytes.length;const frame=decodeClientFrame(bytes);
     if(!lease){if(frame.type!=='hello')throw new Error('request_invalid');lease=await links.open(principal,frame.producerId,frame.lastAck);
-     if(closed)break;await send({type:'ready',epoch:lease.epoch,ackThrough:lease.ackThrough,dropped:[]});
+     if(closed)break;await send({type:'ready',epoch:lease.epoch,ackThrough:lease.ackThrough,dropped:lease.dropped});
     }else{if(frame.type!=='batch')throw new Error('request_invalid');const result=await sessions.ingest(principal,lease,frame.entries);await send({type:'ack',...result});}
    }
   }catch(error){failure(error);}finally{running=false;}

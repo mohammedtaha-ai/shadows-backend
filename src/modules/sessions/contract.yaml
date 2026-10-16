@@ -5,7 +5,14 @@ source: src/modules/sessions
 owns: Atomic ingress, cloud identity mapping, tool-only summaries, bounded replay and payload expiry.
 public_api:
   createSessions: Creates ingest, snapshot/list/events and transactional source invalidation operations.
+  expire: Discovers and clears expired payloads for inactive accounts without external table access.
 obligations:
+  - rule: State projections retain the latest eligible step consistently with snapshots.
+    tested_by: review_session_state_preserves_latest_step_in_both_journals
+    note: tests/integration/relay-review-regressions.test.ts
+  - rule: The bounded list selects active and recent sessions before its 200 item limit.
+    tested_by: review_session_list_includes_recent_update_outside_uuid_window
+    note: tests/integration/relay-review-regressions.test.ts
   - rule: Lost acknowledgement replay cannot duplicate steps or either journal.
     tested_by: lost_ack_replays_without_second_step_or_event
     note: tests/integration/session-ingress.test.ts

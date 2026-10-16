@@ -28,6 +28,7 @@ export function createSessions(db:Kysely<Database>,access:LinkAccess,links:Sessi
   await links.checkReadable(principal,data.sessions?.map(s=>s.laptopId)??(data.session?[data.session.laptopId]:[]));return result;
  }
  const service={
+  async expire(){const now=clock();for(;;){const accounts=await store.expiredAccounts(db,now);if(!accounts.length)return;for(const row of accounts)await db.transaction().execute(tx=>store.prune(tx,row.account_id,now));}},
   async ingest(principal:Principal,lease:LinkLease,batch:IngressEntry[]):Promise<IngestResult> {
    if(!batch.length||batch.length>20||batch.some((e,i)=>!Number.isSafeInteger(e.seq)||e.seq<1||(i>0&&e.seq!==batch[i-1]!.seq+1)))throw new Error('request_invalid');
    return db.transaction().execute(async tx=>{
@@ -50,7 +51,8 @@ export function createSessions(db:Kysely<Database>,access:LinkAccess,links:Sessi
      let view:SessionView;
      let change:Omit<SessionEvent,'seq'>;
      if(event.type==='session'){
-      view={...(row.payload as SessionView),agent:event.agent,projectName:event.projectName,cwd:event.cwd,state:event.state,updatedAt:event.at,lastSeq:Number(row.high_water)+1};
+      const latest=(await store.recent(tx,row.id,now)).at(-1)??null;
+      view={...(row.payload as SessionView),agent:event.agent,projectName:event.projectName,cwd:event.cwd,state:event.state,updatedAt:event.at,lastStep:latest,lastSeq:Number(row.high_water)+1};
       if(!view.sessionId)view={...view,sessionId:row.id,laptopId:row.laptop_id,startedAt:event.at,lastStep:null};
       change={type:'session_updated',session:view} as Omit<SessionEvent,'seq'>;
      } else {
@@ -60,8 +62,9 @@ export function createSessions(db:Kysely<Database>,access:LinkAccess,links:Sessi
       const step=await store.addStep(tx,row,event,hash,expiresAt);
       view={...row.payload as SessionView,lastStep:step,lastSeq:step.seq,updatedAt:event.at};change={type:'step_added',step} as Omit<SessionEvent,'seq'>;
      }
-     await store.append(tx,row,change,view,expiresAt);
-     await activity.append(tx,principal.accountId,[{type:'session_changed',laptopId:lease.laptopId,sessionId:row.id,payload:{session:view},expiresAt}]);
+     const projectionExpiry=new Date(Math.min(expiresAt.getTime(),view.lastStep?new Date(view.lastStep.at).getTime()+7*86400000:Infinity));
+     await store.append(tx,row,change,view,expiresAt,projectionExpiry);
+     await activity.append(tx,principal.accountId,[{type:'session_changed',laptopId:lease.laptopId,sessionId:row.id,payload:{session:view},expiresAt:projectionExpiry}]);
     }
     await links.commitReceipts(tx,lease,receipts);return {epoch:lease.epoch,ackThrough:through,dropped};
    });
@@ -69,7 +72,9 @@ export function createSessions(db:Kysely<Database>,access:LinkAccess,links:Sessi
   async list(principal:Principal,laptopId?:string){return snapshotRead(principal,async tx=>{
    if(laptopId&&!await links.visible(tx,principal.accountId,laptopId))throw new Error('not_found');
    const sessions:SessionView[]=[];for(const row of await store.list(tx,principal.accountId)){if(laptopId&&row.laptop_id!==laptopId)continue;if(!row.payload||row.expires_at<=clock()||!await links.visible(tx,principal.accountId,row.laptop_id))continue;sessions.push(await project(tx,row));}
-   return {sessions:sessions.slice(-200),cursor:await activity.cursor(tx,principal.accountId)};
+   const active=(s:SessionView)=>s.state==='running'||s.state==='waiting'?0:1;
+   sessions.sort((a,b)=>active(a)-active(b)||Date.parse(b.updatedAt)-Date.parse(a.updatedAt)||a.sessionId.localeCompare(b.sessionId));
+   return {sessions:sessions.slice(0,200),cursor:await activity.cursor(tx,principal.accountId)};
   });},
   async snapshot(principal:Principal,sessionId:string){return snapshotRead(principal,async tx=>{const row=await store.get(tx,principal.accountId,sessionId);if(!row)throw new Error('not_found');return {session:await project(tx,row),steps:await store.recent(tx,row.id,clock()),cursor:Number(row.high_water)};});},
   async events(principal:Principal,sessionId:string,after:number,limit:number){return snapshotRead(principal,async tx=>{

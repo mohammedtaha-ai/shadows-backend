@@ -5,7 +5,11 @@ source: src/modules/links
 owns: One-use hashed pairing codes, account-scoped laptops, persistent limits, fenced leases and receipt checkpoints.
 public_api:
   createLinks: Creates pairing, listing, surrender, lease, receipt and visibility operations.
+  expire: Removes expired pairing codes and ingress receipts independently of client traffic.
 obligations:
+  - rule: Hello recovers outstanding dropped outcomes and refuses missing receipt history before changing epoch.
+    tested_by: review_ready_recovers_lost_drop_and_refuses_missing_receipt_history
+    note: tests/integration/relay-review-regressions.test.ts
   - rule: Pairing is scoped, expires, invalidates old codes, replays commands and enforces persisted limits.
     tested_by: laptop_pairing_one_use_expiry_reissue_replay_limits_and_account_scope
     note: tests/integration/laptop-pairing.test.ts

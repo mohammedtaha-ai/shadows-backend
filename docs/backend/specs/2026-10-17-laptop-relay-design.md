@@ -1,8 +1,9 @@
 # Paired laptop and live-session relay
 
-Date: 2026-10-17. Status: proposed written specification for user review.
+Date: 2026-10-17. Status: backend slice approved, implemented and locally verified.
 Owner: Backend, with NYLRA Native as the laptop consumer and Flutter as HTTP/SSE
-consumer. No implementation plan or product source change is approved by this file.
+consumer. The human execution instruction approved the backend plan; Native/device
+integration, real-data lifecycle and publication remain separate acceptance.
 
 ## Intent
 
@@ -283,3 +284,15 @@ The human explicitly instructed completion and execution of the written plan on
 Docker. This supersedes the planning-only gate above for backend code and accepts
 the concrete backend protocol and Activity ownership proposal. Native integration,
 real device acceptance, lifecycle and publication remain separate gates.
+
+### Implementation precision after final review
+Session lists keep the existing 200-item bound, selecting running/waiting sessions
+first, then recent updates and stable ID ties. Older-history pagination remains
+a future generated-contract decision. Hello reconciles at most one outstanding
+20-entry batch, including dropped outcomes; missing/expired receipt history needs
+repair before epoch advancement. Logical source expiry is immediate at its deadline.
+Owned physical purge runs at startup and every 60 seconds, without overlapping
+itself; after downtime it catches up before listening. Real-data deletion/restore
+policy and production maintenance acceptance remain gated. Origin-provider-only
+revocation beyond locally persisted session/device revoke remains an owner decision;
+close it with a versioned provider/source invalidation design before claiming it.

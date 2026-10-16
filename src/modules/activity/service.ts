@@ -3,9 +3,10 @@ import type {Database} from '../../platform/database/schema.js';
 import type {AccountChange,ActivityPage} from './model.js';
 import {ActivityStore,safeCursor} from './store.js';
 type Tx=Transaction<Database>;
-export function createActivity(_db:Kysely<Database>,clock:()=>Date=()=>new Date()) {
+export function createActivity(db:Kysely<Database>,clock:()=>Date=()=>new Date()) {
  const store=new ActivityStore();
  return {
+  async expire(){const now=clock();for(;;){const accounts=await store.expiredAccounts(db,now);if(!accounts.length)return;for(const row of accounts)await db.transaction().execute(tx=>store.discard(tx,row.account_id,{now}));}},
   append(tx:Tx,accountId:string,changes:AccountChange[]) {
    const cap=clock().getTime()+7*86400000;
    return store.append(tx,accountId,changes.map(c=>({...c,expiresAt:new Date(Math.min(c.expiresAt.getTime(),cap))})));

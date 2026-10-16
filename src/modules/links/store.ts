@@ -1,10 +1,11 @@
-import type {Transaction,Selectable} from 'kysely';
+import type {Kysely,Transaction,Selectable} from 'kysely';
 import type {Database} from '../../platform/database/schema.js';
 import type {LaptopView,LinkLease,Receipt} from './model.js';
 type Tx=Transaction<Database>;
 export type LaptopRow=Selectable<Database['links_laptops']>;
 export const position=(s:string)=>{const n=Number(s);if(!Number.isSafeInteger(n)||n<0)throw new Error('cursor_exhausted');return n;};
 export class LinkStore {
+ async expire(db:Kysely<Database>,now:Date){await db.transaction().execute(async tx=>{await tx.deleteFrom('links_ingress_receipts').where('expires_at','<=',now).execute();await tx.deleteFrom('links_pairing_codes').where('expires_at','<=',now).execute();});}
  async guard(tx:Tx,accountId:string,now:Date){
   await tx.insertInto('links_rate_windows').values({account_id:accountId,key:'guard',window_start:now,count:0}).onConflict(c=>c.columns(['account_id','key']).doNothing()).execute();
   await tx.selectFrom('links_rate_windows').selectAll().where('account_id','=',accountId).where('key','=','guard').forUpdate().executeTakeFirstOrThrow();
@@ -29,7 +30,7 @@ export class LinkStore {
   return (await this.lock(tx,row.account_id,id))!;
  }
  async update(tx:Tx,id:string,values:Partial<{online:boolean;last_seen_at:Date;producer_id:string;epoch:number;session_id:string;revoked_at:Date;ack_through:number}>){await tx.updateTable('links_laptops').set(values).where('id','=',id).execute();}
- async receipts(tx:Tx,lease:LinkLease,positions:number[],now:Date):Promise<Receipt[]> {
+ async receipts(tx:Tx,lease:Pick<LinkLease,'laptopId'|'producerId'>,positions:number[],now:Date):Promise<Receipt[]> {
   if(!positions.length)return [];
   const rows=await tx.selectFrom('links_ingress_receipts').selectAll().where('laptop_id','=',lease.laptopId).where('producer_id','=',lease.producerId).where('seq','in',positions.map(String)).where('expires_at','>',now).execute();
   return rows.map(r=>({seq:position(r.seq),fingerprint:r.fingerprint,dropped:r.dropped,expiresAt:r.expires_at}));

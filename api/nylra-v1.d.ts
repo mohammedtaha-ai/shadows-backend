@@ -542,7 +542,7 @@ export interface components {
             seq: number;
             session: components["schemas"]["Session"];
         };
-        /** @description cursor is the account stream position matching this list. */
+        /** @description At most 200 sessions: running/waiting first, then newest update and stable ID ties. cursor is the account stream position matching this bounded list. */
         SessionList: {
             sessions: components["schemas"]["Session"][];
             /** @description Exact safe-integer position in one ordered stream; gapless and never reused. */

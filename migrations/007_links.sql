@@ -27,6 +27,8 @@ CREATE TABLE links_ingress_receipts (
  fingerprint text NOT NULL, dropped boolean NOT NULL, expires_at timestamptz NOT NULL,
  PRIMARY KEY(laptop_id,producer_id,seq)
 );
+CREATE INDEX links_receipts_expiry ON links_ingress_receipts(expires_at);
+CREATE INDEX links_codes_expiry ON links_pairing_codes(expires_at);
 -- Down Migration
 DROP TABLE links_ingress_receipts;
 DROP TABLE links_rate_windows;

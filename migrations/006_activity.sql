@@ -12,6 +12,7 @@ CREATE TABLE activity_events (
  PRIMARY KEY(account_id,seq)
 );
 CREATE INDEX activity_events_expiry ON activity_events(account_id,expires_at);
+CREATE INDEX activity_events_global_expiry ON activity_events(expires_at);
 CREATE INDEX activity_events_laptop ON activity_events(account_id,laptop_id);
 -- Down Migration
 DROP TABLE activity_events;

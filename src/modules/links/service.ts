@@ -15,6 +15,7 @@ export function createLinks(db:Kysely<Database>,access:LinkAccess,activity:Activ
  const view=(r:LaptopRow):LaptopView=>({laptopId:r.id,name:r.name,status:r.online&&r.last_seen_at&&clock().getTime()-r.last_seen_at.getTime()<45000?'online':'offline',lastSeenAt:r.last_seen_at?.toISOString()??null});
  const changed=async(tx:Tx,row:LaptopRow,type:'laptop_online'|'laptop_offline')=>activity.append(tx,row.account_id,[{type,laptopId:row.id,sessionId:null,payload:{laptop:view(row)},expiresAt:new Date(clock().getTime()+7*86400000)}]);
  const service={
+  expire(){return store.expire(db,clock());},
   bindSessions(owner:NonNullable<typeof sessions>){if(sessions)throw new Error('already_bound');sessions=owner;},
   async synchronize(principal:Principal) {
    await db.transaction().execute(async tx=>{
@@ -81,10 +82,15 @@ export function createLinks(db:Kysely<Database>,access:LinkAccess,activity:Activ
     await access.authorizeTransaction(tx,principal);const row=await store.device(tx,principal.accountId,principal.deviceId);
     if(!row)throw new Error('not_found');
     if(!Number.isSafeInteger(lastAck)||lastAck<0||lastAck>position(row.ack_through)||(row.producer_id&&row.producer_id!==producerId))throw new Error('resnapshot_required');
+    const ackThrough=position(row.ack_through),outstanding=ackThrough-lastAck;
+    if(outstanding>20)throw new Error('resnapshot_required');
+    const history=await store.receipts(tx,{laptopId:row.id,producerId},Array.from({length:outstanding},(_,i)=>lastAck+i+1),clock());
+    if(history.length!==outstanding)throw new Error('resnapshot_required');
+    const dropped=history.filter(r=>r.dropped).sort((a,b)=>a.seq-b.seq).map(r=>({seq:r.seq,code:'event_expired' as const}));
     const epoch=position(row.epoch)+1;if(!Number.isSafeInteger(epoch))throw new Error('cursor_exhausted');
     await store.update(tx,row.id,{producer_id:producerId,epoch,online:true,last_seen_at:clock(),session_id:principal.sessionId});
     await changed(tx,{...row,online:true,last_seen_at:clock()},'laptop_online');
-    return {laptopId:row.id,accountId:principal.accountId,deviceId:principal.deviceId,sessionId:principal.sessionId,producerId,epoch,ackThrough:position(row.ack_through)};
+    return {laptopId:row.id,accountId:principal.accountId,deviceId:principal.deviceId,sessionId:principal.sessionId,producerId,epoch,ackThrough,dropped};
    });
   },
   async requireConnection(tx:Tx,principal:Principal,lease:LinkLease) {

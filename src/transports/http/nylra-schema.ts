@@ -87,7 +87,7 @@ export const Session = closed({
   lastStep: nullable(Step), lastSeq: Seq,
 }, 'offline: its laptop is not connected, and the rest is as last reported.');
 export const SessionList = closed({ sessions: Type.Array(Session, { maxItems: 200 }), cursor: Seq },
-  'cursor is the account stream position matching this list.');
+  'At most 200 sessions: running/waiting first, then newest update and stable ID ties. cursor is the account stream position matching this bounded list.');
 export const SessionQuery = closed({ laptopId: Type.Optional(Id) });
 export const SessionParams = closed({ sessionId: Id });
 export const SessionSnapshot = closed({ session: Session, steps: Type.Array(Step, { maxItems: 500 }), cursor: Seq });

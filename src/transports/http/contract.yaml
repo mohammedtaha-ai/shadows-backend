@@ -14,6 +14,9 @@ public_api:
   authenticateRevocation: Uses local account/session/device verification only for operations that surrender authority.
   output: Explicitly checks outgoing values before Fastify serialization.
 obligations:
+  - rule: Stalled SSE writes do not block independent authority checks or disconnect cancellation.
+    tested_by: review_sse_stalled_send_cancels_on_revoke
+    note: tests/integration/relay-review-regressions.test.ts; disconnect also releases a pending send without drain.
   - rule: Actual HTTP bindings match code operations and reject deliberate binding drift; auth export is unchanged.
     tested_by: nylra_live_routes_registry_coverage_strict_cursor_errors_and_auth_isolation
     note: tests/integration/nylra-live-routes.test.ts

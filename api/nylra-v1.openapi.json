@@ -979,7 +979,7 @@
       },
       "SessionList": {
         "additionalProperties": false,
-        "description": "cursor is the account stream position matching this list.",
+        "description": "At most 200 sessions: running/waiting first, then newest update and stable ID ties. cursor is the account stream position matching this bounded list.",
         "type": "object",
         "required": [
           "sessions",

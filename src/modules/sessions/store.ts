@@ -1,11 +1,16 @@
 import {randomUUID} from 'node:crypto';
-import type {Transaction,Selectable} from 'kysely';
+import type {Kysely,Transaction,Selectable} from 'kysely';
 import type {Database} from '../../platform/database/schema.js';
 import type {SessionInput,SessionView,SessionEvent,StepView,StepInput} from './model.js';
 type Tx=Transaction<Database>;
 export type SessionRow=Selectable<Database['sessions_sessions']>;
 const pos=(s:string)=>{const n=Number(s);if(!Number.isSafeInteger(n)||n<0)throw new Error('cursor_exhausted');return n;};
 export class SessionStore {
+ async expiredAccounts(db:Kysely<Database>,now:Date){return db.selectFrom('sessions_sessions').select('account_id').distinct().where(eb=>eb.or([
+  eb.and([eb('expires_at','<=',now),eb('payload','is not',null)]),
+  eb.exists(eb.selectFrom('sessions_steps').select('id').whereRef('sessions_steps.session_id','=','sessions_sessions.id').where('sessions_steps.expires_at','<=',now)),
+  eb.exists(eb.selectFrom('sessions_events').select('seq').whereRef('sessions_events.session_id','=','sessions_sessions.id').where('sessions_events.expires_at','<=',now)),
+ ])).orderBy('account_id').limit(100).execute();}
  async local(tx:Tx,laptopId:string,producerId:string,localId:string){return tx.selectFrom('sessions_sessions').selectAll().where('laptop_id','=',laptopId).where('producer_id','=',producerId).where('local_id','=',localId).forUpdate().executeTakeFirst();}
  async get(tx:Tx,accountId:string,id:string){return tx.selectFrom('sessions_sessions').selectAll().where('account_id','=',accountId).where('id','=',id).executeTakeFirst();}
  async list(tx:Tx,accountId:string){return tx.selectFrom('sessions_sessions').selectAll().where('account_id','=',accountId).orderBy('id').execute();}
@@ -21,10 +26,10 @@ export class SessionStore {
   const step={stepId:randomUUID(),seq,at:event.at,tool:event.tool,path:event.path,summary:['Read','Edit','Write','NotebookEdit','Bash','Glob','Grep','WebFetch','WebSearch'].includes(event.tool)?event.tool:'Agent step'};
   await tx.insertInto('sessions_steps').values({id:step.stepId,session_id:row.id,local_id:event.localStepId,seq,fingerprint,payload:step,expires_at:expiresAt}).execute();return step;
  }
- async append(tx:Tx,row:SessionRow,event:Omit<SessionEvent,'seq'>,view:SessionView,expiresAt:Date):Promise<SessionEvent> {
+ async append(tx:Tx,row:SessionRow,event:Omit<SessionEvent,'seq'>,view:SessionView,expiresAt:Date,projectionExpiry=expiresAt):Promise<SessionEvent> {
   const seq=pos(row.high_water)+1;if(!Number.isSafeInteger(seq))throw new Error('cursor_exhausted');
   const output={...event,seq} as SessionEvent;
-  await tx.insertInto('sessions_events').values({session_id:row.id,seq,payload:output,expires_at:expiresAt}).execute();
+  await tx.insertInto('sessions_events').values({session_id:row.id,seq,payload:output,expires_at:projectionExpiry}).execute();
   await tx.updateTable('sessions_sessions').set({high_water:seq,payload:{...view,lastStep:null,lastSeq:seq},expires_at:expiresAt}).where('id','=',row.id).execute();return output;
  }
  async events(tx:Tx,id:string,after:number,limit:number){return (await tx.selectFrom('sessions_events').select('payload').where('session_id','=',id).where('seq','>',String(after)).orderBy('seq').limit(limit).execute()).map(r=>r.payload as SessionEvent);}

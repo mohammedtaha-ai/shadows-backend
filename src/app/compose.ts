@@ -10,6 +10,7 @@ import {createLinks} from '../modules/links/index.js';
 import {createSessions} from '../modules/sessions/index.js';
 import {registerLaptopLink} from '../transports/laptop-link/index.js';
 import {registerNylra} from '../transports/http/nylra-routes.js';
+import {createExpiry} from './expiry.js';
 import type { AppConfig } from './config.js';
 export async function compose(config: AppConfig, options: { oidc?: OidcPort; clock?:()=>Date; tls?:ServerOptions;routeSet?:'auth'|'all' } = {}) {
   const { pool, db } = createDatabase(config.databaseUrl);
@@ -20,6 +21,7 @@ export async function compose(config: AppConfig, options: { oidc?: OidcPort; clo
     const devices=createDevices(db,options.clock), identity=createIdentity(db,config,options.oidc ?? createOidcClient(config),devices.registration,devices.trust,options.clock);
     devices.bindIdentity(identity);
     const activity=createActivity(db,options.clock),links=createLinks(db,identity,activity,options.clock),sessions=createSessions(db,identity,links,activity,options.clock);
+    const expiry=createExpiry([sessions,activity,links]);
     if(options.routeSet!=='auth')await registerLaptopLink(server,{identity,links,sessions},options.clock);
     registerAuth(server,identity,devices,config);
     if(options.routeSet!=='auth')await registerNylra(server,{db,identity,links,sessions,activity},options.clock);
@@ -28,10 +30,10 @@ export async function compose(config: AppConfig, options: { oidc?: OidcPort; clo
       catch{return reply.code(503).send({status:'unavailable'});}
     });
     let stopping:Promise<void>|undefined;
-    return { server, pool, db, identity, devices,activity,links,sessions,
-      async start() { try { await pool.query('SELECT 1'); await server.listen({ host: '127.0.0.1', port: config.port }); }
-        catch { await server.close(); await db.destroy(); if(!pool.ended) await pool.end(); throw new Error('startup_failed'); } },
-      async stop() { stopping ??= (async()=>{await server.close();await db.destroy();if(!pool.ended) await pool.end();})();return stopping; }
+    return { server, pool, db, identity, devices,activity,links,sessions,expire:expiry.run,
+      async start() { try { await pool.query('SELECT 1'); await expiry.start();await server.listen({ host: '127.0.0.1', port: config.port }); }
+        catch { await expiry.stop();await server.close(); if(!pool.ended)await db.destroy(); if(!pool.ended) await pool.end(); throw new Error('startup_failed'); } },
+      async stop() { stopping ??= (async()=>{await expiry.stop();await server.close();if(!pool.ended)await db.destroy();if(!pool.ended) await pool.end();})();return stopping; }
     };
-  } catch { await server.close();await db.destroy();if(!pool.ended) await pool.end();throw new Error('startup_failed'); }
+  } catch { await server.close();if(!pool.ended)await db.destroy();if(!pool.ended) await pool.end();throw new Error('startup_failed'); }
 }

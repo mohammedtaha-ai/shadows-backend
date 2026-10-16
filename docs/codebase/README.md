@@ -5,7 +5,7 @@ Real identity data remains gated; no B2+, model adapter or production deployment
 
 | Source owner | Responsibility | Contract |
 | --- | --- | --- |
-| [Application](../../src/app) | Validated runtime settings, composition and shutdown | [contract](../../src/app/contract.yaml) |
+| [Application](../../src/app) | Validated runtime settings, composition, owner expiry scheduling and shutdown | [contract](../../src/app/contract.yaml) |
 | [Database primitives](../../src/platform/database) | Connection/transaction lifetime and migration history | [contract](../../src/platform/database/contract.yaml) |
 | [Identity](../../src/modules/identity) | OIDC account binding, encrypted login/session state, native ticket and logout | [contract](../../src/modules/identity/contract.yaml) |
 | [Devices](../../src/modules/devices) | Enrolled installation rows, hashed proof reuse and atomic device revoke via identity operations | [contract](../../src/modules/devices/contract.yaml) |

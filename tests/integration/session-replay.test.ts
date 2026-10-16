@@ -30,10 +30,10 @@ test('session_local_identity_is_laptop_scoped_and_expired_replay_refuses',async(
   for(const [i,native] of [a,b].entries())await sessions.ingest(native.principal,leases[i]!,[{seq:1,event:{...localSession,at:f.now.toISOString()}},{seq:2,event:{...localStep,at:f.now.toISOString()}}]);
   const list=await sessions.list(phone.principal);assert.equal(list.sessions.length,2);assert.equal(new Set(list.sessions.map(s=>s.sessionId)).size,2);
   const id=list.sessions[0]!.sessionId;
-  await f.pool.query("UPDATE sessions_events SET expires_at=now()-interval '1 second' WHERE session_id=$1 AND seq=1",[id]);
+  await f.pool.query('UPDATE sessions_events SET expires_at=$1 WHERE session_id=$2 AND seq=1',[new Date(f.now.getTime()-1000),id]);
   await assert.rejects(sessions.events(phone.principal,id,0,100),/resnapshot_required/);
   assert.deepEqual((await sessions.events(phone.principal,id,1,100)).events.map(e=>e.seq),[2]);
-  await f.pool.query("UPDATE links_ingress_receipts SET expires_at=now()-interval '1 second' WHERE laptop_id=$1",[leases[0]!.laptopId]);
+  await f.pool.query('UPDATE links_ingress_receipts SET expires_at=$1 WHERE laptop_id=$2',[new Date(f.now.getTime()-1000),leases[0]!.laptopId]);
   await assert.rejects(sessions.ingest(a.principal,leases[0]!,[{seq:1,event:{...localSession,at:f.now.toISOString()}}]),/resnapshot_required/);
  }finally{await f.close();}
 });

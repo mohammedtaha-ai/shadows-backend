@@ -264,3 +264,9 @@ an assertion that Native accepted them. No product files, generated API artifact
 dependencies or databases have been changed during planning. The user already
 selected inline execution and prohibited worktrees; preserve those choices after
 approval rather than requesting those choices again.
+
+## Execution record
+All seven tasks completed on the original branch. The one final review and its
+RED/GREEN fixes, full 84/84 Docker result, decisions and separate acceptance gates
+are recorded in [local acceptance](../../evidence/2026-10-17-laptop-relay-acceptance.md).
+The branch remains local; no Native integration, publication or deployment.

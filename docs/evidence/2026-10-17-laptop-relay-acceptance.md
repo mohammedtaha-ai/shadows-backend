@@ -78,4 +78,52 @@ Typecheck, source contracts, boundaries, auth/NYLRA snapshots, laptop frame
 freshness, documentation links/YAML and source secret checks passed. Docs check
 reported 41 files and 16 external sibling links unverified by that checker.
 Lifecycle intentionally returned its existing deferred exit 2. No remote CI ran.
-Final fresh-context review is pending; this record is not a merge approval.
+That was the pre-review suite. Final review and the subsequent verified fix pass
+are recorded below; this record is not a merge approval.
+
+## Final reviewer and fixes
+One fresh Astra/low review inspected 65095a6..deb35b7 read-only. It found five
+Important issues: state-event lastStep loss, UUID-based list truncation, stalled SSE
+send authorization/cancellation, dropped-ACK reconciliation and idle expiry cleanup.
+All were reproduced by focused tests before fixes. The fix pass preserves latest
+steps, selects active/recent sessions, cancels bounded sends independently, recovers
+outstanding drop outcomes or refuses missing history, and schedules owned expiry.
+Physical cleanup is startup plus each minute; logical expiry remains immediate.
+An additional scheduler test verifies nonoverlap and draining at shutdown.
+The reviewer did not rerun the suite. No second reviewer was dispatched.
+One Minor documentation issue is deferred: old pre-relay statements remain beside
+new implementation descriptions in the code map. Native/device, production/CI,
+real-data lifecycle, provider-only origin invalidation, arbitrary filename secrets
+and already-delivered bytes retain their explicitly separate limits.
+
+## Post-fix verification
+Final Docker npm test: **84/84 passed**, zero failures/skips, 116684 ms.
+This includes the eight final-review regressions and an additional unstarted-pool
+shutdown case. The earlier fix-suite failure in
+`session_local_identity_is_laptop_scoped_and_expired_replay_refuses` came from
+mixing PostgreSQL wall time with the injected fixture clock; its expiry inputs
+now use that clock consistently, preserving the original refusal assertion.
+Startup fixtures now migrate before starting, matching documented runtime setup;
+`health_refuses_after_database_disconnect` also reproduced an already-ended pool
+shutdown failure, fixed and verified. Contracts use literal test registrations.
+Latest typecheck, boundaries/contracts, schema/freshness, docs/YAML, source secrets
+and whitespace checks passed. All five Important findings were addressed in one
+fix pass; the one documentation Minor is deferred. No second review or remote CI.
+
+## Execution rulings
+
+- Ruling: User's 2026-10-17 instruction to finish and execute approves the concrete planning proposals as coordinating supervisor — records backend contract acceptance, not Native implementation/device acceptance — cost if wrong: adapter changes need a reviewed contract revision.
+- Ruling: Existing short branch isolates this work; no worktree — explicit user prohibition takes precedence — cost if wrong: unrelated changes must be preserved explicitly.
+- Task 1: Ruling: Use ws 8.22.0 instead of planned 8.18.3 — npm audit identified two current memory/DoS advisories fixed by 8.21+ — cost if wrong: listener regression tests must detect peer incompatibility.
+- Task 4: Ruling: Bind a narrow transactional Sessions invalidation port into Links — unlink must erase Sessions-owned payload atomically without querying foreign tables or adding a bus — cost if wrong: composition binding must remain mandatory in the live app.
+- Task 5: Ruling: Move auth-only composition/export isolation forward from Task 6 — adding the real upgrade otherwise contaminates auth-v1 generation immediately — cost if wrong: wire snapshot tests detect unintended auth drift. Heartbeat authorization now refreshes Links-owned lastSeenAt so a healthy connected laptop does not falsely go offline.
+- Task 6: Ruling: Synchronize locally revoked/expired origin sessions through public Identity operations and atomically remove the associated link/projections/journal — protected mobile reads must not retain revoked source payloads — cost if wrong: an expired native session requires deliberate re-pair rather than silently resuming erased history.
+- Task 7: Ruling: The end-to-end verification can pass against Tasks 1–6 without inventing a product defect — after correcting a test-only Fastify compiler API mistake, the generated-artifact TLS journey passed on first valid run — cost if wrong: independent assertions and final reviewer must expose an unprotected integration assumption.
+- Final: Ruling: Native/Flutter/device continuity remains separate — this is a backend synthetic slice with no consumer implementation — cost if wrong: real-device interoperability still needs Native acceptance.
+- Final: Ruling: Production, real-data deletion/restore, deployment and remote CI remain unclaimed — existing lifecycle/runtime gates stay closed — cost if wrong: this branch cannot be treated as production acceptance.
+- Final: Ruling: Previously written bytes cannot be recalled — authorize new deliveries and close pending work, without claiming network recall — cost if wrong: previously received content remains with its recipient.
+- Final: Ruling: Legitimate filenames are not semantically redacted — preserve the reviewed file-tool policy and reject commands/caller summaries — cost if wrong: a user-chosen filename can still contain sensitive text.
+- Final: Ruling: Origin-provider invalidation remains local-revoke based — reader authority remains freshly provider-checked, while synchronize follows the accepted local surrender authority — cost if wrong: origin-provider-only invalidation needs a separately reviewed owner policy.
+- Final: Ruling: Preserve the 200-item wire limit with active/recent deterministic selection — correct random UUID truncation without inventing pagination — cost if wrong: older history needs a future generated pagination contract.
+- Final: Ruling: Logical expiry is immediate; owned physical cleanup runs at startup and every 60 seconds — idle accounts cannot depend on client reads, and real-data lifecycle remains gated — cost if wrong: physical purge waits for the next healthy maintenance run or restart.
+- Final: Ruling: Startup expiry requires migrated storage, matching the documented explicit migrate-before-start precondition — lifecycle fixtures now migrate before starting, and a separate test still proves stop-before-initialization — cost if wrong: an intentionally unmigrated health-only runtime now refuses startup.

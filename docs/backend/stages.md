@@ -6,7 +6,7 @@ here and set its status. Task shape: [`AGENTS.md`](./AGENTS.md#a-task-in-stagesm
 ## Now
 
 The human approved the plan and concrete backend contract on 2026-10-17.
-Implementation runs inline on codex/aylul-laptop-relay with Docker-only checks.
+Implementation completed inline on codex/aylul-laptop-relay with Docker-only checks.
 Native integration, real-device acceptance and real-data lifecycle remain separate.
 
 ## Tasks
@@ -56,8 +56,11 @@ Touch is the exact Files block of each linked plan task. No sibling source edits
 - Done when: route coverage, auth isolation, snapshot/cursor/race/revocation tests and generation checks pass.
 
 ### B-R7 · Prove the synthetic journey and hand off
-- Status: todo
+- Status: done
 - Plan: docs/backend/plans/2026-10-17-laptop-relay-implementation.md#task-7-end-to-end-synthetic-journey-and-handoff
 - Read: complete plan/spec, actual contracts from Tasks 1–6, unresolved lifecycle/device gates.
 - Touch: exactly Task 7 Files.
 - Done when: synthetic journey and complete affected suites pass; fresh review and precise limits are recorded.
+
+
+Final local verification: 84/84 Docker tests passed. One fresh final review's five Important findings were fixed with reproductions; one code-map documentation Minor remains deferred. See docs/evidence/2026-10-17-laptop-relay-acceptance.md. No remote CI or Native/device acceptance claimed.

@@ -7,8 +7,8 @@
 ## Need
 
 Connect the existing laptop sidecar to the backend and replace mock laptop/session
-reads with account-scoped projections and replayable streams. This request covers
-discovery and interface review; no proposed endpoint/frame below exists yet.
+reads with account-scoped projections and replayable streams. This accepted request
+covers the backend slice; actual Native and phone integration remain separate.
 Canonical operations live in TypeBox source. Runtime registration, OpenAPI, frame
 schemas and clients derive from that source; this request is not a second manual
 API definition. MiniMax is only the research provider, with no primary-model
@@ -34,11 +34,11 @@ selection in the relay or shared brain.
 
 ## Backend answer
 
-The proposed scope and current transport evidence are recorded in the linked
-draft spec and `docs/evidence/2026-10-17-laptop-relay-research.md`. Concrete pairing,
-frame, lifecycle and projection interfaces require the named Native agreement
-before this request can become answered/accepted. No backend product route is
-created by this document.
+Discovery is recorded in the linked specification and research evidence. Following
+the human's explicit execution approval, the backend slice is implemented and
+locally verified; see `docs/evidence/2026-10-17-laptop-relay-acceptance.md`.
+Canonical code and generated artifacts identify the actual live operations;
+this document does not redefine their endpoints or claim Native/device acceptance.
 
 Planning proposal, 2026-10-17: the specification's "Proposed planning decisions"
 section now pins the pairing policy, frame/resource bounds, producer/epoch/ack
