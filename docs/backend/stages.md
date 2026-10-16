@@ -49,7 +49,7 @@ Touch is the exact Files block of each linked plan task. No sibling source edits
 - Done when: actual-listener protocol/resource/revocation/fencing tests and typecheck pass.
 
 ### B-R6 · Serve live HTTP and durable SSE
-- Status: todo
+- Status: done
 - Plan: docs/backend/plans/2026-10-17-laptop-relay-implementation.md#task-6-generated-live-http-routes-and-race-free-sse
 - Read: canonical registry, implemented public services, auth exporter and scoped error behavior.
 - Touch: exactly Task 6 Files.

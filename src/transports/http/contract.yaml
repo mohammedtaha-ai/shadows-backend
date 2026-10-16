@@ -4,13 +4,25 @@ status: current
 source: src/transports/http
 owns: Canonical auth-v1 and nylra-v1 TypeBox schemas, strict request/output validation, bearer translation and safe refusals.
 public_api:
-  nylraOperations: The code-owned HTTP/WebSocket operation registry with stable IDs and implementation status; exported to api/nylra-v1.openapi.json. No route serves it yet; scripts/mock-nylra.ts answers it from fixtures.
+  nylraOperations: The code-owned HTTP/WebSocket operation registry with stable IDs and implementation status; exported to api/nylra-v1.openapi.json. Implemented rows bind live; planned rows are mock-only.
+  registerNylra: Binds only implemented canonical operations in an isolated refusal scope.
+  assertNylraBindings: Detects method, path and schema drift in actual HTTP registrations.
+  serveEvents: Replays durable pages through SSE with fresh delivery guards and bounded buffering.
   NylraRefusal: The one refusal shape every nylra-v1 operation returns.
   registerAuth: Registers login/return/session/device and provider/logout callback routes.
   authenticate: Translates a bearer through persisted identity authorization.
   authenticateRevocation: Uses local account/session/device verification only for operations that surrender authority.
   output: Explicitly checks outgoing values before Fastify serialization.
 obligations:
+  - rule: Actual HTTP bindings match code operations and reject deliberate binding drift; auth export is unchanged.
+    tested_by: nylra_live_routes_registry_coverage_strict_cursor_errors_and_auth_isolation
+    note: tests/integration/nylra-live-routes.test.ts
+  - rule: Revocation between a persisted account read and delivery closes without exposing its payload.
+    tested_by: account_stream_revocation_between_persisted_read_and_delivery_closes_without_payload
+    note: tests/integration/account-stream.test.ts
+  - rule: Repeatable read snapshots are followed by fresh source authorization.
+    tested_by: session_snapshot_fresh_authority_after_read_only_snapshot_barrier
+    note: tests/integration/session-stream.test.ts
   - rule: Exported OpenAPI nullable objects accept null without losing their non-null object constraints.
     tested_by: nylra_wire exported nullable shapes accept null while retaining object constraints
     note: tests/integration/nylra-wire.test.ts; compiled with Fastify's real schema validator.
@@ -42,7 +54,6 @@ obligations:
     tested_by: backchannel_standard_form_transport_and_duplicate_field_refusal
     note: tests/integration/auth-wire.test.ts; signed-token form/replay assertions also run in tests/integration/oidc-client.test.ts.
 open_questions:
-  - nylra-v1 0.3 has no product routes, services or stores yet; they arrive with the backend relay plan and take their schemas from nylraOperations.
+  - Chat, approvals, grants and push remain planned declarations; only laptop/session/account relay operations are live.
   - Native Windows browser/loopback/secure-store and later Flutter conformance remain client integration work.
   - Temporary in-process rate buckets do not establish distributed production abuse controls.
-

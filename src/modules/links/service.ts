@@ -16,6 +16,25 @@ export function createLinks(db:Kysely<Database>,access:LinkAccess,activity:Activ
  const changed=async(tx:Tx,row:LaptopRow,type:'laptop_online'|'laptop_offline')=>activity.append(tx,row.account_id,[{type,laptopId:row.id,sessionId:null,payload:{laptop:view(row)},expiresAt:new Date(clock().getTime()+7*86400000)}]);
  const service={
   bindSessions(owner:NonNullable<typeof sessions>){if(sessions)throw new Error('already_bound');sessions=owner;},
+  async synchronize(principal:Principal) {
+   await db.transaction().execute(async tx=>{
+    await access.authorizeTransaction(tx,principal);await store.guard(tx,principal.accountId,clock());
+    for(const row of await store.list(tx,principal.accountId)){
+     try{await access.authorizeRevocation(tx,{accountId:row.account_id,deviceId:row.device_id,sessionId:row.session_id});}
+     catch(error){if(!(error instanceof Error)||error.message!=='unauthorized')throw error;
+      await store.lock(tx,principal.accountId,row.id);await store.update(tx,row.id,{online:false,revoked_at:clock()});
+      await sessions?.invalidateLaptop(tx,principal.accountId,row.id);await activity.invalidateLaptop(tx,principal.accountId,row.id);
+      await activity.append(tx,principal.accountId,[{type:'laptop_unlinked',laptopId:row.id,sessionId:null,payload:{laptopId:row.id},expiresAt:new Date(clock().getTime()+7*86400000)}]);
+     }
+    }
+   });
+  },
+  async checkReadable(principal:Principal,laptopIds:string[]) {
+   await db.transaction().execute(async tx=>{
+    await access.authorizeTransaction(tx,principal);
+    for(const id of new Set(laptopIds)){const row=await store.lock(tx,principal.accountId,id);if(!row||row.revoked_at)throw new Error('not_found');await access.authorizeRevocation(tx,{accountId:row.account_id,deviceId:row.device_id,sessionId:row.session_id});}
+   });
+  },
   async issueCode(principal:Principal,name:string) {
    if(typeof name!=='string'||!name.length||name.length>80)throw new Error('request_invalid');
    const result=await db.transaction().execute(async tx=>{
@@ -44,9 +63,9 @@ export function createLinks(db:Kysely<Database>,access:LinkAccess,activity:Activ
    });if('error'in result)throw new Error(result.error);return result;
   },
   async list(principal:Principal) {
-   await db.transaction().execute(tx=>access.authorizeTransaction(tx,principal));
+   await service.synchronize(principal);
    const result=await db.transaction().setIsolationLevel('repeatable read').setAccessMode('read only').execute(async tx=>({laptops:(await store.list(tx,principal.accountId)).map(view),cursor:await activity.cursor(tx,principal.accountId)}));
-   await db.transaction().execute(tx=>access.authorizeTransaction(tx,principal));return result;
+   try{await service.checkReadable(principal,result.laptops.map(l=>l.laptopId));}catch(error){if(error instanceof Error&&error.message==='not_found')throw new Error('operation_failed');throw error;}return result;
   },
   async unlink(principal:Principal,laptopId:string) {
    await db.transaction().execute(async tx=>{

@@ -1572,6 +1572,15 @@ export interface operations {
                 };
             };
             /** @description Refusal */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NylraRefusal"];
+                };
+            };
+            /** @description Refusal */
             429: {
                 headers: {
                     [name: string]: unknown;

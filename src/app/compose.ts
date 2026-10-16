@@ -9,6 +9,7 @@ import {createActivity} from '../modules/activity/index.js';
 import {createLinks} from '../modules/links/index.js';
 import {createSessions} from '../modules/sessions/index.js';
 import {registerLaptopLink} from '../transports/laptop-link/index.js';
+import {registerNylra} from '../transports/http/nylra-routes.js';
 import type { AppConfig } from './config.js';
 export async function compose(config: AppConfig, options: { oidc?: OidcPort; clock?:()=>Date; tls?:ServerOptions;routeSet?:'auth'|'all' } = {}) {
   const { pool, db } = createDatabase(config.databaseUrl);
@@ -21,6 +22,7 @@ export async function compose(config: AppConfig, options: { oidc?: OidcPort; clo
     const activity=createActivity(db,options.clock),links=createLinks(db,identity,activity,options.clock),sessions=createSessions(db,identity,links,activity,options.clock);
     if(options.routeSet!=='auth')await registerLaptopLink(server,{identity,links,sessions},options.clock);
     registerAuth(server,identity,devices,config);
+    if(options.routeSet!=='auth')await registerNylra(server,{db,identity,links,sessions,activity},options.clock);
     server.get('/health',{schema:{hide:true}},async (_request,reply) => {
       try {await pool.query('SELECT 1');return {status:'ok'};}
       catch{return reply.code(503).send({status:'unavailable'});}

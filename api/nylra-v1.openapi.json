@@ -1531,7 +1531,7 @@
     "/v1/nylra/laptops/pairing-code": {
       "post": {
         "operationId": "issueLaptopCode",
-        "x-implementation-status": "planned",
+        "x-implementation-status": "implemented",
         "summary": "Issue or replace this native device pairing code",
         "security": [
           {
@@ -1802,7 +1802,7 @@
     "/v1/nylra/laptops/claim": {
       "post": {
         "operationId": "claimLaptop",
-        "x-implementation-status": "planned",
+        "x-implementation-status": "implemented",
         "summary": "Pair a laptop by the code AYLUL desktop shows",
         "security": [
           {
@@ -1887,7 +1887,7 @@
     "/v1/nylra/laptops": {
       "get": {
         "operationId": "listLaptops",
-        "x-implementation-status": "planned",
+        "x-implementation-status": "implemented",
         "summary": "Paired laptops and whether each is online",
         "security": [
           {
@@ -1952,7 +1952,7 @@
     "/v1/nylra/laptops/{laptopId}": {
       "delete": {
         "operationId": "unlinkLaptop",
-        "x-implementation-status": "planned",
+        "x-implementation-status": "implemented",
         "summary": "Unpair a laptop; its sessions and approvals stop reaching this account",
         "security": [
           {
@@ -2595,7 +2595,7 @@
     "/v1/nylra/sessions": {
       "get": {
         "operationId": "listSessions",
-        "x-implementation-status": "planned",
+        "x-implementation-status": "implemented",
         "summary": "Agent sessions on every paired laptop, or one",
         "security": [
           {
@@ -2644,6 +2644,16 @@
               }
             }
           },
+          "404": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          },
           "429": {
             "description": "Refusal",
             "content": {
@@ -2670,7 +2680,7 @@
     "/v1/nylra/sessions/{sessionId}": {
       "get": {
         "operationId": "getSession",
-        "x-implementation-status": "planned",
+        "x-implementation-status": "implemented",
         "summary": "Session snapshot with its recent steps",
         "security": [
           {
@@ -2755,7 +2765,7 @@
     "/v1/nylra/sessions/{sessionId}/events": {
       "get": {
         "operationId": "sessionEvents",
-        "x-implementation-status": "planned",
+        "x-implementation-status": "implemented",
         "summary": "Session events after a cursor (SSE; id = seq). Unknown or expired cursor: 410 resnapshot_required",
         "security": [
           {
@@ -3126,7 +3136,7 @@
     "/v1/nylra/events": {
       "get": {
         "operationId": "accountEvents",
-        "x-implementation-status": "planned",
+        "x-implementation-status": "implemented",
         "summary": "Account events after a cursor (SSE; id = seq). Unknown or expired cursor: 410 resnapshot_required",
         "security": [
           {

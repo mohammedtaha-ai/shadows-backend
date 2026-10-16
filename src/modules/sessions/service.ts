@@ -21,9 +21,11 @@ export function createSessions(db:Kysely<Database>,access:LinkAccess,links:Sessi
   const steps=await store.recent(tx,row.id,clock());return {...row.payload as SessionView,lastStep:steps.at(-1)??null,lastSeq:Number(row.high_water),...(laptop.status==='offline'?{state:'offline' as const}:{})};
  }
  async function authorize(principal:Principal){await db.transaction().execute(tx=>access.authorizeTransaction(tx,principal));}
- async function prepare(principal:Principal){await db.transaction().execute(async tx=>{await access.authorizeTransaction(tx,principal);await store.prune(tx,principal.accountId,clock());await activity.prune(tx,principal.accountId,clock());});}
+ async function prepare(principal:Principal){await links.synchronize(principal);await db.transaction().execute(async tx=>{await access.authorizeTransaction(tx,principal);await store.prune(tx,principal.accountId,clock());await activity.prune(tx,principal.accountId,clock());});}
  async function snapshotRead<T>(principal:Principal,read:(tx:Tx)=>Promise<T>):Promise<T> {
-  await prepare(principal);const result=await db.transaction().setIsolationLevel('repeatable read').setAccessMode('read only').execute(read);await authorize(principal);return result;
+  await prepare(principal);const result=await db.transaction().setIsolationLevel('repeatable read').setAccessMode('read only').execute(read);await authorize(principal);
+  const data=result as {sessions?:SessionView[];session?:SessionView};
+  await links.checkReadable(principal,data.sessions?.map(s=>s.laptopId)??(data.session?[data.session.laptopId]:[]));return result;
  }
  const service={
   async ingest(principal:Principal,lease:LinkLease,batch:IngressEntry[]):Promise<IngestResult> {
@@ -73,7 +75,7 @@ export function createSessions(db:Kysely<Database>,access:LinkAccess,links:Sessi
   async events(principal:Principal,sessionId:string,after:number,limit:number){return snapshotRead(principal,async tx=>{
    const row=await store.get(tx,principal.accountId,sessionId);if(!row)throw new Error('not_found');await project(tx,row);
    if(!Number.isSafeInteger(after)||after<Number(row.floor)||after>Number(row.high_water))throw new Error('resnapshot_required');
-   return {events:await store.events(tx,row.id,after,Math.max(1,Math.min(100,limit))),highWater:Number(row.high_water),floor:Number(row.floor)};
+   return {events:await store.events(tx,row.id,after,Math.max(1,Math.min(100,limit))),highWater:Number(row.high_water),floor:Number(row.floor),session:await project(tx,row)};
   });},
   invalidateLaptop(tx:Tx,accountId:string,laptopId:string){return store.invalidate(tx,accountId,laptopId);},
  };

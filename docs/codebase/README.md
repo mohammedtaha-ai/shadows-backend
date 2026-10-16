@@ -35,3 +35,5 @@ journey. They do not introduce another identity implementation. The
 - [Sessions](../../src/modules/sessions/contract.yaml): receipt-backed ingress and server IDs, scoped snapshots/replay, tool-only summaries and source invalidation.
 
 Laptop-link now binds the canonical upgrade in full application composition. Auth-only export uses the same auth registrar and excludes the upgrade.
+
+NYLRA HTTP now binds only implemented code-registry rows. Its SSE adapter replays owner journals, verifies authority after snapshots and before delivery, and polls PostgreSQL so another process needs no local wakeup.
