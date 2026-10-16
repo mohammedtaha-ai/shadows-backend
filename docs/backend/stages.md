@@ -21,14 +21,14 @@ Touch is the exact Files block of each linked plan task. No sibling source edits
 - Done when: focused wire/mock tests, generated snapshot drift checks, typecheck and contracts pass.
 
 ### B-R2 · Own account event ordering
-- Status: doing
+- Status: done
 - Plan: docs/backend/plans/2026-10-17-laptop-relay-implementation.md#task-2-transactional-account-activity-journal
 - Read: spec Activity amendment; database contract; existing architecture checks.
 - Touch: exactly Task 2 Files.
 - Done when: journal rollback/concurrency/floor, migration, boundary and contract tests pass.
 
 ### B-R3 · Pair laptops and fence connections
-- Status: todo
+- Status: done
 - Plan: docs/backend/plans/2026-10-17-laptop-relay-implementation.md#task-3-pairing-link-access-and-connection-checkpoints
 - Read: accepted protocol, identity/devices contracts, Task 2 public Activity operations.
 - Touch: exactly Task 3 Files.

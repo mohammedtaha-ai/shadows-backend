@@ -20,3 +20,4 @@ open_questions:
   - Production TLS, identity database restore and physical backup expiry are not established by disposable PG acceptance.
 
 # Activity tables are typed here; ActivityStore alone queries them.
+# Links owns its five declared tables; no credentials are persisted in those tables.

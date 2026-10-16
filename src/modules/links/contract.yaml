@@ -1,0 +1,16 @@
+# Owns pairing, connection generations and durable ingress receipts; Identity owns authority.
+name: links
+status: current
+source: src/modules/links
+owns: One-use hashed pairing codes, account-scoped laptops, persistent limits, fenced leases and receipt checkpoints.
+public_api:
+  createLinks: Creates pairing, listing, surrender, lease, receipt and visibility operations.
+obligations:
+  - rule: Pairing is scoped, expires, invalidates old codes, replays commands and enforces persisted limits.
+    tested_by: laptop_pairing_one_use_expiry_reissue_replay_limits_and_account_scope
+    note: tests/integration/laptop-pairing.test.ts
+  - rule: Old epochs cannot affect a new connection; unlink can surrender authority during provider outage.
+    tested_by: laptop_lease_persisted_checkpoint_epoch_and_revocation
+    note: tests/integration/laptop-lease.test.ts
+open_questions:
+  - Actual Native and phone acceptance remain separate.
