@@ -172,3 +172,24 @@ Canonical technical contracts/endpoints remain code-owned and generated; the
 written specification now explicitly requires route/export consistency and
 provider-independent host injection. The user subsequently authorized local
 commits and an Astra/low review of this specification and related artifacts.
+
+## Requested independent review
+
+Completed 2026-10-17 by `gpt-6-astra` with `low` reasoning effort, explicitly
+requested by the user. The reviewer was read-only and inspected immutable ranges
+backend `65095a6..b03550f` and NYLRA `f766b56..93d787f` after both commits existed.
+
+No confirmed actionable finding or scope-blocking contradiction was reported.
+The reviewer checked code-owned generation requirements, distinction between
+declared/mock and implemented operations, provider-independent model injection,
+modular ownership, explicit open Native decisions and local-to-cloud projection
+limits. It also checked generated permission identifiers, equality of the two
+Tauri schemas, archived HTML hash against its README, and whitespace for both diffs.
+
+This was a static review. It did not independently rerun the eight transport
+cases, four provider calls or schema generator, and did not establish Native
+agreement, runtime/device behavior, CI or production acceptance. The author
+separately reran development `cargo check --locked` successfully with a clean
+NYLRA tree afterward, and the Docker documentation check passed 35 files.
+The specification remains proposed and the shared request remains asked; static
+review does not approve an unresolved protocol or begin product implementation.
