@@ -1,0 +1,15 @@
+# Owns strict frame shapes and consecutive batch positions; no domain authorization.
+name: laptop-link
+status: current
+source: src/transports/laptop-link
+owns: Canonical versioned laptop relay wire shapes and deterministic generated artifacts.
+public_api:
+  ClientFrame: Strict inbound hello or batch schema.
+  ServerFrame: Strict ready, acknowledgement or refusal schema.
+  checkClientFrame: Structural and consecutive sequence validation.
+obligations:
+  - rule: Invalid fields, unsafe positions, oversized batches and generated drift refuse.
+    tested_by: laptop_link_wire_generation_and_bounds
+    note: tests/integration/laptop-link-wire.test.ts
+open_questions:
+  - Transport and real Native integration arrive in subsequent tasks.

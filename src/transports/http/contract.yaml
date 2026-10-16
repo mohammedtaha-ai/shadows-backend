@@ -4,7 +4,7 @@ status: current
 source: src/transports/http
 owns: Canonical auth-v1 and nylra-v1 TypeBox schemas, strict request/output validation, bearer translation and safe refusals.
 public_api:
-  nylraOperations: The nylra-v1 operation table; exported to api/nylra-v1.openapi.json. No route serves it yet; scripts/mock-nylra.ts answers it from fixtures.
+  nylraOperations: The code-owned HTTP/WebSocket operation registry with stable IDs and implementation status; exported to api/nylra-v1.openapi.json. No route serves it yet; scripts/mock-nylra.ts answers it from fixtures.
   NylraRefusal: The one refusal shape every nylra-v1 operation returns.
   registerAuth: Registers login/return/session/device and provider/logout callback routes.
   authenticate: Translates a bearer through persisted identity authorization.
@@ -42,6 +42,7 @@ obligations:
     tested_by: backchannel_standard_form_transport_and_duplicate_field_refusal
     note: tests/integration/auth-wire.test.ts; signed-token form/replay assertions also run in tests/integration/oidc-client.test.ts.
 open_questions:
-  - nylra-v1 0.2 has no routes, services or stores yet; they arrive with the backend relay plan and take their schemas from nylraOperations.
+  - nylra-v1 0.3 has no product routes, services or stores yet; they arrive with the backend relay plan and take their schemas from nylraOperations.
   - Native Windows browser/loopback/secure-store and later Flutter conformance remain client integration work.
   - Temporary in-process rate buckets do not establish distributed production abuse controls.
+

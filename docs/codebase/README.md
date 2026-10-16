@@ -25,3 +25,5 @@ come from the same HTTP owner; no route serves them yet.
 development provisioning, ingress, runtime configuration and the synthetic stack
 journey. They do not introduce another identity implementation. The
 [NYLRA handoff](../nylra-local-auth-handoff.md) describes their exact commands.
+
+- [Laptop link](../../src/transports/laptop-link/contract.yaml): canonical frame v1 schemas; generated JSON Schema and TypeScript, no runtime relay yet.

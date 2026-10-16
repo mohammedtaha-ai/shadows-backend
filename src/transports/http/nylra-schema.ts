@@ -27,7 +27,9 @@ export const LinkClaim = closed({ commandId: CommandId, code: Type.String({ patt
 export const Laptop = closed({
   laptopId: Id, name: text(80, 1), status: literals(['online', 'offline']), lastSeenAt: nullable(Timestamp),
 });
-export const LaptopList = closed({ laptops: Type.Array(Laptop, { maxItems: 20 }) });
+export const LaptopList = closed({ laptops: Type.Array(Laptop, { maxItems: 20 }), cursor: Seq });
+export const PairingCodeIssue = Type.Pick(Laptop, ['name']);
+export const PairingCodeIssued = closed({ code: Type.Index(LinkClaim, ['code']), expiresAt: Timestamp });
 export const LaptopParams = closed({ laptopId: Id });
 
 // Push registration for the current phone.
@@ -124,6 +126,7 @@ export const AccountEvent = Type.Union([
   event('session_changed', { session: Session }),
   event('laptop_online', { laptop: Laptop }),
   event('laptop_offline', { laptop: Laptop }),
+  event('laptop_unlinked', { laptopId: Id }),
   event('topic_updated', { topic: Topic }),
 ]);
 

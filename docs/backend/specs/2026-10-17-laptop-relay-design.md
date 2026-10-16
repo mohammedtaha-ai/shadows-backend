@@ -103,6 +103,7 @@ These are future paths, not an implemented code map or placeholder contracts:
 | --- | --- |
 | `src/modules/links/` | Account/device-bound pairing, current connection generation and link revocation |
 | `src/modules/sessions/` | Cloud session/step projection and its stable replay positions |
+| `src/modules/activity/` | Durable per-account cursor and event journal shared by the actual links/session publishers; no runtime event bus |
 | `src/transports/laptop-link/` | Versioned frame validation, socket lifecycle and translation into public service operations |
 | Existing `src/transports/http/` | Actual linked-laptop/session HTTP and SSE operations using their canonical schemas |
 | Existing identity/devices public interfaces | Principal validation and revocation; no second token/session implementation |
@@ -155,9 +156,11 @@ do not create a second hook, SQLite store or grant evaluator in this slice.
 The sidecar-to-cloud projection allows only the reviewed session metadata and the
 canonical tool/path/one-line-summary step fields. Never forward the full HookEvent,
 transcript path, tool input/output, patches, file content or full assistant message.
-The existing local path/target field may contain shell commands and inline secrets;
-the Native agreement must explicitly omit those command targets from session
-steps, while retaining their source only on the laptop. Full approval-command
+The existing local path/target and fallback summary fields may contain shell
+commands and inline secrets. Ingress therefore accepts no caller summary at all.
+It accepts a path only for reviewed file tools; shell, URL, pattern and unknown
+tool targets are null. The backend derives a short tool-only summary. Keep local
+commands/messages on the laptop. Full approval-command
 presentation is a separate consent-bearing path, not a reason to leak it through
 session summaries. A field allowlist does not prove semantic secret redaction;
 actual projection fixtures must exercise the inspected source shapes.
@@ -192,23 +195,91 @@ simply remove synthetic mode or turn the existing deferred lifecycle script gree
 The first synthetic relay path must document the gate without claiming real-data
 or deployment readiness.
 
-## Decisions to close before the implementation plan
+## Proposed planning decisions, 2026-10-17
+
+The user requested the implementation plan after the static review. The following
+decisions make that plan concrete; they remain proposals until plan review and
+the Native agreement. They do not create a handwritten wire contract: Task 1
+implements canonical definitions and generates every technical artifact from code.
+
+- Select local Native commit `0d086b6` as the inspected adapter baseline, not as
+  merged or device-accepted code. Backend reference-peer tests do not replace
+  integrating/retesting that branch against current NYLRA. No sibling source import.
+- Preserve current auth-v1. Advance the generated nylra contract to 0.3.0 when
+  adding code issuance, WebSocket metadata and the opaque `laptop_unlinked` event.
+  Add an account cursor to LaptopList so its snapshot has a race-free stream boundary.
+  Retain existing future/mock-only operations with explicit implementation status.
+- Use one canonical operation registry for HTTP and WebSocket endpoints. HTTP
+  schemas and operation identities feed runtime registration and OpenAPI; the
+  WebSocket entry exports its 101 upgrade and refusal outcomes, never fake JSON 200.
+  Laptop frame v1 schemas generate JSON Schema and TypeScript declarations.
+- Pairing codes use the existing eight-character alphabet/grouping, expire after
+  five minutes, are stored only as hashes, and are consumed transactionally by the
+  same account. Issuance is an explicit non-idempotent action: a new issuance
+  invalidates the previous code; no automatic issuance retry. Claim retains the
+  existing commandId replay semantics. One active link per account/device, at
+  most 20 active laptops per account. Issuance: three/minute/device and ten/minute/
+  account; failed claims: five/minute/account/device; persist these counters.
+- Native authentication remains the existing bearer over verified TLS. No token
+  in a URL or payload. A durable producer UUID plus consecutive ingress sequence
+  identifies batches across reconnect; a server-assigned connection epoch fences
+  superseded sockets. Acknowledgements include the committed position and explicit
+  expired/dropped outcomes; they do not imply agent execution.
+- Frame limit 64KiB; batches contain 1–20 events; process one batch at a time.
+  Pending input is bounded to four frames/256KiB; outgoing buffered bytes to 1MiB.
+  Ping and fresh authorization checks every 15 seconds; disconnect after 45 seconds
+  without pong. Close 1002 for protocol mismatch, 1008 for refused authority,
+  1009 for oversized frames, 1013 for unavailable/overloaded service. No positive
+  authorization cache. Recheck persisted authority before protected delivery;
+  bytes already written cannot be recalled.
+- Account activity owns a transactional per-account counter and journal. Links
+  and sessions call its public append operation in their existing transaction;
+  allocating and rolling back an event must not burn a committed cursor. This
+  deliberately amends the earlier source-layout statement that account SSE had
+  no module: two real publishers need one durable ordering owner. It is not a
+  generic publish/subscribe framework or another delivery service.
+- Session streams retain their own counters. Account/session event payloads and
+  ingress receipts live at most seven days, capped by earlier source expiry.
+  Step expiry is the earlier of reported step time + seven days and acceptance
+  time + seven days; reject timestamps over five minutes in the future. Expired
+  steps create only a receipt with a dropped outcome, not a cloud step/event.
+  Deleting/revoking a laptop invalidates its replay payloads and raises the affected
+  replay floor before further delivery; counters never reset or reuse positions.
+  An older cursor needs a resnapshot; an already-open stream closes before its
+  next protected payload and the reconnect receives 410 before headers.
+- Cloud summaries are derived as a fixed tool-only line; never copy local Step
+  summary, lastMessage, generic target or raw HookEvent. Only Read/Edit/Write/
+  NotebookEdit file paths are eligible. All other targets are null. This minimizes
+  fields; it is not a promise to detect arbitrary secrets a user puts in a filename.
+- Native's durable outgoing queue must preserve producer/sequence identities across
+  restart, have a maximum 5,000 events/8MiB, and show backlog exhaustion without
+  blocking local hook handling or dropping work as acknowledged. A missing producer
+  history or server replay floor requires explicit repair/re-pair, never a silent
+  sequence reset. Native implementation is outside this backend plan.
+
+## Decisions and review gates
 
 These are explicit owner decisions and closing triggers, not permission for an
 implementer to choose a wire protocol silently:
 
 | Decision | Owner and closing trigger |
 | --- | --- |
-| Native code baseline | Native: review/integrate the existing hook branch or explicitly select its immutable artifact; accepted shared agreement names it |
-| Pairing issue operation and code policy | Backend + Native: accept issuance/claim shape, lifetime, retry/reissue and attempt limits using current authenticated-device semantics |
-| Laptop frame protocol | Backend + Native: accept version negotiation, durable local outbox/ack/replay mapping, connection fencing, refresh/idle revocation and concrete resource bounds |
-| Canonical protocol generation | Backend: select the exact TypeBox source owner and generator entry point under the mandatory code-owned generation rules above |
-| Cloud projection | Native + Backend: agree exact inspected fields and command-target omission before reading real local records |
+| Native code baseline | Native: accept the proposed immutable baseline and separately review/integrate it before actual laptop acceptance |
+| Pairing/frame/projection policy | Backend + Native: accept the concrete proposals above in the shared request before product edits |
+| Canonical protocol generation | Proposed owner `src/transports/laptop-link/schema.ts`, generator `scripts/export-laptop-link-schema.ts`; agree alongside Task 1 |
+| Activity ownership amendment | User plan review accepts or changes the single durable account-journal owner before implementation |
 | Real-data lifecycle | Each persistence owner: deletion/invalidation/restore evidence under approved architecture policy; scoped project excerpts remain separately unapproved |
 | Brain distribution and usage mapping | Step 2(c), Backend + Native: versioned provider-independent artifact and per-adapter usage mapping; MiniMax testing selects no primary provider |
 
-User review of this written specification and acceptance of the cross-side
-agreement precede the implementation plan. Product code, root dependencies,
-schema snapshots and publication remain unchanged by this draft. The user
+The user's instruction to prepare a plan approves proceeding with planning.
+The written plan and these concrete proposals require review; the Native request
+remains asked until its explicit acceptance is recorded. Product code, root
+dependencies, schema snapshots and publication remain unchanged by this draft. The user
 authorized a local documentation commit and Astra/low review on 2026-10-17;
 that review does not accept the unresolved Native interface or authorize source work.
+
+### Execution authorization, 2026-10-17
+The human explicitly instructed completion and execution of the written plan on
+Docker. This supersedes the planning-only gate above for backend code and accepts
+the concrete backend protocol and Activity ownership proposal. Native integration,
+real device acceptance, lifecycle and publication remain separate gates.

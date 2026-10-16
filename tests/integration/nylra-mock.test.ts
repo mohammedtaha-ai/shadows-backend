@@ -27,7 +27,7 @@ test('nylra_mock refuses a request without a bearer', async () => {
 });
 
 test('nylra_mock answers every operation with a value its schema accepts', async () => {
-  for (const op of nylraOperations.filter(op => op.okType !== 'text/event-stream')) {
+  for (const op of nylraOperations.filter(op => op.transport==='http').filter(op=>op.okType !== 'text/event-stream')) {
     const url = op.path.replace(/\{(\w+)\}/g, (_, name: string) => ids[name]!);
     const name = op.body && Object.entries(S).find(([, value]) => value === op.body)![0];
     const payload = op.body ? (name === 'Empty' ? {} : fixtures.valid[name!]) : undefined;
@@ -121,3 +121,5 @@ test('nylra_mock denial returns the denied approval fixture', async () => {
   assert.equal(response.json().state, 'denied');
   assert.deepEqual(response.json().decidedBy, { kind: 'person' });
 });
+
+

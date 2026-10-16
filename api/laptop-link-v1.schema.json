@@ -1,0 +1,371 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "LaptopLinkV1",
+  "oneOf": [
+    {
+      "$ref": "#/definitions/ClientFrame"
+    },
+    {
+      "$ref": "#/definitions/ServerFrame"
+    }
+  ],
+  "definitions": {
+    "ClientFrame": {
+      "anyOf": [
+        {
+          "additionalProperties": false,
+          "type": "object",
+          "required": [
+            "type",
+            "protocolVersion",
+            "producerId",
+            "lastAck"
+          ],
+          "properties": {
+            "type": {
+              "const": "hello",
+              "type": "string"
+            },
+            "protocolVersion": {
+              "const": 1,
+              "type": "number"
+            },
+            "producerId": {
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+              "type": "string"
+            },
+            "lastAck": {
+              "minimum": 0,
+              "maximum": 9007199254740991,
+              "description": "Exact safe-integer position in one ordered stream; gapless and never reused.",
+              "type": "integer"
+            }
+          }
+        },
+        {
+          "additionalProperties": false,
+          "type": "object",
+          "required": [
+            "type",
+            "entries"
+          ],
+          "properties": {
+            "type": {
+              "const": "batch",
+              "type": "string"
+            },
+            "entries": {
+              "minItems": 1,
+              "maxItems": 20,
+              "type": "array",
+              "items": {
+                "additionalProperties": false,
+                "type": "object",
+                "required": [
+                  "seq",
+                  "event"
+                ],
+                "properties": {
+                  "seq": {
+                    "minimum": 1,
+                    "maximum": 9007199254740991,
+                    "type": "integer"
+                  },
+                  "event": {
+                    "anyOf": [
+                      {
+                        "additionalProperties": false,
+                        "type": "object",
+                        "required": [
+                          "type",
+                          "localSessionId",
+                          "agent",
+                          "projectName",
+                          "cwd",
+                          "state",
+                          "at"
+                        ],
+                        "properties": {
+                          "type": {
+                            "const": "session",
+                            "type": "string"
+                          },
+                          "localSessionId": {
+                            "minLength": 1,
+                            "maxLength": 128,
+                            "type": "string"
+                          },
+                          "agent": {
+                            "anyOf": [
+                              {
+                                "const": "claude_code",
+                                "type": "string"
+                              },
+                              {
+                                "const": "codex",
+                                "type": "string"
+                              }
+                            ]
+                          },
+                          "projectName": {
+                            "minLength": 0,
+                            "maxLength": 200,
+                            "type": "string"
+                          },
+                          "cwd": {
+                            "minLength": 1,
+                            "maxLength": 1024,
+                            "type": "string"
+                          },
+                          "state": {
+                            "anyOf": [
+                              {
+                                "const": "running",
+                                "type": "string"
+                              },
+                              {
+                                "const": "waiting",
+                                "type": "string"
+                              },
+                              {
+                                "const": "ended",
+                                "type": "string"
+                              },
+                              {
+                                "const": "offline",
+                                "type": "string"
+                              }
+                            ]
+                          },
+                          "at": {
+                            "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\\.[0-9]{1,9})?Z$",
+                            "description": "UTC, RFC 3339.",
+                            "type": "string"
+                          }
+                        }
+                      },
+                      {
+                        "additionalProperties": false,
+                        "type": "object",
+                        "required": [
+                          "type",
+                          "localSessionId",
+                          "localStepId",
+                          "at",
+                          "tool",
+                          "path"
+                        ],
+                        "properties": {
+                          "type": {
+                            "const": "step",
+                            "type": "string"
+                          },
+                          "localSessionId": {
+                            "minLength": 1,
+                            "maxLength": 128,
+                            "type": "string"
+                          },
+                          "localStepId": {
+                            "minLength": 1,
+                            "maxLength": 128,
+                            "type": "string"
+                          },
+                          "at": {
+                            "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\\.[0-9]{1,9})?Z$",
+                            "description": "UTC, RFC 3339.",
+                            "type": "string"
+                          },
+                          "tool": {
+                            "minLength": 1,
+                            "maxLength": 64,
+                            "type": "string"
+                          },
+                          "path": {
+                            "anyOf": [
+                              {
+                                "minLength": 1,
+                                "maxLength": 1024,
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          }
+                        }
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "ServerFrame": {
+      "anyOf": [
+        {
+          "additionalProperties": false,
+          "type": "object",
+          "required": [
+            "type",
+            "epoch",
+            "ackThrough",
+            "dropped"
+          ],
+          "properties": {
+            "type": {
+              "const": "ready",
+              "type": "string"
+            },
+            "epoch": {
+              "minimum": 1,
+              "maximum": 9007199254740991,
+              "type": "integer"
+            },
+            "ackThrough": {
+              "minimum": 0,
+              "maximum": 9007199254740991,
+              "description": "Exact safe-integer position in one ordered stream; gapless and never reused.",
+              "type": "integer"
+            },
+            "dropped": {
+              "maxItems": 20,
+              "type": "array",
+              "items": {
+                "additionalProperties": false,
+                "type": "object",
+                "required": [
+                  "seq",
+                  "code"
+                ],
+                "properties": {
+                  "seq": {
+                    "minimum": 0,
+                    "maximum": 9007199254740991,
+                    "description": "Exact safe-integer position in one ordered stream; gapless and never reused.",
+                    "type": "integer"
+                  },
+                  "code": {
+                    "const": "event_expired",
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "additionalProperties": false,
+          "type": "object",
+          "required": [
+            "type",
+            "epoch",
+            "ackThrough",
+            "dropped"
+          ],
+          "properties": {
+            "type": {
+              "const": "ack",
+              "type": "string"
+            },
+            "epoch": {
+              "minimum": 1,
+              "maximum": 9007199254740991,
+              "type": "integer"
+            },
+            "ackThrough": {
+              "minimum": 0,
+              "maximum": 9007199254740991,
+              "description": "Exact safe-integer position in one ordered stream; gapless and never reused.",
+              "type": "integer"
+            },
+            "dropped": {
+              "maxItems": 20,
+              "type": "array",
+              "items": {
+                "additionalProperties": false,
+                "type": "object",
+                "required": [
+                  "seq",
+                  "code"
+                ],
+                "properties": {
+                  "seq": {
+                    "minimum": 0,
+                    "maximum": 9007199254740991,
+                    "description": "Exact safe-integer position in one ordered stream; gapless and never reused.",
+                    "type": "integer"
+                  },
+                  "code": {
+                    "const": "event_expired",
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "additionalProperties": false,
+          "type": "object",
+          "required": [
+            "type",
+            "code"
+          ],
+          "properties": {
+            "type": {
+              "const": "refusal",
+              "type": "string"
+            },
+            "code": {
+              "anyOf": [
+                {
+                  "const": "request_invalid",
+                  "type": "string"
+                },
+                {
+                  "const": "unauthorized",
+                  "type": "string"
+                },
+                {
+                  "const": "not_found",
+                  "type": "string"
+                },
+                {
+                  "const": "rate_limited",
+                  "type": "string"
+                },
+                {
+                  "const": "operation_failed",
+                  "type": "string"
+                },
+                {
+                  "const": "link_code_invalid",
+                  "type": "string"
+                },
+                {
+                  "const": "command_conflict",
+                  "type": "string"
+                },
+                {
+                  "const": "resnapshot_required",
+                  "type": "string"
+                },
+                {
+                  "const": "approval_already_decided",
+                  "type": "string"
+                },
+                {
+                  "const": "approval_expired",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  }
+}

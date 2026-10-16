@@ -1,6 +1,6 @@
 # Laptop relay and summarized-session ingress
 
-- Status: asked
+- Status: accepted
 - Asked by: NYLRA Native / coordinating session, 2026-10-17
 - Screen: docs/backend/specs/2026-10-17-laptop-relay-design.md
 
@@ -40,6 +40,13 @@ frame, lifecycle and projection interfaces require the named Native agreement
 before this request can become answered/accepted. No backend product route is
 created by this document.
 
+Planning proposal, 2026-10-17: the specification's "Proposed planning decisions"
+section now pins the pairing policy, frame/resource bounds, producer/epoch/ack
+semantics, safe projection and activity-journal ownership. The accompanying
+implementation plan names canonical source files and generators. This request
+was accepted by the human coordinating supervisor for backend execution; requesting a plan
+does not itself merge the Native branch or claim device acceptance.
+
 ## Reply
 
 Pending Native review against local `spec/aylul-hook-laptop` at `0d086b6`, including
@@ -49,6 +56,9 @@ authorized by this request.
 
 ## Ruling
 
-No dispute has been raised. Keep this request asked until the concrete interface
-and written specification are reviewed; do not treat research success as consent
-to build an unresolved protocol.
+2026-10-17: the human coordinating supervisor instructed completion and execution
+of the written plan, approving its concrete backend protocol and ownership
+proposals. This accepts the generated contract for backend implementation using
+synthetic fixtures. It does not claim Native integration, a merged Native branch,
+real phone acceptance, real-data lifecycle approval or deployment.
+

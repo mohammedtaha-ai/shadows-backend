@@ -5,7 +5,7 @@ import Fastify, { type FastifyInstance, type FastifyReply, type FastifyRequest }
 import { readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { Value } from '@sinclair/typebox/value';
-import { nylraOperations, type NylraOperation } from '../src/transports/http/nylra-paths.js';
+import { nylraOperations, type HttpOperation } from '../src/transports/http/nylra-paths.js';
 import * as S from '../src/transports/http/nylra-schema.js';
 
 export interface NylraFixtures {
@@ -32,7 +32,7 @@ export function buildNylraMock(fixtures: NylraFixtures): FastifyInstance {
       : refuse(reply, 503, 'operation_failed');
   });
   const known = new Set(JSON.stringify(fixtures).match(uuid));
-  for (const op of nylraOperations)
+  for (const op of nylraOperations.filter(op=>op.transport==='http'))
     app.route({
       method: op.method.toUpperCase() as 'GET' | 'POST' | 'PUT' | 'DELETE',
       url: op.path.replace(/\{(\w+)\}/g, ':$1'),
@@ -41,7 +41,7 @@ export function buildNylraMock(fixtures: NylraFixtures): FastifyInstance {
   return app;
 }
 
-function answer(op: NylraOperation, fixtures: NylraFixtures, known: Set<string>, request: FastifyRequest, reply: FastifyReply) {
+function answer(op: HttpOperation, fixtures: NylraFixtures, known: Set<string>, request: FastifyRequest, reply: FastifyReply) {
   if (!/^Bearer \S+$/.test(request.headers.authorization ?? '')) return refuse(reply, 401, 'unauthorized');
   for (const [schema, value] of [[op.params, request.params], [op.body, request.body]] as const)
     if (schema && !Value.Check(schema, value)) return refuse(reply, 400, 'request_invalid');
@@ -86,3 +86,4 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
   await buildNylraMock(fixtures).listen({ host, port });
   console.log(`nylra-v1 mock on http://${host}:${port}`);
 }
+
