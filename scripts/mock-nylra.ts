@@ -86,4 +86,3 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
   await buildNylraMock(fixtures).listen({ host, port });
   console.log(`nylra-v1 mock on http://${host}:${port}`);
 }
-

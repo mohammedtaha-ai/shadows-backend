@@ -121,5 +121,3 @@ test('nylra_mock denial returns the denied approval fixture', async () => {
   assert.equal(response.json().state, 'denied');
   assert.deepEqual(response.json().decidedBy, { kind: 'person' });
 });
-
-

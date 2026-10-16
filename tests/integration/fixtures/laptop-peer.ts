@@ -1,7 +1,7 @@
 import WebSocket from 'ws';
 import {once} from 'node:events';
-export async function laptopPeer(url:string,handle:string,onOpen?:(socket:WebSocket)=>void) {
- const socket=new WebSocket(url,{headers:{authorization:`Bearer ${handle}`}});
+export async function laptopPeer(url:string,handle:string,onOpen?:(socket:WebSocket)=>void,options:WebSocket.ClientOptions={}) {
+ const socket=new WebSocket(url,{...options,headers:{authorization:`Bearer ${handle}`}});
  const inbox:unknown[]=[];let waiter:((value:unknown)=>void)|undefined;
  socket.on('message',bytes=>{const value=JSON.parse(bytes.toString());if(waiter){const send=waiter;waiter=undefined;send(value);}else inbox.push(value);});
  socket.on('error',()=>{});if(onOpen)socket.once('open',()=>onOpen(socket));

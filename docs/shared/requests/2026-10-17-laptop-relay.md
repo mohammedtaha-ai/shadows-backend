@@ -61,4 +61,3 @@ of the written plan, approving its concrete backend protocol and ownership
 proposals. This accepts the generated contract for backend implementation using
 synthetic fixtures. It does not claim Native integration, a merged Native branch,
 real phone acceptance, real-data lifecycle approval or deployment.
-

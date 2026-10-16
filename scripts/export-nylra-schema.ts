@@ -80,4 +80,3 @@ export function nylraSchema(): string {
   }, null, 2) + '\n';
 }
 if (process.argv[1] === fileURLToPath(import.meta.url)) await writeFile('api/nylra-v1.openapi.json', nylraSchema());
-

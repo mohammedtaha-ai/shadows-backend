@@ -37,7 +37,9 @@ jobs:
       - name: Validate contracts
         run: npm run check:contracts
       - name: Verify wire schema and fixtures
-        run: npm run schema:check
+        run: |
+          npm run schema:check
+          npm run schema:check:laptop-link
       - name: Check documentation links and YAML
         run: npm run check:docs
       - name: Check source secret boundaries

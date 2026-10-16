@@ -264,4 +264,3 @@ an assertion that Native accepted them. No product files, generated API artifact
 dependencies or databases have been changed during planning. The user already
 selected inline execution and prohibited worktrees; preserve those choices after
 approval rather than requesting those choices again.
-
