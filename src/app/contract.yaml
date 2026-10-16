@@ -5,7 +5,7 @@ source: src/app
 owns: Synthetic-only runtime configuration, loopback listeners, one application composition and shutdown.
 public_api:
   readConfig: Rejects absent/invalid config without values; requires B1_DATA_MODE synthetic.
-  compose: Wires public identity/devices operations and HTTP; closes listeners and pools.
+  compose: Wires public identity, devices, Activity, Links, Sessions and authenticated relay; supports auth-only schema composition and drains sockets before database shutdown.
   installShutdown: Registers one-shot termination handlers.
 obligations:
   - rule: Readiness fails safely when the database connection is unavailable.

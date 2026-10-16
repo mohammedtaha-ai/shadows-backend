@@ -42,7 +42,7 @@ Touch is the exact Files block of each linked plan task. No sibling source edits
 - Done when: real SQL lost-ACK/rollback/conflict/expiry/scoping tests and owner checks pass.
 
 ### B-R5 · Bound the authenticated socket lifetime
-- Status: todo
+- Status: done
 - Plan: docs/backend/plans/2026-10-17-laptop-relay-implementation.md#task-5-bounded-authenticated-websocket-transport
 - Read: Task 1 source schemas and Task 3/4 public service operations; existing identity authority.
 - Touch: exactly Task 5 Files.

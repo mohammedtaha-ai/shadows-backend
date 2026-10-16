@@ -5,7 +5,7 @@ import { Type, type TSchema } from '@sinclair/typebox';
 type Fields = Parameters<typeof Type.Object>[0];
 const closed = <T extends Fields>(fields: T, description?: string) =>
   Type.Object(fields, { additionalProperties: false, ...(description ? { description } : {}) });
-const literals = <T extends string>(values: T[]) => Type.Union(values.map(value => Type.Literal(value)));
+const literals = <const T extends string>(values: T[]) => Type.Union(values.map(value => Type.Literal(value)));
 const text = (maxLength: number, minLength = 0) => Type.String({ minLength, maxLength });
 const nullable = <T extends TSchema>(schema: T) => Type.Union([schema, Type.Null()]);
 

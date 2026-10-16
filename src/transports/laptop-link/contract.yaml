@@ -2,8 +2,9 @@
 name: laptop-link
 status: current
 source: src/transports/laptop-link
-owns: Canonical versioned laptop relay wire shapes and deterministic generated artifacts.
+owns: Canonical frames, bounded socket lifecycle, current authority checks and generated artifacts.
 public_api:
+  registerLaptopLink: Registers the authenticated upgrade from the canonical operation registry.
   ClientFrame: Strict inbound hello or batch schema.
   ServerFrame: Strict ready, acknowledgement or refusal schema.
   checkClientFrame: Structural and consecutive sequence validation.
@@ -12,4 +13,6 @@ obligations:
     tested_by: laptop_link_wire_generation_and_bounds
     note: tests/integration/laptop-link-wire.test.ts
 open_questions:
-  - Transport and real Native integration arrive in subsequent tasks.
+  - Real Native integration and real network saturation acceptance remain separate.
+
+  # Loopback listener evidence is synthetic, with controlled output-buffer saturation.

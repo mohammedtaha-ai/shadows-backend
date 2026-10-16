@@ -18,7 +18,7 @@ const stream = 'text/event-stream';
 
 const definitions = [
   {transport:'http', operationId:'issueLaptopCode', status:'planned', method:'post',path:'/v1/nylra/laptops/pairing-code',summary:'Issue or replace this native device pairing code',body:S.PairingCodeIssue,ok:S.PairingCodeIssued,refusals:common},
-  {transport:'websocket', operationId:'openLaptopLink',status:'planned',method:'get',path:'/v1/nylra/laptop-link',summary:'Open the native laptop relay',refusals:common},
+  {transport:'websocket', operationId:'openLaptopLink',status:'implemented',method:'get',path:'/v1/nylra/laptop-link',summary:'Open the native laptop relay',refusals:common},
   { transport:'http', operationId:'registerPush', status:'planned', method: 'put', path: '/v1/nylra/devices/current/push', summary: 'Register this phone for push notifications', body: S.PushRegistration, ok: S.Empty, refusals: common },
   { transport:'http', operationId:'unregisterPush', status:'planned', method: 'delete', path: '/v1/nylra/devices/current/push', summary: 'Stop push notifications to this phone', ok: S.Empty, refusals: common },
 
@@ -46,5 +46,3 @@ const definitions = [
 ] as const satisfies readonly NylraOperation[];
 export type NylraOperationId = typeof definitions[number]['operationId'];
 export const nylraOperations: readonly NylraOperation[] = definitions;
-
-

@@ -33,3 +33,5 @@ journey. They do not introduce another identity implementation. The
 - [Links](../../src/modules/links/contract.yaml): hashed pairing codes, transactional limits, scoped laptops, fenced connection leases and commit checkpoints.
 
 - [Sessions](../../src/modules/sessions/contract.yaml): receipt-backed ingress and server IDs, scoped snapshots/replay, tool-only summaries and source invalidation.
+
+Laptop-link now binds the canonical upgrade in full application composition. Auth-only export uses the same auth registrar and excludes the upgrade.

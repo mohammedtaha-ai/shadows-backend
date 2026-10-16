@@ -1606,7 +1606,7 @@
     "/v1/nylra/laptop-link": {
       "get": {
         "operationId": "openLaptopLink",
-        "x-implementation-status": "planned",
+        "x-implementation-status": "implemented",
         "summary": "Open the native laptop relay",
         "security": [
           {

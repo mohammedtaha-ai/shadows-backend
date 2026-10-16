@@ -72,6 +72,7 @@ export function createLinks(db:Kysely<Database>,access:LinkAccess,activity:Activ
    await access.authorizeTransaction(tx,principal);
    const row=await store.lock(tx,principal.accountId,lease.laptopId);
    if(!row||row.revoked_at||!row.online||row.device_id!==principal.deviceId||row.session_id!==principal.sessionId||lease.accountId!==principal.accountId||lease.deviceId!==principal.deviceId||lease.sessionId!==principal.sessionId||row.producer_id!==lease.producerId||position(row.epoch)!==lease.epoch)throw new Error('unauthorized');
+   await store.update(tx,row.id,{last_seen_at:clock()});
    return position(row.ack_through);
   },
   async assertConnection(principal:Principal,lease:LinkLease){return db.transaction().execute(tx=>service.requireConnection(tx,principal,lease));},
