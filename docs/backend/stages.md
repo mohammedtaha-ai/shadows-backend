@@ -35,7 +35,7 @@ Touch is the exact Files block of each linked plan task. No sibling source edits
 - Done when: pairing/replay/rate/revocation/epoch tests, owner checks and typecheck pass.
 
 ### B-R4 · Commit safe session ingress before ACK
-- Status: todo
+- Status: done
 - Plan: docs/backend/plans/2026-10-17-laptop-relay-implementation.md#task-4-safe-session-ingestion-with-commit-before-ack
 - Read: Task 3 public lease/receipt ports, Task 2 journal, accepted safe projection.
 - Touch: exactly Task 4 Files.

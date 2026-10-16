@@ -29,7 +29,7 @@ export function inspectBoundary(path:string,text:string,compilerOptions:ts.Compi
    const current=relative(resolve('src'),resolve(path)).replaceAll('\\','/'),table=node.arguments[0];
    if(!current.endsWith('/store.ts')) failures.push('non_store_query');
    const owner=/^modules\/([^/]+)\//.exec(current)?.[1];
-   if(!table || !ts.isStringLiteral(table) || !(owner==='identity'?table.text.startsWith('identity_'):(owner==='devices'&&table.text==='devices')||(owner==='activity'&&['activity_cursors','activity_events'].includes(table.text))||(owner==='links'&&['links_laptops','links_pairing_codes','links_claim_commands','links_rate_windows','links_ingress_receipts'].includes(table.text)))) failures.push('foreign_table');
+   if(!table || !ts.isStringLiteral(table) || !(owner==='identity'?table.text.startsWith('identity_'):(owner==='devices'&&table.text==='devices')||(owner==='activity'&&['activity_cursors','activity_events'].includes(table.text))||(owner==='links'&&['links_laptops','links_pairing_codes','links_claim_commands','links_rate_windows','links_ingress_receipts'].includes(table.text))||(owner==='sessions'&&['sessions_sessions','sessions_steps','sessions_events'].includes(table.text)))) failures.push('foreign_table');
   }
   ts.forEachChild(node,visit);
  }

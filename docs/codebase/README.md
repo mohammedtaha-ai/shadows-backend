@@ -31,3 +31,5 @@ journey. They do not introduce another identity implementation. The
 - [Activity](../../src/modules/activity/contract.yaml): transaction-scoped durable account journal, expiry and replay floor; Links and Sessions are future publishers.
 
 - [Links](../../src/modules/links/contract.yaml): hashed pairing codes, transactional limits, scoped laptops, fenced connection leases and commit checkpoints.
+
+- [Sessions](../../src/modules/sessions/contract.yaml): receipt-backed ingress and server IDs, scoped snapshots/replay, tool-only summaries and source invalidation.

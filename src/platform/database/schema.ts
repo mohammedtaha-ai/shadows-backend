@@ -3,6 +3,9 @@ type Time = ColumnType<Date, Date | string, Date | string>;
 type DefaultTime = ColumnType<Date, Date | string | undefined, Date | string>;
 type OptionalTime = ColumnType<Date | null, Date | string | null | undefined, Date | string | null>;
 export interface Database {
+  sessions_sessions: {id:string;account_id:string;laptop_id:string;producer_id:string;local_id:string;payload:unknown;expires_at:Date;high_water:ColumnType<string,string|number|undefined,string|number>;floor:ColumnType<string,string|number|undefined,string|number>};
+  sessions_steps: {id:string;session_id:string;local_id:string;seq:ColumnType<string,string|number,string|number>;fingerprint:string;payload:unknown;expires_at:Date};
+  sessions_events: {session_id:string;seq:ColumnType<string,string|number,string|number>;payload:unknown;expires_at:Date};
   links_laptops: {id:string;account_id:string;device_id:string;session_id:string;name:string;revoked_at:OptionalTime;online:Generated<boolean>;last_seen_at:OptionalTime;producer_id:ColumnType<string|null,string|null|undefined,string|null>;epoch:ColumnType<string,string|number|undefined,string|number>;ack_through:ColumnType<string,string|number|undefined,string|number>};
   links_pairing_codes: {account_id:string;device_id:string;session_id:string;code_hash:string;name:string;expires_at:Date};
   links_claim_commands: {account_id:string;command_id:string;fingerprint:string;laptop_id:string;result:unknown};

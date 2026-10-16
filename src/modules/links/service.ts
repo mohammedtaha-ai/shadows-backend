@@ -11,9 +11,11 @@ const hash=(s:string)=>createHash('sha256').update(s).digest('hex');
 const alphabet='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
 export function createLinks(db:Kysely<Database>,access:LinkAccess,activity:ActivityService,clock:()=>Date=()=>new Date()) {
  const store=new LinkStore();
+ let sessions:{invalidateLaptop(tx:Tx,accountId:string,laptopId:string):Promise<void>}|undefined;
  const view=(r:LaptopRow):LaptopView=>({laptopId:r.id,name:r.name,status:r.online&&r.last_seen_at&&clock().getTime()-r.last_seen_at.getTime()<45000?'online':'offline',lastSeenAt:r.last_seen_at?.toISOString()??null});
  const changed=async(tx:Tx,row:LaptopRow,type:'laptop_online'|'laptop_offline')=>activity.append(tx,row.account_id,[{type,laptopId:row.id,sessionId:null,payload:{laptop:view(row)},expiresAt:new Date(clock().getTime()+7*86400000)}]);
  const service={
+  bindSessions(owner:NonNullable<typeof sessions>){if(sessions)throw new Error('already_bound');sessions=owner;},
   async issueCode(principal:Principal,name:string) {
    if(typeof name!=='string'||!name.length||name.length>80)throw new Error('request_invalid');
    const result=await db.transaction().execute(async tx=>{
@@ -50,6 +52,7 @@ export function createLinks(db:Kysely<Database>,access:LinkAccess,activity:Activ
    await db.transaction().execute(async tx=>{
     await access.authorizeRevocation(tx,principal);await store.guard(tx,principal.accountId,clock());const row=await store.lock(tx,principal.accountId,laptopId);
     if(!row||row.revoked_at)throw new Error('not_found');await store.update(tx,laptopId,{revoked_at:clock(),online:false});
+    await sessions?.invalidateLaptop(tx,principal.accountId,laptopId);
     await activity.invalidateLaptop(tx,principal.accountId,laptopId);
     await activity.append(tx,principal.accountId,[{type:'laptop_unlinked',laptopId,sessionId:null,payload:{laptopId},expiresAt:new Date(clock().getTime()+7*86400000)}]);
    });
