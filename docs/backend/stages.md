@@ -5,19 +5,26 @@ here and set its status. Task shape: [`AGENTS.md`](./AGENTS.md#a-task-in-stagesm
 
 ## Now
 
-Next preparation: account-owned text chat and BYOK provider settings, per the
-human's explicit backend-only planning scope. See the
-[backend design for review](specs/2026-10-17-account-chat-and-providers-design.md).
-Its written design awaits review and its remaining technical decisions need
-closure; no chat implementation tasks or client changes are approved yet.
+**Next: account chat and BYOK provider settings.** Account-owned text chat and
+per-account provider keys, backend only. The
+[design](specs/2026-10-17-account-chat-and-providers-design.md) has an agreed
+delivery order (2026-10-18): chat on synthetic data first, then the lifecycle
+policy on its tables, then the real-data gate, then open registration. Its
+technical proposals (encryption, worker lease, limits) await written-design
+review. No plan, no tasks and no client changes are approved yet.
 
-The human approved the plan and concrete backend contract on 2026-10-17.
-Implementation completed inline on codex/aylul-laptop-relay with Docker-only checks.
-Native integration, real-device acceptance and real-data lifecycle remain separate.
+**Done: laptop relay (B-R1 to B-R8).** Below. Plan and contract approved by the
+human on 2026-10-17; built inline on `codex/aylul-laptop-relay`, checked in
+Docker only. Native integration, real-device acceptance and real-data
+lifecycle remain separate work.
 
 ## Tasks
 
-Touch is the exact Files block of each linked plan task. No sibling source edits.
+### Laptop relay (done)
+
+These tasks predate the task shape: their Touch is the Files block of the
+linked plan task, and Done when is the plan task's checks. New tasks list exact
+files and a named test.
 
 ### B-R1 · Generate the canonical relay contract
 - Status: done
