@@ -83,4 +83,3 @@ test('brain_refuses_invalid_token_limits_before_dispatch', async () => {
   }
   assert.equal(fake.doStreamCalls.length, 0);
 });
-
