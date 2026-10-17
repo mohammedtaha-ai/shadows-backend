@@ -29,6 +29,7 @@ function plain(schema: unknown, own?: string): unknown {
   if (name && name !== own) return { $ref: `#/components/schemas/${name}` };
   const value = schema as Record<string, unknown>;
   if (typeof value.const === 'string') return { type: 'string', enum: [value.const] };
+  if (typeof value.const === 'boolean') return { type: 'boolean', enum: [value.const] };
   if (Array.isArray(value.anyOf)) {
     const members = value.anyOf as Record<string, unknown>[];
     const description = value.description === undefined ? {} : { description: value.description };

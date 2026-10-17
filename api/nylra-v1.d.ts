@@ -136,7 +136,8 @@ export interface paths {
         get: operations["getTopic"];
         put?: never;
         post?: never;
-        delete?: never;
+        /** Confirm permanent topic deletion and stop any generation */
+        delete: operations["deleteTopic"];
         options?: never;
         head?: never;
         patch?: never;
@@ -187,6 +188,94 @@ export interface paths {
         put?: never;
         /** Stop an answer; its output so far stays, marked partial */
         post: operations["cancelTurn"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/nylra/topics/{topicId}/connection": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Change connection between turns after acknowledging context transfer */
+        put: operations["changeTopicConnection"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/nylra/connections": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List account connection metadata without credentials */
+        get: operations["listConnections"];
+        put?: never;
+        /** Save a provider connection and its write-only key */
+        post: operations["createConnection"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/nylra/connections/{connectionId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Update connection metadata or replace its key */
+        put: operations["updateConnection"];
+        post?: never;
+        /** Remove a connection and block future use */
+        delete: operations["deleteConnection"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/nylra/connections/default": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get the account default, or null when none is set */
+        get: operations["getDefaultConnection"];
+        /** Set the account default for new topics */
+        put: operations["setDefaultConnection"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/nylra/connections/{connectionId}/test": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Explicit paid probe returning a safe category */
+        post: operations["testConnection"];
         delete?: never;
         options?: never;
         head?: never;
@@ -358,6 +447,12 @@ export interface components {
             /** @description Exact safe-integer position in one ordered stream; gapless and never reused. */
             seq: number;
             topic: components["schemas"]["Topic"];
+        } | {
+            /** @enum {string} */
+            type: "topic_deleted";
+            /** @description Exact safe-integer position in one ordered stream; gapless and never reused. */
+            seq: number;
+            topicId: string;
         };
         AfterQuery: {
             /** @description Exact safe-integer position in one ordered stream; gapless and never reused. */
@@ -408,6 +503,52 @@ export interface components {
         ApprovalParams: {
             approvalId: string;
         };
+        Connection: {
+            connectionId: string;
+            name: string;
+            /** @enum {string} */
+            format: "openai_compatible";
+            baseUrl: string;
+            model: string;
+            keyConfigured: boolean;
+            revision: number;
+            /** @description UTC, RFC 3339. */
+            createdAt: string;
+            /** @description UTC, RFC 3339. */
+            updatedAt: string;
+        };
+        ConnectionCreate: {
+            name: string;
+            /** @enum {string} */
+            format: "openai_compatible";
+            baseUrl: string;
+            model: string;
+            apiKey: string;
+        };
+        ConnectionList: {
+            connections: components["schemas"]["Connection"][];
+        };
+        ConnectionParams: {
+            connectionId: string;
+        };
+        /** @description An explicit probe may incur provider charges. */
+        ConnectionTest: {
+            /** @enum {boolean} */
+            costAcknowledged: true;
+        };
+        ConnectionTestResult: {
+            /** @enum {string} */
+            outcome: "ok" | "credential_rejected" | "model_unavailable" | "quota" | "network" | "destination_refused";
+        };
+        /** @description Changing destination requires a reconfirmed key in the same request; the provider-settings service enforces this. */
+        ConnectionUpdate: {
+            name?: string;
+            /** @enum {string} */
+            format?: "openai_compatible";
+            baseUrl?: string;
+            model?: string;
+            apiKey?: string;
+        };
         /** @description person: the person decided. aylul_grant: AYLUL decided on their behalf under that grant. */
         Decider: {
             /** @enum {string} */
@@ -416,6 +557,12 @@ export interface components {
             /** @enum {string} */
             kind: "aylul_grant";
             grantId: string;
+        };
+        DefaultConnection: {
+            connectionId: string | null;
+        };
+        DefaultConnectionSet: {
+            connectionId: string;
         };
         Empty: Record<string, never>;
         Entry: {
@@ -481,7 +628,7 @@ export interface components {
         };
         NylraRefusal: {
             /** @enum {string} */
-            code: "request_invalid" | "unauthorized" | "not_found" | "rate_limited" | "operation_failed" | "link_code_invalid" | "command_conflict" | "resnapshot_required" | "approval_already_decided" | "approval_expired";
+            code: "request_invalid" | "unauthorized" | "not_found" | "rate_limited" | "operation_failed" | "link_code_invalid" | "command_conflict" | "resnapshot_required" | "approval_already_decided" | "approval_expired" | "no_connection" | "credential_rejected" | "model_unavailable" | "quota" | "network" | "destination_refused" | "generation_busy" | "context_too_large";
         };
         PairingCodeIssue: {
             name: string;
@@ -590,6 +737,8 @@ export interface components {
             } | null;
             /** @enum {string} */
             state: "open" | "resolved";
+            connectionId: string;
+            model: string;
             /** @description UTC, RFC 3339. */
             createdAt: string;
             /** @description UTC, RFC 3339. */
@@ -597,14 +746,25 @@ export interface components {
             /** @description Exact safe-integer position in one ordered stream; gapless and never reused. */
             lastSeq: number;
         };
+        /** @description Acknowledges that the next turn sends topic context to the selected provider. */
+        TopicConnectionChange: {
+            connectionId: string;
+            /** @enum {boolean} */
+            transferAcknowledged: true;
+        };
         TopicCreate: {
             /** @description Client-generated. The same id with the same request replays; with another, command_conflict. */
             commandId: string;
             title?: string;
+            connectionId?: string;
             project?: {
                 laptopId: string;
                 projectId: string;
             };
+        };
+        TopicDelete: {
+            /** @enum {boolean} */
+            confirm: true;
         };
         TopicEvent: {
             /** @enum {string} */
@@ -631,6 +791,8 @@ export interface components {
             /** @description Exact safe-integer position in one ordered stream; gapless and never reused. */
             seq: number;
             turnId: string;
+            connectionId: string;
+            model: string;
             /** @enum {string} */
             outcome: "done" | "error" | "cancelled";
             code?: string;
@@ -1303,6 +1465,77 @@ export interface operations {
             };
         };
     };
+    deleteTopic: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                topicId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TopicDelete"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Empty"];
+                };
+            };
+            /** @description Refusal */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NylraRefusal"];
+                };
+            };
+            /** @description Refusal */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NylraRefusal"];
+                };
+            };
+            /** @description Refusal */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NylraRefusal"];
+                };
+            };
+            /** @description Refusal */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NylraRefusal"];
+                };
+            };
+            /** @description Refusal */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NylraRefusal"];
+                };
+            };
+        };
+    };
     topicEvents: {
         parameters: {
             query?: {
@@ -1484,6 +1717,554 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Empty"];
+                };
+            };
+            /** @description Refusal */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NylraRefusal"];
+                };
+            };
+            /** @description Refusal */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NylraRefusal"];
+                };
+            };
+            /** @description Refusal */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NylraRefusal"];
+                };
+            };
+            /** @description Refusal */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NylraRefusal"];
+                };
+            };
+            /** @description Refusal */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NylraRefusal"];
+                };
+            };
+        };
+    };
+    changeTopicConnection: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                topicId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TopicConnectionChange"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Topic"];
+                };
+            };
+            /** @description Refusal */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NylraRefusal"];
+                };
+            };
+            /** @description Refusal */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NylraRefusal"];
+                };
+            };
+            /** @description Refusal */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NylraRefusal"];
+                };
+            };
+            /** @description Refusal */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NylraRefusal"];
+                };
+            };
+            /** @description Refusal */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NylraRefusal"];
+                };
+            };
+            /** @description Refusal */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NylraRefusal"];
+                };
+            };
+        };
+    };
+    listConnections: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ConnectionList"];
+                };
+            };
+            /** @description Refusal */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NylraRefusal"];
+                };
+            };
+            /** @description Refusal */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NylraRefusal"];
+                };
+            };
+            /** @description Refusal */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NylraRefusal"];
+                };
+            };
+            /** @description Refusal */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NylraRefusal"];
+                };
+            };
+        };
+    };
+    createConnection: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ConnectionCreate"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Connection"];
+                };
+            };
+            /** @description Refusal */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NylraRefusal"];
+                };
+            };
+            /** @description Refusal */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NylraRefusal"];
+                };
+            };
+            /** @description Refusal */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NylraRefusal"];
+                };
+            };
+            /** @description Refusal */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NylraRefusal"];
+                };
+            };
+            /** @description Refusal */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NylraRefusal"];
+                };
+            };
+        };
+    };
+    updateConnection: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                connectionId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ConnectionUpdate"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Connection"];
+                };
+            };
+            /** @description Refusal */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NylraRefusal"];
+                };
+            };
+            /** @description Refusal */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NylraRefusal"];
+                };
+            };
+            /** @description Refusal */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NylraRefusal"];
+                };
+            };
+            /** @description Refusal */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NylraRefusal"];
+                };
+            };
+            /** @description Refusal */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NylraRefusal"];
+                };
+            };
+            /** @description Refusal */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NylraRefusal"];
+                };
+            };
+        };
+    };
+    deleteConnection: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                connectionId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Empty"];
+                };
+            };
+            /** @description Refusal */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NylraRefusal"];
+                };
+            };
+            /** @description Refusal */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NylraRefusal"];
+                };
+            };
+            /** @description Refusal */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NylraRefusal"];
+                };
+            };
+            /** @description Refusal */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NylraRefusal"];
+                };
+            };
+            /** @description Refusal */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NylraRefusal"];
+                };
+            };
+        };
+    };
+    getDefaultConnection: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DefaultConnection"];
+                };
+            };
+            /** @description Refusal */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NylraRefusal"];
+                };
+            };
+            /** @description Refusal */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NylraRefusal"];
+                };
+            };
+            /** @description Refusal */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NylraRefusal"];
+                };
+            };
+            /** @description Refusal */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NylraRefusal"];
+                };
+            };
+        };
+    };
+    setDefaultConnection: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DefaultConnectionSet"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DefaultConnection"];
+                };
+            };
+            /** @description Refusal */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NylraRefusal"];
+                };
+            };
+            /** @description Refusal */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NylraRefusal"];
+                };
+            };
+            /** @description Refusal */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NylraRefusal"];
+                };
+            };
+            /** @description Refusal */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NylraRefusal"];
+                };
+            };
+            /** @description Refusal */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NylraRefusal"];
+                };
+            };
+        };
+    };
+    testConnection: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                connectionId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ConnectionTest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ConnectionTestResult"];
                 };
             };
             /** @description Refusal */

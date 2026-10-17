@@ -14,6 +14,12 @@ public_api:
   authenticateRevocation: Uses local account/session/device verification only for operations that surrender authority.
   output: Explicitly checks outgoing values before Fastify serialization.
 obligations:
+  - rule: Account chat and connection operations remain planned; credentials are write-only, bodies reject extra fields, and paid probes, context transfer and deletion require explicit true acknowledgements.
+    tested_by: nylra_wire account chat operations are planned and keep credentials write only
+    note: tests/integration/nylra-wire.test.ts; also nylra_wire chat acknowledgements metadata and safe refusal categories are required.
+  - rule: Mock connection writes return schema-valid metadata without echoing keys and refuse missing, false or extra acknowledgement fields.
+    tested_by: nylra_mock connection writes never echo keys and require explicit acknowledgements
+    note: tests/integration/nylra-mock.test.ts; mock output is checked against the operation response schema.
   - rule: Stalled SSE writes do not block independent authority checks or disconnect cancellation.
     tested_by: review_sse_stalled_send_cancels_on_revoke
     note: tests/integration/relay-review-regressions.test.ts; disconnect also releases a pending send without drain.

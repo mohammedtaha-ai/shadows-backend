@@ -14,6 +14,65 @@ const schemas = S as unknown as Record<string, Parameters<typeof Value.Check>[0]
 const fixtures = JSON.parse(await readFile('api/nylra-v1.fixtures.json', 'utf8'));
 const streams: Record<string, string> = { TopicEvents: 'TopicEvent', SessionEvents: 'SessionEvent', AccountEvents: 'AccountEvent' };
 
+test('nylra_wire account chat operations are planned and keep credentials write only', () => {
+  const document = JSON.parse(nylraSchema());
+  for (const id of ['listConnections', 'createConnection', 'updateConnection', 'deleteConnection',
+    'getDefaultConnection', 'setDefaultConnection', 'testConnection', 'changeTopicConnection', 'deleteTopic']) {
+    const op = nylraOperations.find(operation => operation.operationId === id);
+    assert.ok(op, id);
+    assert.equal(op.status, 'planned', id);
+    assert.equal(document.paths[op.path][op.method]['x-implementation-status'], 'planned', id);
+  }
+  for (const op of nylraOperations) {
+    if (op.transport !== 'http') continue;
+    assert.ok(!JSON.stringify(op.ok).includes('apiKey'), `${op.operationId} never returns a key`);
+    assert.ok(!JSON.stringify(op.params ?? {}).includes('apiKey'), `${op.operationId} has no key in its URL`);
+    assert.ok(!JSON.stringify(op.query ?? {}).includes('apiKey'), `${op.operationId} has no key in its query`);
+  }
+  for (const id of ['createConnection', 'updateConnection']) {
+    const op = nylraOperations.find(operation => operation.operationId === id)!;
+    const name = Object.entries(S).find(([, schema]) => schema === op.body)![0];
+    const sample = fixtures.valid[name] as Record<string, unknown>;
+    assert.ok(Value.Check(op.body!, sample));
+    assert.equal(Value.Check(op.body!, { ...sample, accountId: fixtures.valid.Topic.topicId }), false);
+    assert.equal((op.body!.properties.apiKey as { writeOnly?: boolean }).writeOnly, true);
+    for (const apiKey of ['', 'x'.repeat(513)])
+      assert.equal(Value.Check(op.body!, { ...sample, apiKey }), false);
+    assert.ok(Value.Check(op.body!, { ...sample, apiKey: 'x'.repeat(512) }));
+  }
+});
+
+test('nylra_wire chat acknowledgements metadata and safe refusal categories are required', () => {
+  const document = JSON.parse(nylraSchema());
+  const connectionId = '00000000-0000-4000-8000-000000000090';
+  for (const [id, field, body] of [
+    ['testConnection', 'costAcknowledged', {}],
+    ['changeTopicConnection', 'transferAcknowledged', { connectionId }],
+    ['deleteTopic', 'confirm', {}],
+  ] as const) {
+    const schema = nylraOperations.find(op => op.operationId === id)?.body;
+    assert.ok(schema, id);
+    assert.equal(Value.Check(schema, body), false);
+    assert.equal(Value.Check(schema, { ...body, [field]: false }), false);
+    assert.ok(Value.Check(schema, { ...body, [field]: true }));
+    assert.equal(Value.Check(schema, { ...body, [field]: true, extra: true }), false);
+    const name = Object.entries(S).find(([, candidate]) => candidate === schema)![0];
+    assert.deepEqual(document.components.schemas[name].properties[field], { type: 'boolean', enum: [true] });
+  }
+  assert.ok(Value.Check(S.TopicCreate, { commandId: connectionId, connectionId }));
+  for (const field of ['connectionId', 'model']) {
+    const { [field]: _missing, ...topic } = fixtures.valid.Topic;
+    assert.equal(Value.Check(S.Topic, topic), false, `Topic requires ${field}`);
+    const finished = fixtures.valid.TopicEvents.find((event: { type: string }) => event.type === 'turn_finished');
+    const { [field]: _absent, ...event } = finished;
+    assert.equal(Value.Check(S.TopicEvent, event), false, `turn_finished requires ${field}`);
+  }
+  assert.ok(Value.Check(S.AccountEvent, { type: 'topic_deleted', seq: 19, topicId: fixtures.valid.Topic.topicId }));
+  for (const code of ['no_connection', 'credential_rejected', 'model_unavailable', 'quota',
+    'network', 'destination_refused', 'generation_busy', 'context_too_large'])
+    assert.ok(Value.Check(S.NylraRefusal, { code }), code);
+});
+
 test('nylra_wire fixtures pass and invalid samples refuse for their stated reason', () => {
   for (const [name, value] of Object.entries(fixtures.valid)) {
     const schema = schemas[streams[name] ?? name];

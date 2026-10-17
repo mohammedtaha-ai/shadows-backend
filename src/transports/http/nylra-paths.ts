@@ -2,7 +2,7 @@
 // table, so the exported contract and what is served cannot drift apart.
 import * as S from './nylra-schema.js';
 
-export const NYLRA_CONTRACT_VERSION = '0.3.0';
+export const NYLRA_CONTRACT_VERSION = '0.4.0';
 interface OperationBase {
   method: 'get' | 'post' | 'put' | 'delete';
   path: string;
@@ -32,6 +32,16 @@ const definitions = [
   { transport:'http', operationId:'topicEvents', status:'planned', method: 'get', path: '/v1/nylra/topics/{topicId}/events', summary: 'Topic events after a cursor (SSE; id = seq). Unknown or expired cursor: 410 resnapshot_required', params: S.TopicParams, query: S.AfterQuery, ok: S.TopicEvent, okType: stream, refusals: [...common, 404, 410] },
   { transport:'http', operationId:'createTurn', status:'planned', method: 'post', path: '/v1/nylra/topics/{topicId}/turns', summary: 'Send a message; the answer arrives on the topic stream', params: S.TopicParams, body: S.TurnRequest, ok: S.TurnAccepted, refusals: [...common, 404, 409] },
   { transport:'http', operationId:'cancelTurn', status:'planned', method: 'post', path: '/v1/nylra/topics/{topicId}/turns/{turnId}/cancel', summary: 'Stop an answer; its output so far stays, marked partial', params: S.TurnParams, body: S.Empty, ok: S.Empty, refusals: [...common, 404] },
+  { transport:'http', operationId:'changeTopicConnection', status:'planned', method: 'put', path: '/v1/nylra/topics/{topicId}/connection', summary: 'Change connection between turns after acknowledging context transfer', params: S.TopicParams, body: S.TopicConnectionChange, ok: S.Topic, refusals: [...common, 404, 409] },
+  { transport:'http', operationId:'deleteTopic', status:'planned', method: 'delete', path: '/v1/nylra/topics/{topicId}', summary: 'Confirm permanent topic deletion and stop any generation', params: S.TopicParams, body: S.TopicDelete, ok: S.Empty, refusals: [...common, 404] },
+
+  { transport:'http', operationId:'listConnections', status:'planned', method: 'get', path: '/v1/nylra/connections', summary: 'List account connection metadata without credentials', ok: S.ConnectionList, refusals: common },
+  { transport:'http', operationId:'createConnection', status:'planned', method: 'post', path: '/v1/nylra/connections', summary: 'Save a provider connection and its write-only key', body: S.ConnectionCreate, ok: S.Connection, refusals: [...common, 409] },
+  { transport:'http', operationId:'updateConnection', status:'planned', method: 'put', path: '/v1/nylra/connections/{connectionId}', summary: 'Update connection metadata or replace its key', params: S.ConnectionParams, body: S.ConnectionUpdate, ok: S.Connection, refusals: [...common, 404, 409] },
+  { transport:'http', operationId:'deleteConnection', status:'planned', method: 'delete', path: '/v1/nylra/connections/{connectionId}', summary: 'Remove a connection and block future use', params: S.ConnectionParams, ok: S.Empty, refusals: [...common, 404] },
+  { transport:'http', operationId:'getDefaultConnection', status:'planned', method: 'get', path: '/v1/nylra/connections/default', summary: 'Get the account default, or null when none is set', ok: S.DefaultConnection, refusals: common },
+  { transport:'http', operationId:'setDefaultConnection', status:'planned', method: 'put', path: '/v1/nylra/connections/default', summary: 'Set the account default for new topics', body: S.DefaultConnectionSet, ok: S.DefaultConnection, refusals: [...common, 404] },
+  { transport:'http', operationId:'testConnection', status:'planned', method: 'post', path: '/v1/nylra/connections/{connectionId}/test', summary: 'Explicit paid probe returning a safe category', params: S.ConnectionParams, body: S.ConnectionTest, ok: S.ConnectionTestResult, refusals: [...common, 404] },
 
   { transport:'http', operationId:'listSessions', status:'implemented', method: 'get', path: '/v1/nylra/sessions', summary: 'Agent sessions on every paired laptop, or one', query: S.SessionQuery, ok: S.SessionList, refusals: [...common,404] },
   { transport:'http', operationId:'getSession', status:'implemented', method: 'get', path: '/v1/nylra/sessions/{sessionId}', summary: 'Session snapshot with its recent steps', params: S.SessionParams, ok: S.SessionSnapshot, refusals: [...common, 404] },

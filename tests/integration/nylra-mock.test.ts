@@ -13,6 +13,7 @@ const ids: Record<string, string> = {
   laptopId: '00000000-0000-4000-8000-000000000010', topicId: '00000000-0000-4000-8000-000000000030',
   turnId: '00000000-0000-4000-8000-000000000055', sessionId: '00000000-0000-4000-8000-000000000060',
   approvalId: '00000000-0000-4000-8000-000000000070', grantId: '00000000-0000-4000-8000-000000000080',
+  connectionId: '00000000-0000-4000-8000-000000000090',
 };
 const decide = (approvalId: string, decision = 'allow') => app.inject({
   method: 'POST', url: `/v1/nylra/approvals/${approvalId}/decide`, headers: bearer,
@@ -89,7 +90,7 @@ test('nylra_mock replays each stream as schema-valid SSE frames', async () => {
   for (const [url, schema, expected] of [
     [`/v1/nylra/topics/${ids.topicId}/events?after=4`, S.TopicEvent, [5, 6, 7, 8]],
     [`/v1/nylra/sessions/${ids.sessionId}/events?after=2`, S.SessionEvent, [3, 4]],
-    ['/v1/nylra/events?after=12', S.AccountEvent, [13, 14, 15, 16, 17, 18]],
+    ['/v1/nylra/events?after=12', S.AccountEvent, [13, 14, 15, 16, 17, 18, 19]],
   ] as const) {
     const response = await app.inject({ method: 'GET', url, headers: bearer });
     assert.equal(response.statusCode, 200);
@@ -120,4 +121,45 @@ test('nylra_mock denial returns the denied approval fixture', async () => {
   assert.ok(Value.Check(S.Approval, response.json()));
   assert.equal(response.json().state, 'denied');
   assert.deepEqual(response.json().decidedBy, { kind: 'person' });
+});
+
+test('nylra_mock connection writes never echo keys and require explicit acknowledgements', async () => {
+  const created = await app.inject({
+    method: 'POST', url: '/v1/nylra/connections', headers: bearer,
+    payload: fixtures.valid.ConnectionCreate as object,
+  });
+  assert.equal(created.statusCode, 200);
+  assert.ok(Value.Check(S.Connection, created.json()));
+  assert.ok(!created.body.includes('apiKey'));
+  assert.ok(!created.body.includes('synthetic-provider-key'));
+  for (const [method, url, field, body] of [
+    ['POST', `/v1/nylra/connections/${ids.connectionId}/test`, 'costAcknowledged', {}],
+    ['PUT', `/v1/nylra/topics/${ids.topicId}/connection`, 'transferAcknowledged', { connectionId: ids.connectionId }],
+    ['DELETE', `/v1/nylra/topics/${ids.topicId}`, 'confirm', {}],
+  ] as const) {
+    for (const payload of [body, { ...body, [field]: false }, { ...body, [field]: true, extra: true }]) {
+      const response = await app.inject({ method, url, headers: bearer, payload });
+      assert.equal(response.statusCode, 400, `${method} ${url}`);
+      assert.deepEqual(response.json(), { code: 'request_invalid' });
+    }
+  }
+  const invalid = await app.inject({
+    method: 'POST', url: '/v1/nylra/connections', headers: bearer,
+    payload: { ...(fixtures.valid.ConnectionCreate as object), accountId: ids.topicId },
+  });
+  assert.equal(invalid.statusCode, 400);
+});
+
+test('nylra_mock refuses an invalid response fixture without exposing its credential', async () => {
+  const invalidFixtures = structuredClone(fixtures);
+  invalidFixtures.valid.Connection = { ...(fixtures.valid.Connection as object), apiKey: 'synthetic-invalid-output-key' };
+  const invalidApp = buildNylraMock(invalidFixtures);
+  try {
+    const response = await invalidApp.inject({
+      method: 'POST', url: '/v1/nylra/connections', headers: bearer,
+      payload: fixtures.valid.ConnectionCreate as object,
+    });
+    assert.equal(response.statusCode, 503);
+    assert.deepEqual(response.json(), { code: 'operation_failed' });
+  } finally { await invalidApp.close(); }
 });

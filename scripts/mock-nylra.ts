@@ -65,7 +65,9 @@ function answer(op: HttpOperation, fixtures: NylraFixtures, known: Set<string>, 
   }
   if (op.body === S.ApprovalDecide)
     return reply.send(fixtures.mock.approvalDecisions[(request.body as { decision: 'allow' | 'deny' }).decision]);
-  return reply.send(fixtures.responses[`${op.method.toUpperCase()} ${op.path}`] ?? fixtures.valid[schemaName(op.ok)!] ?? {});
+  const response = fixtures.responses[`${op.method.toUpperCase()} ${op.path}`] ?? fixtures.valid[schemaName(op.ok)!] ?? {};
+  if (!Value.Check(op.ok, response)) return refuse(reply, 503, 'operation_failed');
+  return reply.send(response);
 }
 
 // Replays the events after the cursor, then ends the response; a real server keeps

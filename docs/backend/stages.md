@@ -27,10 +27,11 @@ Branch `backend/account-chat`. Run checks with
 "How to run checks". Every task may also set its status here.
 
 ### B-1 · Generated contract for chat and connections
-- Status: todo
+- Status: done
 - Plan: docs/backend/plans/2026-10-18-account-chat-step1.md#b-1--generated-contract-for-chat-and-connections
 - Read: docs/shared/requests/2026-10-18-account-chat-and-providers.md; src/transports/http/contract.yaml
-- Touch: src/transports/http/nylra-schema.ts, src/transports/http/nylra-paths.ts, src/transports/http/contract.yaml, scripts/mock-nylra.ts, api/nylra-v1.openapi.json, api/nylra-v1.d.ts, api/nylra-v1.fixtures.json, tests/integration/nylra-wire.test.ts, tests/integration/nylra-mock.test.ts
+- Touch: src/transports/http/nylra-schema.ts, src/transports/http/nylra-paths.ts, src/transports/http/contract.yaml, scripts/mock-nylra.ts, scripts/export-nylra-schema.ts, api/nylra-v1.openapi.json, api/nylra-v1.d.ts, api/nylra-v1.fixtures.json, tests/integration/nylra-wire.test.ts, tests/integration/nylra-mock.test.ts
+- Scope amendment (human-approved 2026-10-18): allow the exporter to convert boolean literals to OpenAPI 3.0 one-value enums for the required acknowledgement fields.
 - Done when: `npm run schema:nylra` then `npm run schema:check`, `tests/integration/nylra-mock.test.ts`, typecheck, check:contracts pass
 
 ### B-2 · Credential sealing and the BYOK key ring
