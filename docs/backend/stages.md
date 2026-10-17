@@ -71,6 +71,28 @@ Branch `backend/account-chat`. Run checks with
 - Touch: packages/aylul-brain/package.json, packages/aylul-brain/src/index.ts, packages/aylul-brain/src/instructions.ts, packages/aylul-brain/contract.yaml, package.json, package-lock.json, tsconfig.json, Dockerfile, scripts/check-boundaries.ts, tests/architecture/boundaries.test.ts, tests/architecture/contracts.test.ts, tests/integration/aylul-brain.test.ts, docs/codebase/README.md
 - Done when: `tests/integration/aylul-brain.test.ts`, `npm run test:boundaries` pass, typecheck, check:contracts
 
+### B-F1 · PostgreSQL test fixture fails in Docker
+- Status: todo
+- Found: Hamoud, 2026-10-18, at `9467ec9`. `docker compose run --rm --no-deps tools node --import tsx --test tests/integration/migrations.test.ts` fails 4/4 with `postgres_fixture_setup` (tests/integration/fixtures/postgres.ts:60); startup.test.ts fails 3/9 the same way. Every PostgreSQL test is affected, so B-4 is unverified. Not yet known whether B-1 to B-6 caused it (dependency volume after the workspace install, B-6) or the environment did.
+- Read: tests/integration/fixtures/postgres.ts; Dockerfile; compose.yaml `tools` service; package.json workspaces
+- Touch: tests/integration/fixtures/postgres.ts, Dockerfile, compose.yaml, package.json, package-lock.json. If the cause is only environmental (no file change), fix nothing in Git, report the cause and the command that repairs it.
+- Done when: `tests/integration/migrations.test.ts`, `tests/integration/startup.test.ts` and `tests/integration/provider-settings.test.ts` pass in Docker
+
+### B-F2 · schema:check fails after the BYOK config (B-2)
+- Status: todo
+- Found: Hamoud, 2026-10-18. `docker compose run --rm --no-deps tools npm run schema:check` fails with `config_invalid` at src/app/config.ts:38, from scripts/export-auth-schema.ts:8, which passes no `BYOK_KEY`/`BYOK_KEY_ID`. tests/integration/fixtures/restart.ts:8 builds the same env and likely fails too.
+- Read: src/app/config.ts readConfig; scripts/export-auth-schema.ts; tests/integration/fixtures/restart.ts
+- Touch: scripts/export-auth-schema.ts, tests/integration/fixtures/restart.ts
+- Done when: `npm run schema:check` and `npm run test:restart` pass in Docker, typecheck
+
+### B-6b · Keep the provider failure category through the brain
+- Status: todo
+- Found: Hamoud review, 2026-10-18. `replyStream` in packages/aylul-brain/src/index.ts reports only `{finish:'error'}`, dropping the adapter's `ProviderFailure.code`, so B-8 cannot finish a turn with `credential_rejected`/`quota`/`model_unavailable`/`network`. The adapter maps HTTP 400 to `network`; a provider context/length refusal must map to `context_too_large`.
+- Plan: docs/backend/plans/2026-10-18-account-chat-step1.md#b-6--aylul-brain-package
+- Read: src/integrations/providers/contract.yaml; packages/aylul-brain/contract.yaml
+- Touch: packages/aylul-brain/src/index.ts, packages/aylul-brain/contract.yaml, src/integrations/providers/openai-compatible.ts, src/integrations/providers/contract.yaml, tests/integration/aylul-brain.test.ts, tests/integration/provider-adapter.test.ts, tests/integration/fixtures/fake-provider.ts
+- Done when: `tests/integration/aylul-brain.test.ts` (error finish carries the category, no key or body text) and `tests/integration/provider-adapter.test.ts` (400 context refusal → `context_too_large`) pass, typecheck, check:contracts
+
 ### B-7 · Conversations owner: topics, turns, delete
 - Status: todo
 - Plan: docs/backend/plans/2026-10-18-account-chat-step1.md#b-7--conversations-owner-topics-turns-delete
