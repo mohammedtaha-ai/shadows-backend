@@ -4,11 +4,17 @@ status: current
 source: src/app
 owns: Synthetic-only runtime configuration, loopback listeners, one application composition and shutdown.
 public_api:
-  readConfig: Rejects absent/invalid config without values; requires B1_DATA_MODE synthetic.
+  readConfig: Rejects absent/invalid config without values; requires B1_DATA_MODE synthetic and a dedicated active BYOK key with optional retained previous IDs.
   compose: Wires public identity, devices, Activity, Links, Sessions and authenticated relay; supports auth-only schema composition and drains sockets before database shutdown.
   createExpiry: Runs owner expiry at startup and every minute without overlap; drains work at shutdown.
   installShutdown: Registers one-shot termination handlers.
 obligations:
+  - rule: BYOK keys require canonical 32-byte base64 and valid unique IDs; active and previous IDs cannot collide.
+    tested_by: byok_config_refuses_invalid_keys_ids_and_ambiguous_key_rings
+    note: tests/integration/startup.test.ts
+  - rule: Active and retained previous BYOK material is distinct from identity configuration; the local adapter loads its dedicated file and bootstrap preserves existing keys.
+    tested_by: byok_config_loads_active_and_retained_previous_keys_separately_from_identity
+    note: tests/integration/startup.test.ts; byok_local_bootstrap_and_runtime_use_isolated_synthetic_files_and_preserve_existing_keys exercises only disposable synthetic files.
   - rule: Inactive account payloads and expired receipt history can be erased without reads while counters survive.
     tested_by: review_expiry_purges_inactive_payloads_without_account_reads
     note: tests/integration/relay-review-regressions.test.ts

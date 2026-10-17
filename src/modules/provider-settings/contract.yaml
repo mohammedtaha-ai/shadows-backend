@@ -1,0 +1,28 @@
+# This owner currently implements credential sealing only, not provider settings persistence.
+name: provider-settings
+status: current
+source: src/modules/provider-settings
+owns: Independent provider credential sealing with an active and retained-previous BYOK key ring.
+public_api:
+  seal: Encrypts with the active key and fresh 12-byte nonce, returning a key ID and base64url nonce, tag and ciphertext.
+  open: Decrypts only with the authenticated named retained key and matching associated data; refuses malformed or tampered input with credential_refused.
+  KeyRing: Active key ID plus the read-only map of 32-byte keys supplied by the host.
+  CredentialAad: Account, connection, destination and credential revision authenticated together with unambiguous field boundaries.
+obligations:
+  - rule: AES-256-GCM sealing uses a fresh 12-byte nonce and a 16-byte tag for every write.
+    tested_by: credential_seal_round_trip_uses_fresh_nonce_and_active_key
+    note: tests/integration/credential-seal.test.ts
+  - rule: Every associated-data field and its boundary is authenticated before plaintext is returned.
+    tested_by: credential_seal_binds_every_aad_field_and_unambiguous_field_boundaries
+    note: tests/integration/credential-seal.test.ts
+  - rule: Changed nonce, tag, ciphertext, key or key ID and malformed encodings refuse with no underlying diagnostics.
+    tested_by: credential_seal_refuses_tampering_unknown_keys_and_malformed_ciphertext
+    note: tests/integration/credential-seal.test.ts
+  - rule: Retained old keys still decrypt while new writes use only the active key.
+    tested_by: credential_seal_rotation_reads_retained_previous_keys_and_writes_only_active_key
+    note: tests/integration/credential-seal.test.ts
+  - rule: Invalid active keys, key IDs and credential revisions refuse with a fixed error.
+    tested_by: credential_seal_invalid_inputs_fail_with_a_fixed_safe_error
+    note: tests/integration/credential-seal.test.ts
+open_questions:
+  - Connection ownership, persistence, authorized credential resolution and rotation migration are not implemented here yet.

@@ -2,13 +2,18 @@
 import { randomBytes } from 'node:crypto';
 import { mkdir, writeFile, access } from 'node:fs/promises';
 import { execFileSync } from 'node:child_process';
-const root='/workspace/.local-runtime';
-try {await access(root+'/initialized');console.log('Local runtime already provisioned; preserved.');process.exit(0);}catch{}
+const root=process.env.LOCAL_BOOTSTRAP_ROOT ?? '/workspace/.local-runtime';
+async function provisionMissingByokKey() {
+ try {await writeFile(root+'/secrets/byok-key',randomBytes(32).toString('base64'),{mode:0o600,flag:'wx'});}
+ catch(error){if(error.code!=='EEXIST')throw error;}
+}
+let initialized=false;try {await access(root+'/initialized');initialized=true;}catch{}
+if(initialized){await provisionMissingByokKey();console.log('Local runtime already provisioned; preserved.');process.exit(0);}
 try {await access(root+'/secrets');throw new Error('partial_runtime_requires_inspection');}catch(e){if(e.message==='partial_runtime_requires_inspection')throw e;}
 await mkdir(root+'/secrets',{recursive:true,mode:0o700});await mkdir(root+'/tls',{recursive:true});await mkdir(root+'/realm',{recursive:true});
 const values={};
-for(const name of ['app-db-password','identity-db-password','admin-password','user-password','client-secret','token-key']) {
- values[name]=randomBytes(32).toString(name==='token-key'?'base64':'hex');
+for(const name of ['app-db-password','identity-db-password','admin-password','user-password','client-secret','token-key','byok-key']) {
+ values[name]=randomBytes(32).toString(name==='token-key'||name==='byok-key'?'base64':'hex');
  await writeFile(root+'/secrets/'+name,values[name],{mode:0o600});
 }
 const tls=root+'/tls';

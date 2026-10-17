@@ -35,10 +35,11 @@ Branch `backend/account-chat`. Run checks with
 - Done when: `npm run schema:nylra` then `npm run schema:check`, `tests/integration/nylra-mock.test.ts`, typecheck, check:contracts pass
 
 ### B-2 · Credential sealing and the BYOK key ring
-- Status: todo
+- Status: done
 - Plan: docs/backend/plans/2026-10-18-account-chat-step1.md#b-2--credential-sealing-and-the-byok-key-ring
 - Read: spec "Proposed encryption and rotation"; src/app/config.ts; src/app/contract.yaml; docker/runtime.ts at `secret(`
-- Touch: src/modules/provider-settings/credential-seal.ts, src/modules/provider-settings/contract.yaml, src/app/config.ts, src/app/contract.yaml, docker/runtime.ts, docker/bootstrap.mjs, tests/integration/fixtures/config.ts, tests/integration/credential-seal.test.ts, tests/integration/startup.test.ts
+- Touch: src/modules/provider-settings/credential-seal.ts, src/modules/provider-settings/contract.yaml, src/app/config.ts, src/app/contract.yaml, docker/runtime.ts, docker/bootstrap.mjs, tests/integration/fixtures/config.ts, tests/integration/credential-seal.test.ts, tests/integration/startup.test.ts, tests/architecture/contracts.test.ts, docs/codebase/README.md
+- Scope amendment (human-approved 2026-10-18): register the new credential-sealing owner in the contract coverage check and implemented code map.
 - Done when: `tests/integration/credential-seal.test.ts` and `tests/integration/startup.test.ts` pass, typecheck, check:contracts
 
 ### B-3 · Destination validation
