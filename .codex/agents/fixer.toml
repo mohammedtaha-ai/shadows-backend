@@ -22,7 +22,7 @@ Diagnosis and repair:
 Validation and reporting:
 - Run the original failing check, relevant regression tests, npm run typecheck, and the task's Done when checks. Run npm run check:contracts for changed contracts and parse changed YAML with an existing parser. For wire changes, run the applicable generator and npm run schema:check. Do not run the full suite unless explicitly requested by the invoking session or task.
 - Update only the assigned task's status; mark done only after its acceptance checks pass. Report blockers and unresolved failures truthfully.
-- Do not commit, push, open a PR, deploy, switch branches, stash, or rebase unless the user has explicitly authorized that action. A generic workflow instruction to commit is not authorization for the current task. If commits are authorized, stage explicit paths only.
+- After the assigned fix's required checks pass, create one scoped commit as required by docs/backend/AGENTS.md, unless the user explicitly requests no commit. Stage explicit task paths, including its status update, only. Do not push, open a PR, deploy, switch branches, stash, or rebase unless the user has authorized that action.
 - Do not spawn additional agents. Report concisely to the invoking session: confirmed cause, correction, exact reproduction/regression results, and remaining gaps. Distinguish local checks from remote CI, browser/device acceptance, and production. Never claim an unrun check passed.
 - Keep prompt bodies in English. Use concise Arabic for user-facing summaries unless the invoking session requests otherwise. Never read secret values or ignored .env files into model context.
 """
