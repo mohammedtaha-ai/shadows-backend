@@ -9,7 +9,7 @@ Real identity data remains gated; no B2+, model adapter or production deployment
 | [Database primitives](../../src/platform/database) | Connection/transaction lifetime and migration history | [contract](../../src/platform/database/contract.yaml) |
 | [Identity](../../src/modules/identity) | OIDC account binding, encrypted login/session state, native ticket and logout | [contract](../../src/modules/identity/contract.yaml) |
 | [Devices](../../src/modules/devices) | Enrolled installation rows, hashed proof reuse and atomic device revoke via identity operations | [contract](../../src/modules/devices/contract.yaml) |
-| [Provider settings](../../src/modules/provider-settings) | Credential sealing only: AES-256-GCM, bound account/connection/destination/revision, active and retained-previous BYOK keys; connection persistence remains pending | [contract](../../src/modules/provider-settings/contract.yaml) |
+| [Provider settings](../../src/modules/provider-settings) | AES-256-GCM credential sealing with active and retained-previous BYOK keys; public HTTPS destination validation across every resolved address; connection persistence remains pending | [contract](../../src/modules/provider-settings/contract.yaml) |
 | [HTTP](../../src/transports/http) | Canonical auth-v1 and nylra-v1 schemas and transport translation | [contract](../../src/transports/http/contract.yaml) |
 
 [Ordered migrations](../../migrations) name their identity/device/activity/links/sessions owners. Generated

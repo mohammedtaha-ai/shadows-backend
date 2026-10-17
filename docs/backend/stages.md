@@ -43,10 +43,11 @@ Branch `backend/account-chat`. Run checks with
 - Done when: `tests/integration/credential-seal.test.ts` and `tests/integration/startup.test.ts` pass, typecheck, check:contracts
 
 ### B-3 · Destination validation
-- Status: todo
+- Status: done
 - Plan: docs/backend/plans/2026-10-18-account-chat-step1.md#b-3--destination-validation
 - Read: spec "Provider behavior"; src/modules/provider-settings/contract.yaml
-- Touch: src/modules/provider-settings/destination.ts, src/modules/provider-settings/contract.yaml, tests/integration/provider-destination.test.ts
+- Touch: src/modules/provider-settings/destination.ts, src/modules/provider-settings/contract.yaml, tests/integration/provider-destination.test.ts, docs/codebase/README.md
+- Scope amendment (human-approved 2026-10-18): update the provider-settings code-map row to include destination validation alongside credential sealing.
 - Done when: `tests/integration/provider-destination.test.ts` passes, typecheck, check:contracts
 
 ### B-4 · Provider settings owner

@@ -1,14 +1,35 @@
-# This owner currently implements credential sealing only, not provider settings persistence.
+# This owner currently implements credential sealing and destination validation, not persistence.
 name: provider-settings
 status: current
 source: src/modules/provider-settings
-owns: Independent provider credential sealing with an active and retained-previous BYOK key ring.
+owns: Independent provider credential sealing with an active and retained-previous BYOK key ring, and public HTTPS destination validation.
 public_api:
   seal: Encrypts with the active key and fresh 12-byte nonce, returning a key ID and base64url nonce, tag and ciphertext.
   open: Decrypts only with the authenticated named retained key and matching associated data; refuses malformed or tampered input with credential_refused.
   KeyRing: Active key ID plus the read-only map of 32-byte keys supplied by the host.
   CredentialAad: Account, connection, destination and credential revision authenticated together with unambiguous field boundaries.
+  validateDestination: Validates HTTPS URL syntax and every resolved address, returning canonical origin, TLS host, port and copied eligible addresses for the caller to pin; failures expose only destination_refused.
+  DestinationResolver: Injected all-address DNS resolution; IP literals are checked directly and never resolved through this port.
+  ValidatedDestination: Canonical endpoint metadata and the complete copied address set that passed validation.
 obligations:
+  - rule: Non-HTTPS, credentials, query or fragment delimiters, control characters, backslashes and invalid ports refuse before DNS.
+    tested_by: provider_destination_refuses_unsafe_url_shapes_before_dns
+    note: tests/integration/provider-destination.test.ts
+  - rule: Non-public IPv4 ranges and their IPv4-mapped IPv6 forms refuse, including nonstandard URL spellings normalized to loopback.
+    tested_by: provider_destination_refuses_each_unsafe_ipv4_class_and_mapped_form
+    note: tests/integration/provider-destination.test.ts; includes private, CGNAT, loopback, link-local, metadata, multicast, unspecified, documentation and reserved ranges.
+  - rule: IPv6 must be global unicast or mapped public IPv4; scoped, special-use and transition addresses refuse.
+    tested_by: provider_destination_refuses_unsafe_ipv6_and_transition_addresses
+    note: tests/integration/provider-destination.test.ts; excludes unique-local, metadata, loopback, link-local, multicast, unspecified, mapped-private, NAT64, Teredo and 6to4 targets.
+  - rule: Any unsafe answer refuses the entire destination; empty, malformed, family-mismatched or failed DNS resolution refuses safely.
+    tested_by: provider_destination_checks_every_dns_answer_and_refuses_empty_malformed_or_failed_resolution
+    note: tests/integration/provider-destination.test.ts
+  - rule: Each validation resolves the destination anew instead of caching an earlier public answer.
+    tested_by: provider_destination_revalidates_each_call_without_reusing_a_previous_public_answer
+    note: tests/integration/provider-destination.test.ts
+  - rule: Public IPv4 and IPv6 pass with canonical endpoint metadata and an address copy independent of resolver mutation.
+    tested_by: provider_destination_returns_public_answers_and_canonical_tls_host_port_origin
+    note: tests/integration/provider-destination.test.ts
   - rule: AES-256-GCM sealing uses a fresh 12-byte nonce and a 16-byte tag for every write.
     tested_by: credential_seal_round_trip_uses_fresh_nonce_and_active_key
     note: tests/integration/credential-seal.test.ts
@@ -26,3 +47,4 @@ obligations:
     note: tests/integration/credential-seal.test.ts
 open_questions:
   - Connection ownership, persistence, authorized credential resolution and rotation migration are not implemented here yet.
+  - The provider adapter must use the validated address set with TLS hostname verification and redirect refusal; URL validation alone does not implement outbound transport.
