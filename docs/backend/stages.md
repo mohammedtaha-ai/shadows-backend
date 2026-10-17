@@ -72,7 +72,7 @@ Branch `backend/account-chat`. Run checks with
 - Done when: `tests/integration/aylul-brain.test.ts`, `npm run test:boundaries` pass, typecheck, check:contracts
 
 ### B-F1 · PostgreSQL test fixture fails in Docker
-- Status: todo
+- Status: done (environmental: the dependency volume missed embedded-postgres's postinstall; repaired with `docker compose run --rm --no-deps tools npm ci --no-audit --no-fund`; no code change)
 - Found: Hamoud, 2026-10-18, at `9467ec9`. `docker compose run --rm --no-deps tools node --import tsx --test tests/integration/migrations.test.ts` fails 4/4 with `postgres_fixture_setup` (tests/integration/fixtures/postgres.ts:60); startup.test.ts fails 3/9 the same way. Every PostgreSQL test is affected, so B-4 is unverified. Not yet known whether B-1 to B-6 caused it (dependency volume after the workspace install, B-6) or the environment did.
 - Read: tests/integration/fixtures/postgres.ts; Dockerfile; compose.yaml `tools` service; package.json workspaces
 - Touch: tests/integration/fixtures/postgres.ts, Dockerfile, compose.yaml, package.json, package-lock.json. If the cause is only environmental (no file change), fix nothing in Git, report the cause and the command that repairs it.
