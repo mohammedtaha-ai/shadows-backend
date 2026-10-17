@@ -58,7 +58,7 @@ Branch `backend/account-chat`. Run checks with
 - Done when: `tests/integration/provider-settings.test.ts`, `tests/integration/migrations.test.ts`, `npm run test:boundaries` pass, typecheck, check:contracts
 
 ### B-5 · OpenAI-compatible adapter and fake provider
-- Status: todo
+- Status: done
 - Plan: docs/backend/plans/2026-10-18-account-chat-step1.md#b-5--openai-compatible-adapter-and-fake-provider
 - Read: B-3 destination.ts exports; tests/integration/fixtures/tls.ts
 - Touch: src/integrations/providers/openai-compatible.ts, src/integrations/providers/contract.yaml, tests/integration/fixtures/fake-provider.ts, tests/integration/provider-adapter.test.ts, package.json, package-lock.json, scripts/check-boundaries.ts, tests/architecture/boundaries.test.ts, tests/architecture/contracts.test.ts, docs/codebase/README.md

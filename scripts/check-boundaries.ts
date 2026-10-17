@@ -19,6 +19,8 @@ export function inspectBoundary(path:string,text:string,compilerOptions:ts.Compi
     const resolved=ts.resolveModuleName(target.text,path,compilerOptions,ts.sys).resolvedModule?.resolvedFileName;
     const targetPath=resolved?relative(resolve('src'),resolve(resolved)).replaceAll('\\','/'):target.text;
     const current=relative(resolve('src'),resolve(path)).replaceAll('\\','/');
+    const sdk=target.text==='ai'||target.text.startsWith('@ai-sdk/')||/\/node_modules\/(ai\/|@ai-sdk\/)/.test(resolved?.replaceAll('\\','/')??'');
+    if(sdk&&!current.startsWith('integrations/providers/')) failures.push('provider_sdk_dependency');
     const owner=/^modules\/([^/]+)\//.exec(targetPath)?.[1],caller=/^modules\/([^/]+)\//.exec(current)?.[1];
     if(owner && owner!==caller && !targetPath.endsWith('/index.ts')) failures.push('private_module_import');
     if(caller && /^(transports|app)\//.test(targetPath)) failures.push('reverse_dependency');

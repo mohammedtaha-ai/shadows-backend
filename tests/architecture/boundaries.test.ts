@@ -33,3 +33,14 @@ test('provider_settings_store_is_the_only_owner_of_connection_and_default_tables
  assert.ok(inspectBoundary(http,"import {ProviderSettingsStore} from '../../modules/provider-settings/store.js';").includes('private_module_import'));
  assert.deepEqual(inspectBoundary(http,"import {createProviderSettings} from '../../modules/provider-settings/index.js';"),[]);
 });
+
+test('provider_sdk_imports_are_limited_to_provider_adapters', () => {
+ for(const specifier of ['ai','@ai-sdk/openai-compatible']) {
+  assert.ok(inspectBoundary(resolve('src/modules/provider-settings/service.ts'),`import {x} from '${specifier}';`).includes('provider_sdk_dependency'));
+  assert.ok(inspectBoundary(resolve('src/transports/http/example.ts'),`import {x} from '${specifier}';`).includes('provider_sdk_dependency'));
+  assert.deepEqual(inspectBoundary(resolve('src/integrations/providers/openai-compatible.ts'),`import {x} from '${specifier}';`),[]);
+ }
+ assert.ok(inspectBoundary(resolve('src/modules/provider-settings/service.ts'),"import {x} from '@model';",{
+  baseUrl:resolve('.'),paths:{'@model':['node_modules/ai/dist/index.d.ts']},
+ }).includes('provider_sdk_dependency'));
+});

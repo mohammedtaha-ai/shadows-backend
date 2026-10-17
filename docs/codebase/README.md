@@ -1,7 +1,7 @@
 # Implemented backend code map
 
 Updated: 2026-10-18. Identity/device, paired-laptop relay and BYOK credential sealing for synthetic acceptance.
-Real identity data remains gated; no B2+, model adapter or production deployment exists.
+Real identity data remains gated; no B2+ or production deployment exists.
 
 | Source owner | Responsibility | Contract |
 | --- | --- | --- |
@@ -10,6 +10,7 @@ Real identity data remains gated; no B2+, model adapter or production deployment
 | [Identity](../../src/modules/identity) | OIDC account binding, encrypted login/session state, native ticket and logout | [contract](../../src/modules/identity/contract.yaml) |
 | [Devices](../../src/modules/devices) | Enrolled installation rows, hashed proof reuse and atomic device revoke via identity operations | [contract](../../src/modules/devices/contract.yaml) |
 | [Provider settings](../../src/modules/provider-settings) | Account connections/defaults, encrypted credentials, public HTTPS destination validation and revision-scoped transactional dispatch resolution | [contract](../../src/modules/provider-settings/contract.yaml) |
+| [Provider adapters](../../src/integrations/providers) | OpenAI-compatible SDK model, pinned verified HTTPS, bounded deadlines, no retries or redirects and safe error categories | [contract](../../src/integrations/providers/contract.yaml) |
 | [HTTP](../../src/transports/http) | Canonical auth-v1 and nylra-v1 schemas and transport translation | [contract](../../src/transports/http/contract.yaml) |
 
 [Ordered migrations](../../migrations) name their identity/device/activity/links/sessions/provider-settings owners. Generated
