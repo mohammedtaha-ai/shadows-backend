@@ -4,7 +4,7 @@ The phone's contract is [api/nylra-v1.openapi.json](../api/nylra-v1.openapi.json
 version 0.2.0, OpenAPI 3.0.3. Generate Dart from that file and never edit a
 copy; a field the app needs is added to the TypeBox source in
 `src/transports/http/nylra-schema.ts` first. The
-[backend delivery spec §4](superpowers/specs/2026-10-10-backend-delivery-design.md#nylra-v1-02-the-first-releases-client-contract-2026-10-13)
+[backend foundations](backend/specs/2026-10-10-backend-foundations.md#nylra-v1-client-contract)
 owns what it carries.
 
 ## Run the mock

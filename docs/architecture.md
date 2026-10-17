@@ -237,8 +237,8 @@ Failed transactions leave no enrollment/session and do not consume the ticket.
 One-use replay after a lost response is refused; the client starts a fresh login.
 Only new enrollment returns a credential; reuse preserves the stored one.
 
-The local topology and acceptance plan are recorded in the
-[runtime plan](superpowers/plans/2026-10-11-local-identity-runtime.md).
+The local topology is summarized in
+[backend foundations](backend/specs/2026-10-10-backend-foundations.md#identity-and-devices-b1-implemented).
 Retention-dependent B1.5 remains unapproved and deferred.
 
 Provider disable is checked through confidential refresh-token introspection for
@@ -540,9 +540,8 @@ running product paths.
 
 ## 14. Delivery order
 
-The [delivery spec](superpowers/specs/2026-10-10-backend-delivery-design.md)
-and [initial plan](superpowers/plans/2026-10-10-backend-initial-plan.md) make this
-sequence actionable. Library candidates are tested first; experiment results amend
+[Backend foundations](backend/specs/2026-10-10-backend-foundations.md) records
+how this sequence was made actionable. Library candidates are tested first; experiment results amend
 the spec and dependent tasks before implementation. Writing an initial conditional
 plan does not close section 13's capability prerequisites.
 

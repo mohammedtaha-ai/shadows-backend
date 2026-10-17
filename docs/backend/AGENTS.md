@@ -11,7 +11,7 @@ rules on disputed requests, and starts new features.
 | Yours | Not yours |
 |---|---|
 | `src/`, `migrations/`, `tests/`, `scripts/`, `api/` | `../nylra/` (its own leads) and `../shadows/` (the Rust runtime) |
-| `docs/backend/` (plans, specs, stages) | `docs/superpowers/` (history: read it, add nothing new) |
+| `docs/backend/` (plans, specs, stages) | |
 | `docs/codebase/README.md` and every `src/**/contract.yaml` | Rust-owned tables and rules (see `AGENTS.md`, Ownership) |
 | answers in `docs/shared/requests/` | |
 
@@ -22,8 +22,8 @@ rules on disputed requests, and starts new features.
    Read it before opening code.
 3. `src/**/contract.yaml`: what must stay true of a module
    ([convention](../contracts/README.md)). Read it before changing the module.
-4. `docs/backend/specs/` and `docs/backend/plans/`: new work. Older decisions
-   stay in `docs/superpowers/`.
+4. `docs/backend/specs/` and `docs/backend/plans/`: all specs and plans. Older
+   decisions are summarized in `specs/2026-10-10-backend-foundations.md`.
 5. [`docs/backend/stages.md`](./stages.md): where the work is now, and the next
    task. The only place a builder learns its task from.
 

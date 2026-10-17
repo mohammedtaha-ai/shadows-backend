@@ -8,8 +8,9 @@ here and set its status. Task shape: [`AGENTS.md`](./AGENTS.md#a-task-in-stagesm
 **Next: account chat and BYOK provider settings.** Account-owned text chat and
 per-account provider keys, backend only. The
 [design](specs/2026-10-17-account-chat-and-providers-design.md) has an agreed
-delivery order (2026-10-18): chat on synthetic data first, then the lifecycle
-policy on its tables, then the real-data gate, then open registration. Its
+delivery order (2026-10-18): chat first, calling real MiniMax with the
+human's own trial key and test text; then the lifecycle policy on its tables;
+then the real-data gate for personal content; then open registration. Its
 technical proposals (encryption, worker lease, limits) await written-design
 review. No plan, no tasks and no client changes are approved yet.
 

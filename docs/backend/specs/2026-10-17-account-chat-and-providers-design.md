@@ -27,17 +27,22 @@ separately; no agent action or local-history access follows from a chat message.
 
 The human accepted this delivery order on 2026-10-18, chat before lifecycle:
 
-1. Close technical design. Deliver the existing-account chat path on synthetic
-   data with one OpenAI-compatible API format, several saved connections,
-   defaults, stream, stop and delete.
+1. Close technical design. Deliver the existing-account chat path with one
+   OpenAI-compatible API format, several saved connections, defaults, stream,
+   stop and delete. It calls the real MiniMax trial connection from the start,
+   with the human's own key stored encrypted in the local Docker database.
+   Conversation text in this step is test text, not personal content.
 2. Implement the applicable existing lifecycle policy against the chat, provider
-   and identity tables that now exist. Only then open the real-data gate for one
-   bounded real-provider journey.
+   and identity tables that now exist. Only then open the real-data gate for
+   personal conversation content.
 3. Add open registration and other API formats. Open signup remains a requirement.
 
 Lifecycle follows chat because its deletion, invalidation and restore tests
-need the owning tables. The synthetic gate stays closed throughout steps 1-2,
-so the reorder admits no real key or message earlier.
+need the owning tables. Human decision 2026-10-18: the real trial key and real
+provider calls enter step 1, because testing against a fake provider alone
+proves too little. This narrow exception covers only the human's own trial key
+in local Docker; personal conversation content still waits for step 2.
+Automated tests keep a fake provider so they run without cost or network.
 
 One API format is not one hard-coded provider. MiniMax is a trial configuration,
 not the primary model or an automatically chosen account default.
@@ -201,8 +206,9 @@ quarantined restores; missing/incomplete evidence blocks serving. A 35-day marke
 window does not permit restoring a backup older than the 30-day maximum.
 
 Implement and test applicable identity/account/content/credential deletion,
-invalidation and quarantine restore before enabling real key/message storage.
-The existing synthetic gate is not removed merely to demonstrate chat. The
+invalidation and quarantine restore before enabling personal message storage.
+The trial-key exception above is the only step-1 relaxation of the existing
+synthetic gate. The
 deferred lifecycle command becomes green only with the named owners' evidence.
 Production backup automation and measured RPO/RTO require deployment evidence;
 local Docker tests do not establish them. Backend deletion cannot certify
@@ -211,12 +217,11 @@ external-provider erasure or instantly erase every immutable backup.
 ## Delivery and acceptance
 
 1. Approve the technical proposals and generated-contract agreement. Build the
-   existing-account path on synthetic data: encrypted connections/defaults,
-   durable topics/turns, one adapter, streaming/stop/delete, tested against a
-   fake provider.
+   existing-account path: encrypted connections/defaults, durable topics/turns,
+   one adapter, streaming/stop/delete. Automated tests use a fake provider; a
+   recorded manual journey uses the real MiniMax trial key with test text.
 2. Implement lifecycle prerequisites and owner checks on those tables. After
-   lifecycle checks pass, open the real-data gate and run the bounded
-   real-provider journey separately from fixture tests. The restore-receipt
+   lifecycle checks pass, open the real-data gate for personal content. The restore-receipt
    proposal above is decided at this step.
 3. Add open registration through existing Keycloak, email/recovery acceptance
    and additional API formats. No invitations or second password database.
@@ -234,8 +239,8 @@ logs and Git; this documentation task reads no secrets and calls no provider.
 
 Two operational choices close at their actual use point: production key/backup
 provisioning before deployment, and the exact trial endpoint/model plus explicit
-bounded test cost before real-provider acceptance. Neither lets real storage
-start before core deletion passes.
+bounded test cost before real-provider acceptance. Neither lets personal
+content storage start before core deletion passes.
 
 ## Self-review and handoff
 

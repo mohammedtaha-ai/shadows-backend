@@ -18,8 +18,8 @@ NYLRA Rust consumer against local Docker and the remaining browser UI acceptance
 | Document | Owns |
 | --- | --- |
 | [Architecture](docs/architecture.md) | Shared deployment, languages, responsibility boundaries, context exchange, approval delivery, and unresolved implementation prerequisites |
-| [Delivery spec](docs/superpowers/specs/2026-10-10-backend-delivery-design.md) | Library experiments, joint protocol gate and backend acceptance |
-| [Initial plan](docs/superpowers/plans/2026-10-10-backend-initial-plan.md) | Experiment-first tasks coordinated with NYLRA and Shadows |
+| [Backend foundations](docs/backend/specs/2026-10-10-backend-foundations.md) | Selected stack, identity design, nylra-v1 contract groups and open later gates |
+| [Backend stages](docs/backend/stages.md) | Current backend work and its specs and plans |
 | [B0 evidence](docs/evidence/2026-10-10-backend-capability-probes.md) | Executed probes, conditional component decisions and blocked acceptance |
 | [Implemented code map](docs/codebase/README.md) | Actual source owners and contracts |
 | [Source structure](docs/source-structure.md) | Prepared folder layout and dependency boundaries; not an implemented code map |
