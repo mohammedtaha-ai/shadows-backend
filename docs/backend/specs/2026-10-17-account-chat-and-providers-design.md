@@ -2,8 +2,8 @@
 
 Created: 2026-10-17. Revised: 2026-10-18.
 Status: delivery scope/order agreed; encryption, lease timing and limits
-recommended for approval; the shared request awaits the human's acceptance.
-Owner: Backend. Branch: codex/aylul-laptop-relay, original checkout, no worktrees.
+approved; shared request accepted; step-1 plan written 2026-10-18.
+Owner: Backend. Branch: backend/account-chat, original checkout, no worktrees.
 
 ## Outcome and agreed scope
 

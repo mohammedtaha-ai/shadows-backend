@@ -1,6 +1,6 @@
 # Account text chat and BYOK provider connections
 
-- Status: answered
+- Status: accepted
 - Asked by: Hamoud for the human (backend-first slice), 2026-10-18
 - Screen: docs/backend/specs/2026-10-17-account-chat-and-providers-design.md (step 1)
 
@@ -68,7 +68,9 @@ Possible with changes (Hamoud, 2026-10-18).
 
 ## Reply
 
-<The human, as teacher: accepted, or what must change.>
+Accepted by the human as teacher, 2026-10-18 ("تمام انت جهزهن من ناحيتك
+وخلاص"). Recorded by Hamoud. NYLRA client leads build against the generated
+schema once these operations are implemented.
 
 ## Ruling
 

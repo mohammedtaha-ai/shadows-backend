@@ -5,14 +5,13 @@ here and set its status. Task shape: [`AGENTS.md`](./AGENTS.md#a-task-in-stagesm
 
 ## Now
 
-**Next: account chat and BYOK provider settings.** Account-owned text chat and
-per-account provider keys, backend only. The
-[design](specs/2026-10-17-account-chat-and-providers-design.md) has an agreed
-delivery order (2026-10-18): chat first, calling real MiniMax with the
-human's own trial key and test text; then the lifecycle policy on its tables;
-then the real-data gate for personal content; then open registration. Its
-technical proposals (encryption, worker lease, limits) await written-design
-review. No plan, no tasks and no client changes are approved yet.
+**Now: account chat, step 1 (B-1 to B-11).** Account-owned text chat with
+encrypted BYOK connections, backend only.
+[Design](specs/2026-10-17-account-chat-and-providers-design.md),
+[plan](plans/2026-10-18-account-chat-step1.md),
+[accepted request](../shared/requests/2026-10-18-account-chat-and-providers.md).
+Later steps: lifecycle and the real-data gate (2), open signup and more API
+formats (3).
 
 **Done: laptop relay (B-R1 to B-R8).** Below. Plan and contract approved by the
 human on 2026-10-17; built inline on `codex/aylul-laptop-relay`, checked in
@@ -20,6 +19,89 @@ Docker only. Native integration, real-device acceptance and real-data
 lifecycle remain separate work.
 
 ## Tasks
+
+### Account chat, step 1
+
+Branch `backend/account-chat`. Run checks with
+`docker compose run --rm --no-deps tools <command>`; see the plan's
+"How to run checks". Every task may also set its status here.
+
+### B-1 · Generated contract for chat and connections
+- Status: todo
+- Plan: docs/backend/plans/2026-10-18-account-chat-step1.md#b-1--generated-contract-for-chat-and-connections
+- Read: docs/shared/requests/2026-10-18-account-chat-and-providers.md; src/transports/http/contract.yaml
+- Touch: src/transports/http/nylra-schema.ts, src/transports/http/nylra-paths.ts, src/transports/http/contract.yaml, scripts/mock-nylra.ts, api/nylra-v1.openapi.json, api/nylra-v1.d.ts, api/nylra-v1.fixtures.json, tests/integration/nylra-wire.test.ts, tests/integration/nylra-mock.test.ts
+- Done when: `npm run schema:nylra` then `npm run schema:check`, `tests/integration/nylra-mock.test.ts`, typecheck, check:contracts pass
+
+### B-2 · Credential sealing and the BYOK key ring
+- Status: todo
+- Plan: docs/backend/plans/2026-10-18-account-chat-step1.md#b-2--credential-sealing-and-the-byok-key-ring
+- Read: spec "Proposed encryption and rotation"; src/app/config.ts; src/app/contract.yaml; docker/runtime.ts at `secret(`
+- Touch: src/modules/provider-settings/credential-seal.ts, src/modules/provider-settings/contract.yaml, src/app/config.ts, src/app/contract.yaml, docker/runtime.ts, docker/bootstrap.mjs, tests/integration/fixtures/config.ts, tests/integration/credential-seal.test.ts, tests/integration/startup.test.ts
+- Done when: `tests/integration/credential-seal.test.ts` and `tests/integration/startup.test.ts` pass, typecheck, check:contracts
+
+### B-3 · Destination validation
+- Status: todo
+- Plan: docs/backend/plans/2026-10-18-account-chat-step1.md#b-3--destination-validation
+- Read: spec "Provider behavior"; src/modules/provider-settings/contract.yaml
+- Touch: src/modules/provider-settings/destination.ts, src/modules/provider-settings/contract.yaml, tests/integration/provider-destination.test.ts
+- Done when: `tests/integration/provider-destination.test.ts` passes, typecheck, check:contracts
+
+### B-4 · Provider settings owner
+- Status: todo
+- Plan: docs/backend/plans/2026-10-18-account-chat-step1.md#b-4--provider-settings-owner
+- Read: src/modules/links/{index,service,store}.ts as the owner pattern; src/platform/database/contract.yaml; scripts/check-boundaries.ts
+- Touch: src/modules/provider-settings/model.ts, src/modules/provider-settings/store.ts, src/modules/provider-settings/service.ts, src/modules/provider-settings/index.ts, src/modules/provider-settings/contract.yaml, migrations/009_provider_settings.sql, src/platform/database/schema.ts, src/platform/database/contract.yaml, scripts/check-boundaries.ts, tests/architecture/boundaries.test.ts, tests/architecture/contracts.test.ts, tests/integration/migrations.test.ts, tests/integration/provider-settings.test.ts, docs/codebase/README.md
+- Done when: `tests/integration/provider-settings.test.ts`, `tests/integration/migrations.test.ts`, `npm run test:boundaries` pass, typecheck, check:contracts
+
+### B-5 · OpenAI-compatible adapter and fake provider
+- Status: todo
+- Plan: docs/backend/plans/2026-10-18-account-chat-step1.md#b-5--openai-compatible-adapter-and-fake-provider
+- Read: B-3 destination.ts exports; tests/integration/fixtures/tls.ts
+- Touch: src/integrations/providers/openai-compatible.ts, src/integrations/providers/contract.yaml, tests/integration/fixtures/fake-provider.ts, tests/integration/provider-adapter.test.ts, package.json, package-lock.json, scripts/check-boundaries.ts, tests/architecture/boundaries.test.ts, tests/architecture/contracts.test.ts, docs/codebase/README.md
+- Done when: `tests/integration/provider-adapter.test.ts`, `npm run test:boundaries` pass, typecheck, check:contracts
+
+### B-6 · aylul-brain package
+- Status: todo
+- Plan: docs/backend/plans/2026-10-18-account-chat-step1.md#b-6--aylul-brain-package
+- Read: docs/source-structure.md "AYLUL brain package"; B-5 adapter exports
+- Touch: packages/aylul-brain/package.json, packages/aylul-brain/src/index.ts, packages/aylul-brain/src/instructions.ts, packages/aylul-brain/contract.yaml, package.json, package-lock.json, tsconfig.json, Dockerfile, scripts/check-boundaries.ts, tests/architecture/boundaries.test.ts, tests/architecture/contracts.test.ts, tests/integration/aylul-brain.test.ts, docs/codebase/README.md
+- Done when: `tests/integration/aylul-brain.test.ts`, `npm run test:boundaries` pass, typecheck, check:contracts
+
+### B-7 · Conversations owner: topics, turns, delete
+- Status: todo
+- Plan: docs/backend/plans/2026-10-18-account-chat-step1.md#b-7--conversations-owner-topics-turns-delete
+- Read: src/modules/sessions/contract.yaml and its store.ts journal; src/modules/activity/index.ts; src/modules/provider-settings/index.ts
+- Touch: src/modules/conversations/model.ts, src/modules/conversations/store.ts, src/modules/conversations/service.ts, src/modules/conversations/index.ts, src/modules/conversations/contract.yaml, migrations/010_conversations.sql, src/platform/database/schema.ts, src/platform/database/contract.yaml, src/modules/activity/model.ts, src/modules/activity/contract.yaml, scripts/check-boundaries.ts, tests/architecture/boundaries.test.ts, tests/architecture/contracts.test.ts, tests/integration/migrations.test.ts, tests/integration/conversations.test.ts, docs/codebase/README.md
+- Done when: `tests/integration/conversations.test.ts`, `tests/integration/migrations.test.ts`, `npm run test:boundaries` pass, typecheck, check:contracts
+
+### B-8 · Dispatch worker, stop and restart fencing
+- Status: todo
+- Plan: docs/backend/plans/2026-10-18-account-chat-step1.md#b-8--dispatch-worker-stop-and-restart-fencing
+- Read: src/modules/conversations/contract.yaml; IdentityService.authorizeTransaction; packages/aylul-brain contract; src/app/compose.ts and shutdown.ts
+- Touch: src/modules/conversations/dispatch.ts, src/modules/conversations/reply-port.ts, src/modules/conversations/service.ts, src/modules/conversations/store.ts, src/modules/conversations/model.ts, src/modules/conversations/index.ts, src/modules/conversations/contract.yaml, src/app/compose.ts, src/app/shutdown.ts, src/app/contract.yaml, tests/integration/turn-dispatch.test.ts
+- Done when: `tests/integration/turn-dispatch.test.ts` passes, `npm run test:startup`, typecheck, check:contracts
+
+### B-9 · Live HTTP routes and topic SSE
+- Status: todo
+- Plan: docs/backend/plans/2026-10-18-account-chat-step1.md#b-9--live-http-routes-and-topic-sse
+- Read: src/transports/http/contract.yaml; nylra-routes.ts and nylra-sse.ts at the session bindings
+- Touch: src/transports/http/nylra-paths.ts, src/transports/http/nylra-routes.ts, src/transports/http/nylra-sse.ts, src/transports/http/contract.yaml, src/app/compose.ts, scripts/mock-nylra.ts, api/nylra-v1.openapi.json, api/nylra-v1.d.ts, api/nylra-v1.fixtures.json, tests/integration/chat-routes.test.ts, tests/integration/nylra-live-routes.test.ts, tests/integration/nylra-mock.test.ts, docs/codebase/README.md
+- Done when: `tests/integration/chat-routes.test.ts`, `tests/integration/nylra-live-routes.test.ts`, `npm run schema:check` pass, typecheck, check:contracts
+
+### B-10 · Synthetic chat journey
+- Status: todo
+- Plan: docs/backend/plans/2026-10-18-account-chat-step1.md#b-10--synthetic-chat-journey
+- Read: tests/journeys/laptop-relay.test.ts; docker/relay-journey.ts
+- Touch: tests/journeys/account-chat.test.ts, docker/chat-journey.ts, docs/evidence/2026-10-18-account-chat-acceptance.md, docs/codebase/README.md
+- Done when: `tests/journeys/account-chat.test.ts` passes, then the full `npm test` in Docker with zero failures
+
+### B-11 · Manual MiniMax journey (human-run)
+- Status: todo
+- Plan: docs/backend/plans/2026-10-18-account-chat-step1.md#b-11--manual-minimax-journey-human-run-conditional
+- Read: docs/evidence/2026-10-11-minimax-provider-probe.md
+- Touch: docs/evidence/2026-10-18-account-chat-acceptance.md (Hamoud only)
+- Done when: the human's run of `docker/chat-journey.ts` against MiniMax is recorded; no builder
 
 ### Laptop relay (done)
 
