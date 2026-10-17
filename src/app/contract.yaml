@@ -5,9 +5,16 @@ source: src/app
 owns: Synthetic-only runtime configuration, loopback listeners, one application composition and shutdown.
 public_api:
   readConfig: Rejects absent/invalid config without values; requires B1_DATA_MODE synthetic.
-  compose: Wires public identity/devices operations and HTTP; closes listeners and pools.
+  compose: Wires public identity, devices, Activity, Links, Sessions and authenticated relay; supports auth-only schema composition and drains sockets before database shutdown.
+  createExpiry: Runs owner expiry at startup and every minute without overlap; drains work at shutdown.
   installShutdown: Registers one-shot termination handlers.
 obligations:
+  - rule: Inactive account payloads and expired receipt history can be erased without reads while counters survive.
+    tested_by: review_expiry_purges_inactive_payloads_without_account_reads
+    note: tests/integration/relay-review-regressions.test.ts
+  - rule: Scheduled expiry never overlaps itself and shutdown waits for active work.
+    tested_by: review_expiry_scheduler_is_nonoverlapping_and_drains_before_stop
+    note: tests/integration/relay-review-regressions.test.ts
   - rule: Readiness fails safely when the database connection is unavailable.
     tested_by: health_refuses_after_database_disconnect
     note: tests/integration/startup.test.ts
@@ -18,7 +25,7 @@ obligations:
     tested_by: real_identity_data_disabled_until_retention_review
     note: tests/integration/startup.test.ts
   - rule: Shutdown closes pool and listener, including before Kysely initialization.
-    tested_by: graceful_shutdown_closes_pool
-    note: tests/integration/startup.test.ts; the test runs no Kysely query, so stop destroys Kysely before its driver initializes.
+    tested_by: stop_unstarted_application_closes_uninitialized_pool
+    note: tests/integration/startup.test.ts; graceful_shutdown_closes_pool separately covers startup, expiry queries and listener shutdown on migrated storage.
 open_questions:
   - Production reverse proxy, TLS and signal draining under sustained traffic need deployment acceptance.

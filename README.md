@@ -6,7 +6,9 @@ Cloud coordination and NYLRA application alongside the future Rust Shadows serve
 and actual local Docker/Keycloak acceptance are recorded in the
 [local evidence](docs/evidence/2026-10-11-local-docker-nylra-readiness.md).
 The [earlier Linux evidence](docs/evidence/2026-10-11-b1-linux-acceptance.md) remains historical.
-No deployment, real-data retention approval or B2+ implementation is claimed.
+No deployment or real-data retention approval is claimed. The 2026-10-17 laptop
+relay slice adds synthetic pairing/session HTTP, SSE and WebSocket behavior;
+see [its plan](docs/backend/plans/2026-10-17-laptop-relay-implementation.md).
 
 [Joint native evidence](docs/evidence/2026-10-11-joint-native-auth.md) records the
 NYLRA Rust consumer against local Docker and the remaining browser UI acceptance.
@@ -16,8 +18,8 @@ NYLRA Rust consumer against local Docker and the remaining browser UI acceptance
 | Document | Owns |
 | --- | --- |
 | [Architecture](docs/architecture.md) | Shared deployment, languages, responsibility boundaries, context exchange, approval delivery, and unresolved implementation prerequisites |
-| [Delivery spec](docs/superpowers/specs/2026-10-10-backend-delivery-design.md) | Library experiments, joint protocol gate and backend acceptance |
-| [Initial plan](docs/superpowers/plans/2026-10-10-backend-initial-plan.md) | Experiment-first tasks coordinated with NYLRA and Shadows |
+| [Backend foundations](docs/backend/specs/2026-10-10-backend-foundations.md) | Selected stack, identity design, nylra-v1 contract groups and open later gates |
+| [Backend stages](docs/backend/stages.md) | Current backend work and its specs and plans |
 | [B0 evidence](docs/evidence/2026-10-10-backend-capability-probes.md) | Executed probes, conditional component decisions and blocked acceptance |
 | [Implemented code map](docs/codebase/README.md) | Actual source owners and contracts |
 | [Source structure](docs/source-structure.md) | Prepared folder layout and dependency boundaries; not an implemented code map |
@@ -97,7 +99,7 @@ refresh-token introspection checks provider state for each protected operation;
 inactive or unavailable provider state refuses authorization. This adds provider
 availability/latency to authorization and does not assume disable emits logout.
 
-`B1_DATA_MODE=synthetic` remains mandatory. No MiniMax calls or real identities,
-project content, B2+ work or deployment are authorized. `test:lifecycle` still
+`B1_DATA_MODE=synthetic` remains mandatory. The relay uses no model or provider
+credentials. Real identities, project content and deployment remain unapproved. `test:lifecycle` still
 exits 2 for unapproved B1.5 retention/deletion/restore. Local Docker/Linux evidence,
 Windows browser acceptance and actual NYLRA acceptance remain separate gates.

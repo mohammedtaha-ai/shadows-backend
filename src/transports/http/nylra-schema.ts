@@ -5,7 +5,7 @@ import { Type, type TSchema } from '@sinclair/typebox';
 type Fields = Parameters<typeof Type.Object>[0];
 const closed = <T extends Fields>(fields: T, description?: string) =>
   Type.Object(fields, { additionalProperties: false, ...(description ? { description } : {}) });
-const literals = <T extends string>(values: T[]) => Type.Union(values.map(value => Type.Literal(value)));
+const literals = <const T extends string>(values: T[]) => Type.Union(values.map(value => Type.Literal(value)));
 const text = (maxLength: number, minLength = 0) => Type.String({ minLength, maxLength });
 const nullable = <T extends TSchema>(schema: T) => Type.Union([schema, Type.Null()]);
 
@@ -27,7 +27,9 @@ export const LinkClaim = closed({ commandId: CommandId, code: Type.String({ patt
 export const Laptop = closed({
   laptopId: Id, name: text(80, 1), status: literals(['online', 'offline']), lastSeenAt: nullable(Timestamp),
 });
-export const LaptopList = closed({ laptops: Type.Array(Laptop, { maxItems: 20 }) });
+export const LaptopList = closed({ laptops: Type.Array(Laptop, { maxItems: 20 }), cursor: Seq });
+export const PairingCodeIssue = Type.Pick(Laptop, ['name']);
+export const PairingCodeIssued = closed({ code: Type.Index(LinkClaim, ['code']), expiresAt: Timestamp });
 export const LaptopParams = closed({ laptopId: Id });
 
 // Push registration for the current phone.
@@ -85,7 +87,7 @@ export const Session = closed({
   lastStep: nullable(Step), lastSeq: Seq,
 }, 'offline: its laptop is not connected, and the rest is as last reported.');
 export const SessionList = closed({ sessions: Type.Array(Session, { maxItems: 200 }), cursor: Seq },
-  'cursor is the account stream position matching this list.');
+  'At most 200 sessions: running/waiting first, then newest update and stable ID ties. cursor is the account stream position matching this bounded list.');
 export const SessionQuery = closed({ laptopId: Type.Optional(Id) });
 export const SessionParams = closed({ sessionId: Id });
 export const SessionSnapshot = closed({ session: Session, steps: Type.Array(Step, { maxItems: 500 }), cursor: Seq });
@@ -124,6 +126,7 @@ export const AccountEvent = Type.Union([
   event('session_changed', { session: Session }),
   event('laptop_online', { laptop: Laptop }),
   event('laptop_offline', { laptop: Laptop }),
+  event('laptop_unlinked', { laptopId: Id }),
   event('topic_updated', { topic: Topic }),
 ]);
 

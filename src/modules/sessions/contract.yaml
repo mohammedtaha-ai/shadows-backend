@@ -1,0 +1,26 @@
+# Owns server session/step identities and safe, receipt-backed session projections.
+name: sessions
+status: current
+source: src/modules/sessions
+owns: Atomic ingress, cloud identity mapping, tool-only summaries, bounded replay and payload expiry.
+public_api:
+  createSessions: Creates ingest, snapshot/list/events and transactional source invalidation operations.
+  expire: Discovers and clears expired payloads for inactive accounts without external table access.
+obligations:
+  - rule: State projections retain the latest eligible step consistently with snapshots.
+    tested_by: review_session_state_preserves_latest_step_in_both_journals
+    note: tests/integration/relay-review-regressions.test.ts
+  - rule: The bounded list selects active and recent sessions before its 200 item limit.
+    tested_by: review_session_list_includes_recent_update_outside_uuid_window
+    note: tests/integration/relay-review-regressions.test.ts
+  - rule: Lost acknowledgement replay cannot duplicate steps or either journal.
+    tested_by: lost_ack_replays_without_second_step_or_event
+    note: tests/integration/session-ingress.test.ts
+  - rule: Changed payload conflicts and failures roll back effects and checkpoint together.
+    tested_by: changed_payload_under_same_position_refuses_and_rollback_is_atomic
+    note: tests/integration/session-ingress.test.ts
+  - rule: Unsafe targets, caller summaries and invalid timestamps refuse; expired input is ACK/drop only.
+    tested_by: session_projection_expiry_invalid_timestamps_and_concurrent_unlink
+    note: tests/integration/session-replay.test.ts
+open_questions:
+  - Real-content lifecycle and actual Native queue integration remain separate acceptance.

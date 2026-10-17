@@ -17,4 +17,6 @@ test('service_cannot_query_foreign_store_or_tables',()=>{
  assert.ok(inspectBoundary(path,"db.selectFrom('identity_accounts');").includes('foreign_table'));
  assert.ok(inspectBoundary(path,"db.selectFrom('devices');").includes('non_store_query'));
  assert.ok(inspectBoundary(resolve('src/modules/identity/store.ts'),"db.updateTable('devices');").includes('foreign_table'));
+ assert.ok(inspectBoundary(resolve('src/modules/identity/store.ts'),"db.updateTable('activity_events');").includes('foreign_table'));
+ assert.ok(inspectBoundary(resolve('src/modules/activity/service.ts'),"import {Session} from '../../transports/http/nylra-schema.js';").includes('reverse_dependency'));
 });

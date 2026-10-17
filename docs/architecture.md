@@ -237,8 +237,8 @@ Failed transactions leave no enrollment/session and do not consume the ticket.
 One-use replay after a lost response is refused; the client starts a fresh login.
 Only new enrollment returns a credential; reuse preserves the stored one.
 
-The local topology and acceptance plan are recorded in the
-[runtime plan](superpowers/plans/2026-10-11-local-identity-runtime.md).
+The local topology is summarized in
+[backend foundations](backend/specs/2026-10-10-backend-foundations.md#identity-and-devices-b1-implemented).
 Retention-dependent B1.5 remains unapproved and deferred.
 
 Provider disable is checked through confidential refresh-token introspection for
@@ -325,7 +325,7 @@ restore tests passing; runtime stays in synthetic data mode until they do.
 | Agent session steps / sessions | **Approved 2026-10-13:** a step carries the agent, tool name, file path and a one-line summary, never a diff or file content; retain 7 days after the step. Enough to see what happened this week; older history lives only in approval records. |
 | Approval records / approvals | **Approved 2026-10-13:** retain 90 days: the agent, the request (tool name with path or command), the decider (`person`, or `aylul_grant` with the grant id) and the time. The person can delete any record sooner. This is what shows what AYLUL approved on the person's behalf. |
 | Derived summaries, embeddings and caches / deriving module | **Approved 2026-10-13:** retrieval caches expire within 24 hours; summaries/embeddings within 30 days, always capped by every source's earlier deadline. Track all contributing source ids/versions, grant revisions and deletion ids; derived access requires permission for every source. Mixed-project derivation remains constrained by all scopes; it never becomes account-wide. Invalidate at source change/revocation/deletion before further use and rebuild only from permitted sources. Recompute cost is preferable to stale or broadened access. |
-| Personal memory / memory | **Approved 2026-10-13:** enabled from the start, and visible, editable and deletable by the person. It holds how the person likes to be spoken to, where they are (current project, what they were last doing) and one short description per shared project, naming its source and date (for example from that project's vision file). The description is deleted when the project's sharing is turned off. No project content (files, plans, code) enters memory; it is read from its owner at question time. Retain until corrected, deleted or the account is deleted. |
+| Personal memory / memory | **Amended 2026-10-18:** deferred; the first chat slice keeps per-topic history only ([chat design](backend/specs/2026-10-17-account-chat-and-providers-design.md)). The content rules below still bind when memory arrives. **Approved 2026-10-13:** visible, editable and deletable by the person. It holds how the person likes to be spoken to, where they are (current project, what they were last doing) and one short description per shared project, naming its source and date (for example from that project's vision file). The description is deleted when the project's sharing is turned off. No project content (files, plans, code) enters memory; it is read from its owner at question time. Retain until corrected, deleted or the account is deleted. |
 | Deletion / each owning module | **Approved 2026-10-13:** hide/refuse deleted content synchronously with a durable deletion marker; purge live content and all dependent derivatives within 24 hours, with idempotent progress and visible failure. Account deletion revokes sessions immediately and propagates to each owner plus the identity provider; its provider purge remains pending until acknowledged. Tombstones carry only opaque ids and deadlines for 35 days after deletion. This allows retry/restore protection without retaining content. |
 | Backups / deployment operator | **Approved 2026-10-13:** encrypted daily backups with a maximum 30-day lifetime, including incremental chains/replicas and identity backups; initial recovery objectives are RPO 24 hours and RTO 24 hours, to be demonstrated before deployment. Deleted content can remain inaccessible in backups until expiry. Restore in quarantine and replay deletion/revocation markers before serving traffic. A failed purge/restore audit blocks release; do not claim instant physical deletion from immutable backups. |
 | Minimal audit metadata / operation owner | **Approved 2026-10-13:** retain for 90 days: opaque event/account/device/object ids, operation type, timestamp, outcome/refusal category and policy revision. Exclude message text, reasoning, prompts, excerpts, email, IP, user-agent, tokens, keys and request/response bodies. Record deletion progress without source content. A shorter forensic window trades investigation depth for minimization; audit data has separate restricted access and expiry. |
@@ -540,9 +540,8 @@ running product paths.
 
 ## 14. Delivery order
 
-The [delivery spec](superpowers/specs/2026-10-10-backend-delivery-design.md)
-and [initial plan](superpowers/plans/2026-10-10-backend-initial-plan.md) make this
-sequence actionable. Library candidates are tested first; experiment results amend
+[Backend foundations](backend/specs/2026-10-10-backend-foundations.md) records
+how this sequence was made actionable. Library candidates are tested first; experiment results amend
 the spec and dependent tasks before implementation. Writing an initial conditional
 plan does not close section 13's capability prerequisites.
 

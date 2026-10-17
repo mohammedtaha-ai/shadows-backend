@@ -8,10 +8,8 @@ This file owns source placement and dependency boundaries for this repository.
 The paths below are intended destinations when a runnable feature needs them,
 not an inventory of existing modules or an instruction to create empty folders.
 
-[Delivery spec](superpowers/specs/2026-10-10-backend-delivery-design.md) and
-[initial plan](superpowers/plans/2026-10-10-backend-initial-plan.md) define
-experiment-first selection and joint client gates. Library names in those files
-are candidates until measured; this file remains the source-placement owner.
+[Backend foundations](backend/specs/2026-10-10-backend-foundations.md) records
+the selected stack and joint client gates; this file remains the source-placement owner.
 
 ## Selected approach
 
@@ -39,6 +37,7 @@ src/
     devices/                     device trust lifecycle
     links/                       paired laptops and their online state
     sessions/                    agent sessions and their summarized steps
+    activity/                    durable per-account event ordering (proposed 2026-10-17)
     approvals/                   agent approval requests, decisions, grant revocation
     conversations/               topics, turns and the cloud brain's replies
     memory/                      the person's preferences and project descriptions
@@ -71,10 +70,14 @@ docs/
 ```
 
 The modules follow the nylra-v1 0.2 operation groups in the
-[delivery spec](superpowers/specs/2026-10-10-backend-delivery-design.md):
+[backend foundations](backend/specs/2026-10-10-backend-foundations.md#nylra-v1-client-contract):
 Links, Sessions, Approvals with grant revocation, Chat and Push each have one
 owner. The account SSE stream is an HTTP translation of what those modules
-record; it has no module of its own. `links` changed meaning on 2026-10-13: it
+record. Planning amendment 2026-10-17: the proposed relay plan introduces
+`activity` as the single owner of its transactional per-account counter/journal,
+shared by the actual links and session publishers. This is subject to plan review;
+it creates no generic event bus and no source module before the path is built.
+The HTTP SSE adapter still owns framing only. `links` changed meaning on 2026-10-13: it
 was selected Shadows access, and is now the person's paired laptops, because
 AYLUL desktop, not this application, reads Shadows. There is no
 `integrations/shadows`. Grants are stored and enforced on the laptop; this

@@ -50,5 +50,5 @@ from a request to write local documentation.
 Hamoud (`.claude/agents/hamoud.md`) leads backend work through a Sonnet builder
 and an Opus fixer: [docs/backend/AGENTS.md](docs/backend/AGENTS.md). NYLRA's
 leads ask for API changes in [docs/shared/](docs/shared/README.md) before code.
-New specs and plans go to `docs/backend/{specs,plans}/`; `docs/superpowers/`
-keeps earlier decisions.
+Specs and plans go to `docs/backend/{specs,plans}/`. Earlier decisions are
+summarized in `docs/backend/specs/2026-10-10-backend-foundations.md`.
