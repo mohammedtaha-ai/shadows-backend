@@ -1,0 +1,27 @@
+name: aylul-brain
+status: current
+source: packages/aylul-brain
+owns: Companion instructions and a single text reply stream on a host-supplied AI SDK model, without storage, tools or provider selection.
+public_api:
+  replyStream: Async iterable of text delta strings followed by exactly one done, length or error finish object on complete consumption; takes a model, ordered user/assistant history, new message, optional signal and output token limit.
+  ReplyInput: Host input using the externally owned AI SDK LanguageModel type and text-only user or assistant history.
+  ReplyPart: Text delta or terminal finish object; errors contain no provider diagnostic data.
+obligations:
+  - rule: Instructions precede ordered topic history and the new message; no tools are supplied and output tokens never exceed 4096.
+    tested_by: brain_sends_instructions_then_ordered_history_and_new_message_with_bounded_output
+    note: tests/integration/aylul-brain.test.ts inspects mock SDK call options and emitted deltas.
+  - rule: The SDK length completion maps to the length terminal object.
+    tested_by: brain_reports_length_finish
+    note: tests/integration/aylul-brain.test.ts
+  - rule: Caller abort ends an active stream as error; a preaborted signal never dispatches.
+    tested_by: brain_abort_ends_active_stream_and_preaborted_calls_do_not_dispatch
+    note: tests/integration/aylul-brain.test.ts; cancellation authority and durable stopped outcomes belong to the host.
+  - rule: A provider failure is returned as a safe terminal error and is never retried.
+    tested_by: brain_provider_failure_is_terminal_safe_and_never_retried
+    note: tests/integration/aylul-brain.test.ts; no external provider is called.
+  - rule: Package source imports no host source, environment, filesystem or provider implementation; host source uses the package entry point.
+    tested_by: brain_is_independent_of_host_source_environment_files_and_provider_choice
+    note: tests/architecture/boundaries.test.ts; static import and host-global restrictions inspect all package TypeScript source.
+open_questions:
+  - Storage, input size eligibility, output character limits and durable turn lifecycle are host responsibilities.
+  - Desktop distribution and real provider acceptance remain outside this private workspace slice.

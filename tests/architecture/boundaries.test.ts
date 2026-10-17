@@ -44,3 +44,21 @@ test('provider_sdk_imports_are_limited_to_provider_adapters', () => {
   baseUrl:resolve('.'),paths:{'@model':['node_modules/ai/dist/index.d.ts']},
  }).includes('provider_sdk_dependency'));
 });
+
+test('brain_is_independent_of_host_source_environment_files_and_provider_choice', async () => {
+ const path=resolve('packages/aylul-brain/src/index.ts');
+ for(const specifier of ['../../../src/app/config.js','node:fs','fs/promises','node:process','@ai-sdk/openai-compatible']) {
+  assert.ok(inspectBoundary(path,`import {x} from '${specifier}';`).includes('brain_external_dependency'));
+  assert.ok(inspectBoundary(path,`const x=await import('${specifier}');`).includes('brain_external_dependency'));
+ }
+ assert.ok(inspectBoundary(path,"import {x} from '@host';",{baseUrl:resolve('.'),paths:{'@host':['src/app/config.ts']}}).includes('brain_external_dependency'));
+ for(const code of ['process.env.KEY','const {env}=process','globalThis["process"].env','global.process.env','require("fs")'])
+  assert.ok(inspectBoundary(path,code).includes('brain_host_access'));
+ assert.ok(inspectBoundary(path,'import(variable)').includes('computed_import'));
+ assert.deepEqual(inspectBoundary(path,"import {streamText} from 'ai'; import {NYLRA_INSTRUCTIONS} from './instructions.js';"),[]);
+ const host=resolve('src/app/compose.ts');
+ assert.ok(inspectBoundary(host,"import {replyStream} from '../../packages/aylul-brain/src/index.js';").includes('private_brain_import'));
+ assert.ok(inspectBoundary(host,"import {x} from 'aylul-brain/src/instructions';").includes('private_brain_import'));
+ assert.deepEqual(inspectBoundary(host,"import {replyStream} from 'aylul-brain';"),[]);
+ assert.deepEqual(await checkBoundaries(),[]);
+});

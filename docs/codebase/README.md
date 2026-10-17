@@ -11,6 +11,7 @@ Real identity data remains gated; no B2+ or production deployment exists.
 | [Devices](../../src/modules/devices) | Enrolled installation rows, hashed proof reuse and atomic device revoke via identity operations | [contract](../../src/modules/devices/contract.yaml) |
 | [Provider settings](../../src/modules/provider-settings) | Account connections/defaults, encrypted credentials, public HTTPS destination validation and revision-scoped transactional dispatch resolution | [contract](../../src/modules/provider-settings/contract.yaml) |
 | [Provider adapters](../../src/integrations/providers) | OpenAI-compatible SDK model, pinned verified HTTPS, bounded deadlines, no retries or redirects and safe error categories | [contract](../../src/integrations/providers/contract.yaml) |
+| [AYLUL brain](../../packages/aylul-brain) | Private workspace with companion instructions, ordered text reply streaming, bounded output tokens, cancellation and terminal outcomes on a host-supplied model | [contract](../../packages/aylul-brain/contract.yaml) |
 | [HTTP](../../src/transports/http) | Canonical auth-v1 and nylra-v1 schemas and transport translation | [contract](../../src/transports/http/contract.yaml) |
 
 [Ordered migrations](../../migrations) name their identity/device/activity/links/sessions/provider-settings owners. Generated

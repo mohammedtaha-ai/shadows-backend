@@ -65,7 +65,7 @@ Branch `backend/account-chat`. Run checks with
 - Done when: `tests/integration/provider-adapter.test.ts`, `npm run test:boundaries` pass, typecheck, check:contracts
 
 ### B-6 · aylul-brain package
-- Status: todo
+- Status: done
 - Plan: docs/backend/plans/2026-10-18-account-chat-step1.md#b-6--aylul-brain-package
 - Read: docs/source-structure.md "AYLUL brain package"; B-5 adapter exports
 - Touch: packages/aylul-brain/package.json, packages/aylul-brain/src/index.ts, packages/aylul-brain/src/instructions.ts, packages/aylul-brain/contract.yaml, package.json, package-lock.json, tsconfig.json, Dockerfile, scripts/check-boundaries.ts, tests/architecture/boundaries.test.ts, tests/architecture/contracts.test.ts, tests/integration/aylul-brain.test.ts, docs/codebase/README.md
