@@ -79,7 +79,7 @@ Branch `backend/account-chat`. Run checks with
 - Done when: `tests/integration/migrations.test.ts`, `tests/integration/startup.test.ts` and `tests/integration/provider-settings.test.ts` pass in Docker
 
 ### B-F2 · schema:check fails after the BYOK config (B-2)
-- Status: todo
+- Status: done (both env builders now pass BYOK_KEY/BYOK_KEY_ID; restart also forwards BYOK_PREVIOUS_KEYS)
 - Found: Hamoud, 2026-10-18. `docker compose run --rm --no-deps tools npm run schema:check` fails with `config_invalid` at src/app/config.ts:38, from scripts/export-auth-schema.ts:8, which passes no `BYOK_KEY`/`BYOK_KEY_ID`. tests/integration/fixtures/restart.ts:8 builds the same env and likely fails too.
 - Read: src/app/config.ts readConfig; scripts/export-auth-schema.ts; tests/integration/fixtures/restart.ts
 - Touch: scripts/export-auth-schema.ts, tests/integration/fixtures/restart.ts
