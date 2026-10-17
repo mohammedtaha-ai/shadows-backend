@@ -13,6 +13,9 @@ obligations:
   - rule: HTTP credential, model, quota and other failures become nonretryable fixed categories without provider bodies, headers, keys or causes; SDK default retry settings cannot repeat those failures.
     tested_by: provider_adapter_maps_http_failures_to_safe_nonretryable_categories
     note: tests/integration/provider-adapter.test.ts; includes 401, 403, 404, 429 and 500.
+  - rule: HTTP 413, and HTTP 400 whose first 8 KB names a context or length refusal, become context_too_large; other 400 stays network. The inspected text is discarded.
+    tested_by: provider_adapter_maps_400_context_refusal_to_context_too_large
+    note: tests/integration/provider-adapter.test.ts
   - rule: Redirects refuse before follow-up, and connecting to a pinned address preserves original TLS hostname verification even for an unresolvable hostname.
     tested_by: provider_adapter_refuses_redirects_and_invalid_tls_hostnames_without_following_dns
     note: tests/integration/provider-adapter.test.ts; verifies the second TCP connection occurs without a second HTTP request.

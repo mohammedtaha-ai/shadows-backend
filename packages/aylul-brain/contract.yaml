@@ -19,6 +19,9 @@ obligations:
   - rule: A provider failure is returned as a safe terminal error and is never retried.
     tested_by: brain_provider_failure_is_terminal_safe_and_never_retried
     note: tests/integration/aylul-brain.test.ts; no external provider is called.
+  - rule: An error finish carries only a fixed category (credential_rejected, model_unavailable, quota, network, destination_refused, context_too_large) when the host model failed with a ProviderFailure; otherwise it carries none, and never a message, body or key.
+    tested_by: brain_error_finish_carries_only_the_provider_failure_category
+    note: tests/integration/aylul-brain.test.ts
   - rule: Package source imports no host source, environment, filesystem or provider implementation; host source uses the package entry point.
     tested_by: brain_is_independent_of_host_source_environment_files_and_provider_choice
     note: tests/architecture/boundaries.test.ts; static import and host-global restrictions inspect all package TypeScript source.

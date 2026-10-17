@@ -4,7 +4,7 @@ import { tlsFixture } from './tls.js';
 
 export type FakeProviderMode = 'stream' | 'stall' | 'forever' | 'redirect' | 'error' | 'connect-stall' | 'malformed';
 export async function fakeProvider(options: {
-  mode?: FakeProviderMode; status?: number; deltas?: string[]; delayMs?: number; finishReason?: 'stop' | 'length';
+  mode?: FakeProviderMode; status?: number; errorMessage?: string; deltas?: string[]; delayMs?: number; finishReason?: 'stop' | 'length';
 } = {}) {
   const tls = await tlsFixture(), sockets = new Set<Socket>();
   let requests = 0, connections = 0, closed = 0, lastHost = '', lastPath = '', lastBody: unknown;
@@ -18,7 +18,7 @@ export async function fakeProvider(options: {
       if (mode === 'redirect') { response.writeHead(302, { location: 'https://must-not-resolve.example/' }); response.end(); return; }
       if (mode === 'error') {
         response.writeHead(options.status ?? 401, { 'content-type': 'application/json', 'x-sensitive': 'synthetic-provider-key' });
-        response.end(JSON.stringify({ error: { message: 'synthetic-provider-key private provider detail', type: 'invalid_request_error' } }));
+        response.end(JSON.stringify({ error: { message: options.errorMessage ?? 'synthetic-provider-key private provider detail', type: 'invalid_request_error' } }));
         return;
       }
       response.writeHead(200, { 'content-type': 'text/event-stream', 'x-sensitive': 'synthetic-provider-key' });

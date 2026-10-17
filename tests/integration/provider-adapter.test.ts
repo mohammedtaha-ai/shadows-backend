@@ -52,6 +52,24 @@ test('provider_adapter_maps_http_failures_to_safe_nonretryable_categories', asyn
   }
 });
 
+test('provider_adapter_maps_400_context_refusal_to_context_too_large', async () => {
+  for (const [status, errorMessage, code] of [
+    [400, "This model's maximum context length is 8192 tokens. synthetic-provider-key", 'context_too_large'],
+    [400, 'synthetic-provider-key malformed parameter', 'network'],
+    [413, 'synthetic-provider-key', 'context_too_large'],
+  ] as const) {
+    const f = await fakeProvider({ mode: 'error', status, errorMessage });
+    try {
+      await assert.rejects(collect(createOpenAICompatibleModel(connection(f))), error => {
+        assert.ok(error instanceof Error); assert.equal(error.message, code);
+        assert.ok(!JSON.stringify(error, Object.getOwnPropertyNames(error)).includes('synthetic-provider-key'));
+        return true;
+      });
+      assert.equal(f.requests, 1);
+    } finally { await f.close(); }
+  }
+});
+
 test('provider_adapter_refuses_redirects_and_invalid_tls_hostnames_without_following_dns', async () => {
   const f = await fakeProvider({ mode: 'redirect' });
   try {

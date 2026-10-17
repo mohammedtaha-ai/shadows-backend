@@ -8,7 +8,8 @@ import type { ValidatedDestination } from '../../modules/provider-settings/index
 
 interface Deadlines { connectMs: number; idleMs: number; totalMs: number }
 export const PROVIDER_DEADLINES: Readonly<Deadlines> = Object.freeze({ connectMs: 5000, idleMs: 30000, totalMs: 120000 });
-type Refusal = 'credential_rejected' | 'model_unavailable' | 'quota' | 'network' | 'destination_refused';
+type Refusal = 'credential_rejected' | 'model_unavailable' | 'quota' | 'network' | 'destination_refused' | 'context_too_large';
+const CONTEXT_REFUSAL = /context[_ ]length|context window|maximum context|too many tokens|too (long|large)|reduce the length|exceeds? the (maximum|max|limit)/i;
 class ProviderFailure extends Error {
   constructor(readonly code: Refusal) { super(code); this.name = 'ProviderFailure'; }
 }
@@ -53,6 +54,19 @@ function pinnedFetch(destination: ValidatedDestination & { baseUrl: string }, de
       }, incoming => {
         const status = incoming.statusCode ?? 0;
         if (status >= 300 && status < 400) { fail('destination_refused'); incoming.destroy(); return; }
+        if (status === 413) { fail('context_too_large'); incoming.destroy(); return; }
+        if (status === 400) {
+          // Only a bounded prefix is inspected, and only to pick a category; the text is never kept.
+          let seen = '';
+          const decide = () => {
+            incoming.destroy();
+            fail(CONTEXT_REFUSAL.test(seen) ? 'context_too_large' : 'network');
+          };
+          incoming.on('data', (chunk: Buffer) => { seen += chunk.toString('utf8'); if (seen.length >= 8192) decide(); });
+          incoming.once('end', decide);
+          incoming.once('error', () => fail('network'));
+          return;
+        }
         if (status < 200 || status >= 300) { fail(statusCode(status)); incoming.destroy(); return; }
         armIdle();
         incoming.on('data', armIdle);

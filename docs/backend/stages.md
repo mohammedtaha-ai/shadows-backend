@@ -86,7 +86,7 @@ Branch `backend/account-chat`. Run checks with
 - Done when: `npm run schema:check` and `npm run test:restart` pass in Docker, typecheck
 
 ### B-6b · Keep the provider failure category through the brain
-- Status: todo
+- Status: done
 - Found: Hamoud review, 2026-10-18. `replyStream` in packages/aylul-brain/src/index.ts reports only `{finish:'error'}`, dropping the adapter's `ProviderFailure.code`, so B-8 cannot finish a turn with `credential_rejected`/`quota`/`model_unavailable`/`network`. The adapter maps HTTP 400 to `network`; a provider context/length refusal must map to `context_too_large`.
 - Plan: docs/backend/plans/2026-10-18-account-chat-step1.md#b-6--aylul-brain-package
 - Read: src/integrations/providers/contract.yaml; packages/aylul-brain/contract.yaml

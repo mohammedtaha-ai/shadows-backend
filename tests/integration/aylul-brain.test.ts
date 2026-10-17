@@ -76,6 +76,17 @@ test('brain_provider_failure_is_terminal_safe_and_never_retried', async () => {
   assert.equal(fake.doStreamCalls.length, 1);
 });
 
+test('brain_error_finish_carries_only_the_provider_failure_category', async () => {
+  for (const code of ['credential_rejected', 'quota', 'model_unavailable', 'network', 'context_too_large']) {
+    const failure = Object.assign(new Error(code), { name: 'ProviderFailure' });
+    const fake = new MockLanguageModelV3({ doStream: async () => { throw failure; } });
+    assert.deepEqual(await collect(replyStream({ model: fake, history: [], message: 'Synthetic' })), [{ finish: 'error', category: code }]);
+  }
+  const leaky = Object.assign(new Error('synthetic-provider-key body'), { name: 'ProviderFailure' });
+  const parts = await collect(replyStream({ model: new MockLanguageModelV3({ doStream: async () => { throw leaky; } }), history: [], message: 'Synthetic' }));
+  assert.deepEqual(parts, [{ finish: 'error' }]);
+});
+
 test('brain_refuses_invalid_token_limits_before_dispatch', async () => {
   const fake = model();
   for (const maxOutputTokens of [0, -1, 1.5, Infinity, NaN]) {
