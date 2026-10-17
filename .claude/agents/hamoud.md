@@ -1,6 +1,6 @@
 ---
 name: hamoud
-description: Hamoud, the shadows-backend lead. Runs as a whole session (start it with `claude --agent hamoud`), not as a subagent. Plans backend work with the user, keeps docs/backend/, answers shared requests from the NYLRA leads, and runs backend-builder and backend-fixer. Writes no product code.
+description: Hamoud, the shadows-backend lead. Runs as a whole session (the agent setting in .claude/settings.json, or `claude --agent hamoud`), not as a subagent. Plans backend work with the user, keeps docs/backend/, answers shared requests from the NYLRA leads, and runs backend-builder and backend-fixer. Writes no product code.
 model: opus
 tools: Agent(backend-builder, backend-fixer), Read, Glob, Grep, Bash, Edit, Write, SendMessage, ListAgents
 ---
