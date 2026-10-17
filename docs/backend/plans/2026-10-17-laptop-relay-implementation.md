@@ -270,3 +270,42 @@ All seven tasks completed on the original branch. The one final review and its
 RED/GREEN fixes, full 84/84 Docker result, decisions and separate acceptance gates
 are recorded in [local acceptance](../../evidence/2026-10-17-laptop-relay-acceptance.md).
 The branch remains local; no Native integration, publication or deployment.
+
+## Task 8: Verify the development TLS ingress
+
+Continuation authorized by the human on 2026-10-17 after the existing Compose
+database was migrated and started. This bounded fix completes the existing
+Task 7 ingress acceptance; it does not merge the unmerged Native baseline.
+
+**Files:** `docker/nginx.conf`, `docker/synthetic-login.ts`,
+`docker/stack-journey.ts`, `docker/relay-journey.ts`,
+`tests/integration/fixtures/ingress.ts`, `tests/integration/fixtures/laptop-peer.ts`,
+`tests/journeys/relay-ingress.test.ts`,
+`.github/workflows/ci.yml`, `docs/nylra-local-auth-handoff.md`,
+`docs/codebase/README.md`, `docs/evidence/2026-10-17-laptop-relay-acceptance.md`,
+and this plan/stages. No generated contract or domain behavior changes.
+
+**Interfaces:** Use the existing generic `/v1/` upstream, with explicit HTTP/1.1
+upgrade forwarding and unbuffered, uncached responses. Preserve all existing
+forwarded host/protocol headers, body limits and authentication. Use a 75-second
+read timeout above the existing 15-second heartbeats. No new path registry in
+Nginx. An owned fixture runs the pinned Compose Nginx image against a synthetic
+app using the actual config with only listen/upstream ports and TLS paths changed.
+Extract the existing bounded synthetic login into a shared development helper;
+the new Compose journey uses actual Keycloak login, generated wire types, WSS,
+snapshot/SSE, disconnect/replay, unlink and created-device cleanup. Never log a
+credential or read `.env`, never reset development volumes.
+
+- [x] Add actual-Nginx WSS and prompt SSE delivery tests; observe WSS RED before config changes (SSE baseline already green).
+- [x] Fix ingress, run focused tests and typecheck in Docker; observe GREEN.
+- [x] Run the authenticated synthetic journey through the existing `8443` ingress;
+      record its actual results separately from fixture and Native acceptance.
+- [x] Update code map/handoff/evidence and CI fixture pull; run affected checks.
+- [x] One fresh review of this continuation delta; Important fixes get RED/GREEN.
+- [x] Commit explicit paths, keep local branch; Native integration needs its own
+      plan based on the inspected existing baseline and generated contracts.
+
+Task 8 final verification: 88/88 Docker tests passed, zero failed/skipped,
+126089 ms. Typecheck, contracts/boundaries, auth/NYLRA and laptop-frame freshness,
+docs/YAML and source-secret checks passed. Actual Compose relay journey passed
+again after the bounded-close/HTTP-deadline fixes. No second review or remote CI.

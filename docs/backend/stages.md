@@ -63,4 +63,16 @@ Touch is the exact Files block of each linked plan task. No sibling source edits
 - Done when: synthetic journey and complete affected suites pass; fresh review and precise limits are recorded.
 
 
-Final local verification: 84/84 Docker tests passed. One fresh final review's five Important findings were fixed with reproductions; one code-map documentation Minor remains deferred. See docs/evidence/2026-10-17-laptop-relay-acceptance.md. No remote CI or Native/device acceptance claimed.
+Tasks 1–7 verification: 84/84 Docker tests passed. Their final review's five
+Important findings were fixed with reproductions. Task 8 later corrected the
+code-map Minor and completed the development ingress path; its final Docker
+suite passed 88/88. See docs/evidence/2026-10-17-laptop-relay-acceptance.md.
+No remote CI or Native/device acceptance claimed.
+
+### B-R8 · Complete development TLS ingress acceptance
+- Status: done
+- Plan: docs/backend/plans/2026-10-17-laptop-relay-implementation.md#task-8-verify-the-development-tls-ingress
+- Read: Task 8, local auth handoff, actual Nginx configuration and relay journey.
+- Touch: exactly Task 8 Files.
+- Done when: actual-Nginx WSS/SSE regressions, authenticated Compose relay journey,
+  typecheck and affected checks pass; local evidence and one fresh review recorded.

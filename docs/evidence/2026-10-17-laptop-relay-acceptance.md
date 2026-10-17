@@ -65,11 +65,75 @@ integration were not implemented or device-tested here. No model/provider call,
 key lookup, real project/identity content, push, approval, memory or chat is part
 of this slice. MiniMax remains a trial provider, with no primary-model selection.
 
-The existing shared TLS ingress was stopped. The journey proves fresh loopback
-TLS/WSS, not deployed ingress or real-device trust. `test:lifecycle` remains
+During Tasks 1–7 the existing shared TLS ingress was stopped. That journey proves
+fresh loopback TLS/WSS, not deployed ingress or real-device trust. The later
+Task 8 development-ingress results below supersede only the local-ingress gap.
+`test:lifecycle` remains
 explicitly deferred (exit 2), and real-data startup remains refused. Component
 expiry tests do not close account/provider deletion, backup or quarantine restore.
 Remote CI, production readiness, publication, PR and deployment are not claimed.
+
+## Development ingress continuation (Task 8)
+
+The human asked to continue after the persistent development `shadows` database
+was migrated through 008 and all five Compose services were started. No database
+volume was reset. The existing generic proxy lacked WebSocket Upgrade forwarding.
+The actual-Nginx test first failed with `Unexpected server response: 404` on WSS.
+The SSE test already passed because the SSE plugin emits `X-Accel-Buffering: no`;
+this was verified baseline behavior, not an SSE failure claimed as reproduced.
+
+The generic API proxy now explicitly forwards upgrade headers using HTTP/1.1,
+retains the inherited host/protocol headers, disables buffering/cache and uses
+a 75-second read timeout. Paths/schemas/domain behavior remain code-owned and
+unchanged. The pinned Nginx fixture uses the actual config, replacing only ports
+and TLS paths. Both WSS/revocation and prompt small-event SSE tests passed.
+
+Before reload, the new actual-Compose journey failed at WSS as expected. After
+`nginx -t` and reload, it passed actual Keycloak login, pairing, WSS, recovery
+from an unpersisted ACK checkpoint, deduplicated replay, session/account SSE,
+unlink refusal and created-device revocation through `https://127.0.0.1:8443`.
+An initial journey assertion expected `session_updated` on the account stream;
+the canonical account event is `session_changed`. Only that test expectation was
+corrected; no wire schema or product rule changed to accommodate it.
+The journey does not claim a true network-lost ACK (the original SQL-barrier
+journey covers that), real Native/hook/phone acceptance or lifecycle closure.
+Credentials were neither printed nor persisted by the new journey. Its synthetic
+database rows use the ordinary owners' cleanup/expiry rules, not direct DB edits.
+
+The prior code-map Minor (pre-relay statements beside live descriptions) is now
+corrected as part of the explicitly authorized continuation/documentation task.
+The scoped Astra/low read-only review found no Critical issue and one Important:
+revocation-close waits could hang without reaching cleanup. A real socket whose
+remote peer paused reads reproduced the unbounded cleanup before the fix. The
+shared synthetic peer now has an abortable close deadline and force-termination
+on timeout; a second regression checks bounded failure and execution of cleanup.
+The review also identified a missing explicit timeout on generated HTTP-client
+requests; the journey now gives each request its own 15-second abort deadline.
+
+The first final suite was interrupted when all five Docker services stopped
+together (exit 255). Its partial log is not a passing suite result. The same
+existing services/volumes were restarted; final verification is recorded below
+only after a completed rerun. The reviewer did not rerun runtime/tests; Native,
+phone, production and real-data lifecycle remain separate, and the already
+reviewed Tasks 1–7 were not reviewed again for this small continuation.
+
+Final completed rerun: Docker `npm test` passed **88/88**, zero failed, skipped
+or cancelled, 126089 ms. Typecheck, contracts, architecture boundaries,
+auth/NYLRA snapshots, laptop-frame freshness, docs/YAML and source-secret checks
+passed. Docs checked 41 files with 16 sibling links explicitly unverified by that
+checker; source-secret check inspected 13 changed files with zero findings.
+The actual Compose relay journey passed again after the review fixes. Nginx
+syntax validation passed; Windows HTTPS health with the explicit CA returned
+200; the five existing Compose services were healthy. No remote CI was run.
+
+Read-only next-consumer inspection: `nylra` remains at `93d787f`, clean on
+`codex/aylul-laptop-relay`; local Native baseline `spec/aylul-hook-laptop`
+at `0d086b6` is still unmerged. It already owns the SQLite session/step store,
+hooks and Tauri sidecar lifecycle. It has no cloud-link/outbox module, and local
+step targets/summaries can contain shell commands. Its Native integration needs
+generated-artifact projection, scoped persistent outgoing checkpoints and a
+native-only credential handoff. This continuation changes no sibling source,
+installs no actual agent hook and does not forward real local history.
 
 ## Full local verification
 Docker npm test: 75 tests passed, zero failed/skipped, 119146 ms. This includes

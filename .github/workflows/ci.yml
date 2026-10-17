@@ -32,6 +32,8 @@ jobs:
           mkdir -p .test-runtime
       - name: Pull pinned synthetic identity fixture
         run: docker pull quay.io/keycloak/keycloak@sha256:27b3230fbabb8c9ff3c66c864cf09dcd8a41aca82e5100679d109ef0eeb05741
+      - name: Pull pinned development ingress fixture
+        run: docker pull nginx:1.30.0-alpine@sha256:0272e4604ed93c1792f03695a033a6e8546840f86e0de20a884bb17d2c924883
       - name: Typecheck
         run: npm run typecheck
       - name: Validate contracts

@@ -1,6 +1,6 @@
 # Implemented backend code map
 
-Date: 2026-10-11. B1 identity/device implementation for synthetic Linux acceptance.
+Updated: 2026-10-17. Identity/device and paired-laptop relay implementation for synthetic acceptance.
 Real identity data remains gated; no B2+, model adapter or production deployment exists.
 
 | Source owner | Responsibility | Contract |
@@ -11,7 +11,7 @@ Real identity data remains gated; no B2+, model adapter or production deployment
 | [Devices](../../src/modules/devices) | Enrolled installation rows, hashed proof reuse and atomic device revoke via identity operations | [contract](../../src/modules/devices/contract.yaml) |
 | [HTTP](../../src/transports/http) | Canonical auth-v1 and nylra-v1 schemas and transport translation | [contract](../../src/transports/http/contract.yaml) |
 
-[Ordered migrations](../../migrations) name identity/device owners. Generated
+[Ordered migrations](../../migrations) name their identity/device/activity/links/sessions owners. Generated
 [OpenAPI](../../api/auth-v1.openapi.json) and [TypeScript](../../api/auth-v1.d.ts)
 come from the HTTP schema. Tests use newly owned PG clusters and pinned Keycloak;
 fixtures are not application modules. The [source structure](../source-structure.md)
@@ -19,16 +19,20 @@ retains the future full-product boundaries without scaffolding unused domains.
 
 The [nylra-v1 contract](../../api/nylra-v1.openapi.json), its
 [types](../../api/nylra-v1.d.ts) and [fixtures](../../api/nylra-v1.fixtures.json)
-come from the same HTTP owner; no route serves them yet.
+come from the same HTTP owner. Runtime serves only operations marked implemented
+in the canonical registry; planned chat/approval/push operations remain mock-only.
 
 [Compose](../../compose.yaml) and [local Docker adapters](../../docker) own only
 development provisioning, ingress, runtime configuration and the synthetic stack
-journey. They do not introduce another identity implementation. The
+journeys. The shared synthetic login helper is used by the auth stack journey
+and the generated-type relay journey. The generic API proxy forwards WebSocket
+upgrades and unbuffered SSE; an owned pinned-Nginx fixture exercises that config.
+These adapters do not introduce another identity implementation. The
 [NYLRA handoff](../nylra-local-auth-handoff.md) describes their exact commands.
 
-- [Laptop link](../../src/transports/laptop-link/contract.yaml): canonical frame v1 schemas; generated JSON Schema and TypeScript, no runtime relay yet.
+- [Laptop link](../../src/transports/laptop-link/contract.yaml): canonical frame v1 schemas, generated JSON Schema/TypeScript, authenticated bounded sockets and fenced durable acknowledgements.
 
-- [Activity](../../src/modules/activity/contract.yaml): transaction-scoped durable account journal, expiry and replay floor; Links and Sessions are future publishers.
+- [Activity](../../src/modules/activity/contract.yaml): transaction-scoped durable account journal, expiry and replay floor; Links and Sessions publish through its public operations.
 
 - [Links](../../src/modules/links/contract.yaml): hashed pairing codes, transactional limits, scoped laptops, fenced connection leases and commit checkpoints.
 
