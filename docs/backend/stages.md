@@ -5,6 +5,12 @@ here and set its status. Task shape: [`AGENTS.md`](./AGENTS.md#a-task-in-stagesm
 
 ## Now
 
+Next preparation: account-owned text chat and BYOK provider settings, per the
+human's explicit backend-only planning scope. See the
+[backend design for review](specs/2026-10-17-account-chat-and-providers-design.md).
+Its written design awaits review and its remaining technical decisions need
+closure; no chat implementation tasks or client changes are approved yet.
+
 The human approved the plan and concrete backend contract on 2026-10-17.
 Implementation completed inline on codex/aylul-laptop-relay with Docker-only checks.
 Native integration, real-device acceptance and real-data lifecycle remain separate.
