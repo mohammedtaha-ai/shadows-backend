@@ -1,61 +1,675 @@
 {
- "contractVersion":"0.2.0",
- "notice":"Synthetic wire examples only. Ids, names and texts describe no real project or account.",
- "valid":{
-  "LinkClaim":{"commandId":"00000000-0000-4000-8000-0000000000c1","code":"K7QF-3MZP"},
-  "Laptop":{"laptopId":"00000000-0000-4000-8000-000000000010","name":"Laptop","status":"online","lastSeenAt":"2026-10-13T09:40:00Z"},
-  "LaptopList":{"laptops":[{"laptopId":"00000000-0000-4000-8000-000000000010","name":"Laptop","status":"online","lastSeenAt":"2026-10-13T09:40:00Z"}]},
-  "PushRegistration":{"platform":"fcm","token":"synthetic-fcm-token"},
-  "Topic":{"topicId":"00000000-0000-4000-8000-000000000030","title":"وين وصلنا في Synthetic Lighthouse؟","project":{"laptopId":"00000000-0000-4000-8000-000000000010","projectId":"proj-synthetic-1","name":"Synthetic Lighthouse"},"state":"open","createdAt":"2026-10-13T09:30:00Z","updatedAt":"2026-10-13T09:30:05Z","lastSeq":2},
-  "TopicList":{"topics":[{"topicId":"00000000-0000-4000-8000-000000000030","title":"وين وصلنا في Synthetic Lighthouse؟","project":{"laptopId":"00000000-0000-4000-8000-000000000010","projectId":"proj-synthetic-1","name":"Synthetic Lighthouse"},"state":"open","createdAt":"2026-10-13T09:30:00Z","updatedAt":"2026-10-13T09:30:05Z","lastSeq":2}],"cursor":12},
-  "TopicCreate":{"commandId":"00000000-0000-4000-8000-0000000000c2","project":{"laptopId":"00000000-0000-4000-8000-000000000010","projectId":"proj-synthetic-1"}},
-  "TopicSnapshot":{"topic":{"topicId":"00000000-0000-4000-8000-000000000030","title":"وين وصلنا في Synthetic Lighthouse؟","project":{"laptopId":"00000000-0000-4000-8000-000000000010","projectId":"proj-synthetic-1","name":"Synthetic Lighthouse"},"state":"open","createdAt":"2026-10-13T09:30:00Z","updatedAt":"2026-10-13T09:30:05Z","lastSeq":2},"entries":[{"type":"user_message","entryId":"00000000-0000-4000-8000-000000000051","seq":1,"createdAt":"2026-10-13T09:30:00Z","turnId":"00000000-0000-4000-8000-000000000050","text":"وين وصلنا في المشروع؟"},{"type":"assistant_message","entryId":"00000000-0000-4000-8000-000000000052","seq":2,"createdAt":"2026-10-13T09:30:05Z","turnId":"00000000-0000-4000-8000-000000000050","text":"الخطة الحالية في مرحلة البناء، وآخر مهمة مكتملة هي تسجيل الدخول.","status":"complete","answeredBy":"laptop","sources":[{"kind":"plan","id":"plan-synthetic-1","version":"7","readAt":"2026-10-13T09:30:01Z"}]}],"cursor":2},
-  "TopicEvents":[
-   {"type":"entry_added","seq":3,"entry":{"type":"user_message","entryId":"00000000-0000-4000-8000-000000000056","seq":3,"createdAt":"2026-10-13T09:35:00Z","turnId":"00000000-0000-4000-8000-000000000055","text":"وش باقي؟"}},
-   {"type":"entry_added","seq":4,"entry":{"type":"assistant_message","entryId":"00000000-0000-4000-8000-000000000057","seq":4,"createdAt":"2026-10-13T09:35:01Z","turnId":"00000000-0000-4000-8000-000000000055","text":"","status":"streaming","answeredBy":"cloud","sources":[]}},
-   {"type":"delta","seq":5,"entryId":"00000000-0000-4000-8000-000000000057","text":"باقي مهمتان: "},
-   {"type":"delta","seq":6,"entryId":"00000000-0000-4000-8000-000000000057","text":"الجلسات والموافقات."},
-   {"type":"entry_updated","seq":7,"entry":{"type":"assistant_message","entryId":"00000000-0000-4000-8000-000000000057","seq":4,"createdAt":"2026-10-13T09:35:01Z","turnId":"00000000-0000-4000-8000-000000000055","text":"باقي مهمتان: الجلسات والموافقات.","status":"complete","answeredBy":"cloud","sources":[]}},
-   {"type":"turn_finished","seq":8,"turnId":"00000000-0000-4000-8000-000000000055","outcome":"done"}
+  "contractVersion": "0.3.0",
+  "notice": "Synthetic wire examples only. Ids, names and texts describe no real project or account.",
+  "valid": {
+    "LinkClaim": {
+      "commandId": "00000000-0000-4000-8000-0000000000c1",
+      "code": "K7QF-3MZP"
+    },
+    "Laptop": {
+      "laptopId": "00000000-0000-4000-8000-000000000010",
+      "name": "Laptop",
+      "status": "online",
+      "lastSeenAt": "2026-10-13T09:40:00Z"
+    },
+    "LaptopList": {
+      "laptops": [
+        {
+          "laptopId": "00000000-0000-4000-8000-000000000010",
+          "name": "Laptop",
+          "status": "online",
+          "lastSeenAt": "2026-10-13T09:40:00Z"
+        }
+      ],
+      "cursor": 18
+    },
+    "PushRegistration": {
+      "platform": "fcm",
+      "token": "synthetic-fcm-token"
+    },
+    "Topic": {
+      "topicId": "00000000-0000-4000-8000-000000000030",
+      "title": "وين وصلنا في Synthetic Lighthouse؟",
+      "project": {
+        "laptopId": "00000000-0000-4000-8000-000000000010",
+        "projectId": "proj-synthetic-1",
+        "name": "Synthetic Lighthouse"
+      },
+      "state": "open",
+      "createdAt": "2026-10-13T09:30:00Z",
+      "updatedAt": "2026-10-13T09:30:05Z",
+      "lastSeq": 2
+    },
+    "TopicList": {
+      "topics": [
+        {
+          "topicId": "00000000-0000-4000-8000-000000000030",
+          "title": "وين وصلنا في Synthetic Lighthouse؟",
+          "project": {
+            "laptopId": "00000000-0000-4000-8000-000000000010",
+            "projectId": "proj-synthetic-1",
+            "name": "Synthetic Lighthouse"
+          },
+          "state": "open",
+          "createdAt": "2026-10-13T09:30:00Z",
+          "updatedAt": "2026-10-13T09:30:05Z",
+          "lastSeq": 2
+        }
+      ],
+      "cursor": 12
+    },
+    "TopicCreate": {
+      "commandId": "00000000-0000-4000-8000-0000000000c2",
+      "project": {
+        "laptopId": "00000000-0000-4000-8000-000000000010",
+        "projectId": "proj-synthetic-1"
+      }
+    },
+    "TopicSnapshot": {
+      "topic": {
+        "topicId": "00000000-0000-4000-8000-000000000030",
+        "title": "وين وصلنا في Synthetic Lighthouse؟",
+        "project": {
+          "laptopId": "00000000-0000-4000-8000-000000000010",
+          "projectId": "proj-synthetic-1",
+          "name": "Synthetic Lighthouse"
+        },
+        "state": "open",
+        "createdAt": "2026-10-13T09:30:00Z",
+        "updatedAt": "2026-10-13T09:30:05Z",
+        "lastSeq": 2
+      },
+      "entries": [
+        {
+          "type": "user_message",
+          "entryId": "00000000-0000-4000-8000-000000000051",
+          "seq": 1,
+          "createdAt": "2026-10-13T09:30:00Z",
+          "turnId": "00000000-0000-4000-8000-000000000050",
+          "text": "وين وصلنا في المشروع؟"
+        },
+        {
+          "type": "assistant_message",
+          "entryId": "00000000-0000-4000-8000-000000000052",
+          "seq": 2,
+          "createdAt": "2026-10-13T09:30:05Z",
+          "turnId": "00000000-0000-4000-8000-000000000050",
+          "text": "الخطة الحالية في مرحلة البناء، وآخر مهمة مكتملة هي تسجيل الدخول.",
+          "status": "complete",
+          "answeredBy": "laptop",
+          "sources": [
+            {
+              "kind": "plan",
+              "id": "plan-synthetic-1",
+              "version": "7",
+              "readAt": "2026-10-13T09:30:01Z"
+            }
+          ]
+        }
+      ],
+      "cursor": 2
+    },
+    "TopicEvents": [
+      {
+        "type": "entry_added",
+        "seq": 3,
+        "entry": {
+          "type": "user_message",
+          "entryId": "00000000-0000-4000-8000-000000000056",
+          "seq": 3,
+          "createdAt": "2026-10-13T09:35:00Z",
+          "turnId": "00000000-0000-4000-8000-000000000055",
+          "text": "وش باقي؟"
+        }
+      },
+      {
+        "type": "entry_added",
+        "seq": 4,
+        "entry": {
+          "type": "assistant_message",
+          "entryId": "00000000-0000-4000-8000-000000000057",
+          "seq": 4,
+          "createdAt": "2026-10-13T09:35:01Z",
+          "turnId": "00000000-0000-4000-8000-000000000055",
+          "text": "",
+          "status": "streaming",
+          "answeredBy": "cloud",
+          "sources": []
+        }
+      },
+      {
+        "type": "delta",
+        "seq": 5,
+        "entryId": "00000000-0000-4000-8000-000000000057",
+        "text": "باقي مهمتان: "
+      },
+      {
+        "type": "delta",
+        "seq": 6,
+        "entryId": "00000000-0000-4000-8000-000000000057",
+        "text": "الجلسات والموافقات."
+      },
+      {
+        "type": "entry_updated",
+        "seq": 7,
+        "entry": {
+          "type": "assistant_message",
+          "entryId": "00000000-0000-4000-8000-000000000057",
+          "seq": 4,
+          "createdAt": "2026-10-13T09:35:01Z",
+          "turnId": "00000000-0000-4000-8000-000000000055",
+          "text": "باقي مهمتان: الجلسات والموافقات.",
+          "status": "complete",
+          "answeredBy": "cloud",
+          "sources": []
+        }
+      },
+      {
+        "type": "turn_finished",
+        "seq": 8,
+        "turnId": "00000000-0000-4000-8000-000000000055",
+        "outcome": "done"
+      }
+    ],
+    "TurnRequest": {
+      "commandId": "00000000-0000-4000-8000-0000000000c3",
+      "message": "وش باقي؟"
+    },
+    "TurnAccepted": {
+      "turnId": "00000000-0000-4000-8000-000000000055",
+      "entryId": "00000000-0000-4000-8000-000000000056",
+      "seq": 3
+    },
+    "Step": {
+      "stepId": "00000000-0000-4000-8000-000000000061",
+      "seq": 1,
+      "at": "2026-10-13T09:20:00Z",
+      "tool": "Read",
+      "path": "src/auth/login.ts",
+      "summary": "Read the login handler"
+    },
+    "Session": {
+      "sessionId": "00000000-0000-4000-8000-000000000060",
+      "laptopId": "00000000-0000-4000-8000-000000000010",
+      "agent": "claude_code",
+      "projectName": "Synthetic Lighthouse",
+      "cwd": "C:/work/synthetic-lighthouse",
+      "state": "running",
+      "startedAt": "2026-10-13T09:15:00Z",
+      "updatedAt": "2026-10-13T09:21:00Z",
+      "lastStep": {
+        "stepId": "00000000-0000-4000-8000-000000000062",
+        "seq": 2,
+        "at": "2026-10-13T09:21:00Z",
+        "tool": "Edit",
+        "path": "src/auth/login.ts",
+        "summary": "Added the token refresh call"
+      },
+      "lastSeq": 2
+    },
+    "SessionList": {
+      "sessions": [
+        {
+          "sessionId": "00000000-0000-4000-8000-000000000060",
+          "laptopId": "00000000-0000-4000-8000-000000000010",
+          "agent": "claude_code",
+          "projectName": "Synthetic Lighthouse",
+          "cwd": "C:/work/synthetic-lighthouse",
+          "state": "running",
+          "startedAt": "2026-10-13T09:15:00Z",
+          "updatedAt": "2026-10-13T09:21:00Z",
+          "lastStep": {
+            "stepId": "00000000-0000-4000-8000-000000000062",
+            "seq": 2,
+            "at": "2026-10-13T09:21:00Z",
+            "tool": "Edit",
+            "path": "src/auth/login.ts",
+            "summary": "Added the token refresh call"
+          },
+          "lastSeq": 2
+        }
+      ],
+      "cursor": 12
+    },
+    "SessionSnapshot": {
+      "session": {
+        "sessionId": "00000000-0000-4000-8000-000000000060",
+        "laptopId": "00000000-0000-4000-8000-000000000010",
+        "agent": "claude_code",
+        "projectName": "Synthetic Lighthouse",
+        "cwd": "C:/work/synthetic-lighthouse",
+        "state": "running",
+        "startedAt": "2026-10-13T09:15:00Z",
+        "updatedAt": "2026-10-13T09:21:00Z",
+        "lastStep": {
+          "stepId": "00000000-0000-4000-8000-000000000062",
+          "seq": 2,
+          "at": "2026-10-13T09:21:00Z",
+          "tool": "Edit",
+          "path": "src/auth/login.ts",
+          "summary": "Added the token refresh call"
+        },
+        "lastSeq": 2
+      },
+      "steps": [
+        {
+          "stepId": "00000000-0000-4000-8000-000000000061",
+          "seq": 1,
+          "at": "2026-10-13T09:20:00Z",
+          "tool": "Read",
+          "path": "src/auth/login.ts",
+          "summary": "Read the login handler"
+        },
+        {
+          "stepId": "00000000-0000-4000-8000-000000000062",
+          "seq": 2,
+          "at": "2026-10-13T09:21:00Z",
+          "tool": "Edit",
+          "path": "src/auth/login.ts",
+          "summary": "Added the token refresh call"
+        }
+      ],
+      "cursor": 2
+    },
+    "SessionEvents": [
+      {
+        "type": "step_added",
+        "seq": 3,
+        "step": {
+          "stepId": "00000000-0000-4000-8000-000000000063",
+          "seq": 3,
+          "at": "2026-10-13T09:22:00Z",
+          "tool": "Bash",
+          "path": null,
+          "summary": "Asked to run the test suite"
+        }
+      },
+      {
+        "type": "session_updated",
+        "seq": 4,
+        "session": {
+          "sessionId": "00000000-0000-4000-8000-000000000060",
+          "laptopId": "00000000-0000-4000-8000-000000000010",
+          "agent": "claude_code",
+          "projectName": "Synthetic Lighthouse",
+          "cwd": "C:/work/synthetic-lighthouse",
+          "state": "waiting",
+          "startedAt": "2026-10-13T09:15:00Z",
+          "updatedAt": "2026-10-13T09:22:00Z",
+          "lastStep": {
+            "stepId": "00000000-0000-4000-8000-000000000063",
+            "seq": 3,
+            "at": "2026-10-13T09:22:00Z",
+            "tool": "Bash",
+            "path": null,
+            "summary": "Asked to run the test suite"
+          },
+          "lastSeq": 4
+        }
+      }
+    ],
+    "Approval": {
+      "approvalId": "00000000-0000-4000-8000-000000000070",
+      "sessionId": "00000000-0000-4000-8000-000000000060",
+      "laptopId": "00000000-0000-4000-8000-000000000010",
+      "agent": "claude_code",
+      "tool": "Bash",
+      "path": null,
+      "command": "npm test",
+      "summary": "Run the test suite",
+      "requestedAt": "2026-10-13T09:22:00Z",
+      "expiresAt": "2026-10-13T09:32:00Z",
+      "state": "pending",
+      "decidedBy": null,
+      "decidedAt": null
+    },
+    "ApprovalList": {
+      "approvals": [
+        {
+          "approvalId": "00000000-0000-4000-8000-000000000070",
+          "sessionId": "00000000-0000-4000-8000-000000000060",
+          "laptopId": "00000000-0000-4000-8000-000000000010",
+          "agent": "claude_code",
+          "tool": "Bash",
+          "path": null,
+          "command": "npm test",
+          "summary": "Run the test suite",
+          "requestedAt": "2026-10-13T09:22:00Z",
+          "expiresAt": "2026-10-13T09:32:00Z",
+          "state": "pending",
+          "decidedBy": null,
+          "decidedAt": null
+        }
+      ],
+      "cursor": 12
+    },
+    "ApprovalDecide": {
+      "commandId": "00000000-0000-4000-8000-0000000000c4",
+      "decision": "allow"
+    },
+    "GrantRevoke": {
+      "commandId": "00000000-0000-4000-8000-0000000000c5"
+    },
+    "GrantRevoked": {
+      "grantId": "00000000-0000-4000-8000-000000000080",
+      "revokedAt": "2026-10-13T09:40:00Z"
+    },
+    "AccountEvents": [
+      {
+        "type": "approval_requested",
+        "seq": 13,
+        "approval": {
+          "approvalId": "00000000-0000-4000-8000-000000000070",
+          "sessionId": "00000000-0000-4000-8000-000000000060",
+          "laptopId": "00000000-0000-4000-8000-000000000010",
+          "agent": "claude_code",
+          "tool": "Bash",
+          "path": null,
+          "command": "npm test",
+          "summary": "Run the test suite",
+          "requestedAt": "2026-10-13T09:22:00Z",
+          "expiresAt": "2026-10-13T09:32:00Z",
+          "state": "pending",
+          "decidedBy": null,
+          "decidedAt": null
+        }
+      },
+      {
+        "type": "approval_resolved",
+        "seq": 14,
+        "approval": {
+          "approvalId": "00000000-0000-4000-8000-000000000071",
+          "sessionId": "00000000-0000-4000-8000-000000000060",
+          "laptopId": "00000000-0000-4000-8000-000000000010",
+          "agent": "claude_code",
+          "tool": "Edit",
+          "path": "src/auth/login.ts",
+          "command": null,
+          "summary": "Edit the login handler",
+          "requestedAt": "2026-10-13T09:21:00Z",
+          "expiresAt": "2026-10-13T09:31:00Z",
+          "state": "allowed",
+          "decidedBy": {
+            "kind": "aylul_grant",
+            "grantId": "00000000-0000-4000-8000-000000000080"
+          },
+          "decidedAt": "2026-10-13T09:21:01Z"
+        }
+      },
+      {
+        "type": "session_changed",
+        "seq": 15,
+        "session": {
+          "sessionId": "00000000-0000-4000-8000-000000000060",
+          "laptopId": "00000000-0000-4000-8000-000000000010",
+          "agent": "claude_code",
+          "projectName": "Synthetic Lighthouse",
+          "cwd": "C:/work/synthetic-lighthouse",
+          "state": "waiting",
+          "startedAt": "2026-10-13T09:15:00Z",
+          "updatedAt": "2026-10-13T09:22:00Z",
+          "lastStep": {
+            "stepId": "00000000-0000-4000-8000-000000000063",
+            "seq": 3,
+            "at": "2026-10-13T09:22:00Z",
+            "tool": "Bash",
+            "path": null,
+            "summary": "Asked to run the test suite"
+          },
+          "lastSeq": 4
+        }
+      },
+      {
+        "type": "laptop_offline",
+        "seq": 16,
+        "laptop": {
+          "laptopId": "00000000-0000-4000-8000-000000000010",
+          "name": "Laptop",
+          "status": "offline",
+          "lastSeenAt": "2026-10-13T09:45:00Z"
+        }
+      },
+      {
+        "type": "laptop_online",
+        "seq": 17,
+        "laptop": {
+          "laptopId": "00000000-0000-4000-8000-000000000010",
+          "name": "Laptop",
+          "status": "online",
+          "lastSeenAt": "2026-10-13T09:50:00Z"
+        }
+      },
+      {
+        "type": "topic_updated",
+        "seq": 18,
+        "topic": {
+          "topicId": "00000000-0000-4000-8000-000000000030",
+          "title": "وين وصلنا في Synthetic Lighthouse؟",
+          "project": {
+            "laptopId": "00000000-0000-4000-8000-000000000010",
+            "projectId": "proj-synthetic-1",
+            "name": "Synthetic Lighthouse"
+          },
+          "state": "open",
+          "createdAt": "2026-10-13T09:30:00Z",
+          "updatedAt": "2026-10-13T09:35:03Z",
+          "lastSeq": 8
+        }
+      }
+    ],
+    "PairingCodeIssue": {
+      "name": "Synthetic laptop"
+    },
+    "PairingCodeIssued": {
+      "code": "ABCD-2345",
+      "expiresAt": "2026-10-17T00:05:00Z"
+    }
+  },
+  "responses": {
+    "POST /v1/nylra/approvals/{approvalId}/decide": {
+      "approvalId": "00000000-0000-4000-8000-000000000070",
+      "sessionId": "00000000-0000-4000-8000-000000000060",
+      "laptopId": "00000000-0000-4000-8000-000000000010",
+      "agent": "claude_code",
+      "tool": "Bash",
+      "path": null,
+      "command": "npm test",
+      "summary": "Run the test suite",
+      "requestedAt": "2026-10-13T09:22:00Z",
+      "expiresAt": "2026-10-13T09:32:00Z",
+      "state": "allowed",
+      "decidedBy": {
+        "kind": "person"
+      },
+      "decidedAt": "2026-10-13T09:23:00Z"
+    }
+  },
+  "mock": {
+    "decidedApprovalId": "00000000-0000-4000-8000-000000000071",
+    "expiredApprovalId": "00000000-0000-4000-8000-000000000072",
+    "approvalDecisions": {
+      "allow": {
+        "approvalId": "00000000-0000-4000-8000-000000000070",
+        "sessionId": "00000000-0000-4000-8000-000000000060",
+        "laptopId": "00000000-0000-4000-8000-000000000010",
+        "agent": "claude_code",
+        "tool": "Bash",
+        "path": null,
+        "command": "npm test",
+        "summary": "Run the test suite",
+        "requestedAt": "2026-10-13T09:22:00Z",
+        "expiresAt": "2026-10-13T09:32:00Z",
+        "state": "allowed",
+        "decidedBy": {
+          "kind": "person"
+        },
+        "decidedAt": "2026-10-13T09:23:00Z"
+      },
+      "deny": {
+        "approvalId": "00000000-0000-4000-8000-000000000070",
+        "sessionId": "00000000-0000-4000-8000-000000000060",
+        "laptopId": "00000000-0000-4000-8000-000000000010",
+        "agent": "claude_code",
+        "tool": "Bash",
+        "path": null,
+        "command": "npm test",
+        "summary": "Run the test suite",
+        "requestedAt": "2026-10-13T09:22:00Z",
+        "expiresAt": "2026-10-13T09:32:00Z",
+        "state": "denied",
+        "decidedBy": {
+          "kind": "person"
+        },
+        "decidedAt": "2026-10-13T09:23:00Z"
+      }
+    }
+  },
+  "invalid": [
+    {
+      "schema": "Step",
+      "why": "stream positions must remain exact safe integers",
+      "value": {
+        "stepId": "00000000-0000-4000-8000-000000000061",
+        "seq": 9007199254740992,
+        "at": "2026-10-13T09:20:00Z",
+        "tool": "Read",
+        "path": "src/auth/login.ts",
+        "summary": "Read the login handler"
+      }
+    },
+    {
+      "schema": "Step",
+      "why": "a summary is one line",
+      "value": {
+        "stepId": "00000000-0000-4000-8000-000000000061",
+        "seq": 1,
+        "at": "2026-10-13T09:20:00Z",
+        "tool": "Read",
+        "path": "src/auth/login.ts",
+        "summary": "Read the handler\nRead another file"
+      }
+    },
+    {
+      "schema": "Step",
+      "why": "no file content leaves the laptop",
+      "value": {
+        "stepId": "00000000-0000-4000-8000-000000000061",
+        "seq": 1,
+        "at": "2026-10-13T09:20:00Z",
+        "tool": "Read",
+        "path": "src/auth/login.ts",
+        "summary": "Read the login handler",
+        "content": "synthetic file text"
+      }
+    },
+    {
+      "schema": "LinkClaim",
+      "why": "0 and O are excluded from pairing codes",
+      "value": {
+        "commandId": "00000000-0000-4000-8000-0000000000c1",
+        "code": "K7QF-3MZ0"
+      }
+    },
+    {
+      "schema": "ApprovalDecide",
+      "why": "a decision is allow or deny",
+      "value": {
+        "commandId": "00000000-0000-4000-8000-0000000000c4",
+        "decision": "approve"
+      }
+    },
+    {
+      "schema": "ApprovalDecide",
+      "why": "the account comes from the session, never the body",
+      "value": {
+        "commandId": "00000000-0000-4000-8000-0000000000c4",
+        "decision": "allow",
+        "accountId": "00000000-0000-4000-8000-000000000001"
+      }
+    },
+    {
+      "schema": "Step",
+      "why": "no diff leaves the laptop",
+      "value": {
+        "stepId": "00000000-0000-4000-8000-000000000061",
+        "seq": 1,
+        "at": "2026-10-13T09:20:00Z",
+        "tool": "Read",
+        "path": "src/auth/login.ts",
+        "summary": "Read the login handler",
+        "diff": "@@ -1 +1 @@"
+      }
+    },
+    {
+      "schema": "Step",
+      "why": "a summary is one line of at most 200 characters",
+      "value": {
+        "stepId": "00000000-0000-4000-8000-000000000061",
+        "seq": 1,
+        "at": "2026-10-13T09:20:00Z",
+        "tool": "Read",
+        "path": "src/auth/login.ts",
+        "summary": "@@LONG_SUMMARY@@"
+      }
+    },
+    {
+      "schema": "Approval",
+      "why": "a grant decision names its grant",
+      "value": {
+        "approvalId": "00000000-0000-4000-8000-000000000071",
+        "sessionId": "00000000-0000-4000-8000-000000000060",
+        "laptopId": "00000000-0000-4000-8000-000000000010",
+        "agent": "claude_code",
+        "tool": "Edit",
+        "path": "src/auth/login.ts",
+        "command": null,
+        "summary": "Edit the login handler",
+        "requestedAt": "2026-10-13T09:21:00Z",
+        "expiresAt": "2026-10-13T09:31:00Z",
+        "state": "allowed",
+        "decidedBy": {
+          "kind": "aylul_grant"
+        },
+        "decidedAt": "2026-10-13T09:21:01Z"
+      }
+    },
+    {
+      "schema": "TurnRequest",
+      "why": "a message is at most 2000 characters",
+      "value": {
+        "commandId": "00000000-0000-4000-8000-0000000000c3",
+        "message": "@@LONG_MESSAGE@@"
+      }
+    },
+    {
+      "schema": "Laptop",
+      "why": "times are UTC",
+      "value": {
+        "laptopId": "00000000-0000-4000-8000-000000000010",
+        "name": "Laptop",
+        "status": "online",
+        "lastSeenAt": "2026-10-13T12:40:00+03:00"
+      }
+    }
   ],
-  "TurnRequest":{"commandId":"00000000-0000-4000-8000-0000000000c3","message":"وش باقي؟"},
-  "TurnAccepted":{"turnId":"00000000-0000-4000-8000-000000000055","entryId":"00000000-0000-4000-8000-000000000056","seq":3},
-  "Step":{"stepId":"00000000-0000-4000-8000-000000000061","seq":1,"at":"2026-10-13T09:20:00Z","tool":"Read","path":"src/auth/login.ts","summary":"Read the login handler"},
-  "Session":{"sessionId":"00000000-0000-4000-8000-000000000060","laptopId":"00000000-0000-4000-8000-000000000010","agent":"claude_code","projectName":"Synthetic Lighthouse","cwd":"C:/work/synthetic-lighthouse","state":"running","startedAt":"2026-10-13T09:15:00Z","updatedAt":"2026-10-13T09:21:00Z","lastStep":{"stepId":"00000000-0000-4000-8000-000000000062","seq":2,"at":"2026-10-13T09:21:00Z","tool":"Edit","path":"src/auth/login.ts","summary":"Added the token refresh call"},"lastSeq":2},
-  "SessionList":{"sessions":[{"sessionId":"00000000-0000-4000-8000-000000000060","laptopId":"00000000-0000-4000-8000-000000000010","agent":"claude_code","projectName":"Synthetic Lighthouse","cwd":"C:/work/synthetic-lighthouse","state":"running","startedAt":"2026-10-13T09:15:00Z","updatedAt":"2026-10-13T09:21:00Z","lastStep":{"stepId":"00000000-0000-4000-8000-000000000062","seq":2,"at":"2026-10-13T09:21:00Z","tool":"Edit","path":"src/auth/login.ts","summary":"Added the token refresh call"},"lastSeq":2}],"cursor":12},
-  "SessionSnapshot":{"session":{"sessionId":"00000000-0000-4000-8000-000000000060","laptopId":"00000000-0000-4000-8000-000000000010","agent":"claude_code","projectName":"Synthetic Lighthouse","cwd":"C:/work/synthetic-lighthouse","state":"running","startedAt":"2026-10-13T09:15:00Z","updatedAt":"2026-10-13T09:21:00Z","lastStep":{"stepId":"00000000-0000-4000-8000-000000000062","seq":2,"at":"2026-10-13T09:21:00Z","tool":"Edit","path":"src/auth/login.ts","summary":"Added the token refresh call"},"lastSeq":2},"steps":[{"stepId":"00000000-0000-4000-8000-000000000061","seq":1,"at":"2026-10-13T09:20:00Z","tool":"Read","path":"src/auth/login.ts","summary":"Read the login handler"},{"stepId":"00000000-0000-4000-8000-000000000062","seq":2,"at":"2026-10-13T09:21:00Z","tool":"Edit","path":"src/auth/login.ts","summary":"Added the token refresh call"}],"cursor":2},
-  "SessionEvents":[
-   {"type":"step_added","seq":3,"step":{"stepId":"00000000-0000-4000-8000-000000000063","seq":3,"at":"2026-10-13T09:22:00Z","tool":"Bash","path":null,"summary":"Asked to run the test suite"}},
-   {"type":"session_updated","seq":4,"session":{"sessionId":"00000000-0000-4000-8000-000000000060","laptopId":"00000000-0000-4000-8000-000000000010","agent":"claude_code","projectName":"Synthetic Lighthouse","cwd":"C:/work/synthetic-lighthouse","state":"waiting","startedAt":"2026-10-13T09:15:00Z","updatedAt":"2026-10-13T09:22:00Z","lastStep":{"stepId":"00000000-0000-4000-8000-000000000063","seq":3,"at":"2026-10-13T09:22:00Z","tool":"Bash","path":null,"summary":"Asked to run the test suite"},"lastSeq":4}}
-  ],
-  "Approval":{"approvalId":"00000000-0000-4000-8000-000000000070","sessionId":"00000000-0000-4000-8000-000000000060","laptopId":"00000000-0000-4000-8000-000000000010","agent":"claude_code","tool":"Bash","path":null,"command":"npm test","summary":"Run the test suite","requestedAt":"2026-10-13T09:22:00Z","expiresAt":"2026-10-13T09:32:00Z","state":"pending","decidedBy":null,"decidedAt":null},
-  "ApprovalList":{"approvals":[{"approvalId":"00000000-0000-4000-8000-000000000070","sessionId":"00000000-0000-4000-8000-000000000060","laptopId":"00000000-0000-4000-8000-000000000010","agent":"claude_code","tool":"Bash","path":null,"command":"npm test","summary":"Run the test suite","requestedAt":"2026-10-13T09:22:00Z","expiresAt":"2026-10-13T09:32:00Z","state":"pending","decidedBy":null,"decidedAt":null}],"cursor":12},
-  "ApprovalDecide":{"commandId":"00000000-0000-4000-8000-0000000000c4","decision":"allow"},
-  "GrantRevoke":{"commandId":"00000000-0000-4000-8000-0000000000c5"},
-  "GrantRevoked":{"grantId":"00000000-0000-4000-8000-000000000080","revokedAt":"2026-10-13T09:40:00Z"},
-  "AccountEvents":[
-   {"type":"approval_requested","seq":13,"approval":{"approvalId":"00000000-0000-4000-8000-000000000070","sessionId":"00000000-0000-4000-8000-000000000060","laptopId":"00000000-0000-4000-8000-000000000010","agent":"claude_code","tool":"Bash","path":null,"command":"npm test","summary":"Run the test suite","requestedAt":"2026-10-13T09:22:00Z","expiresAt":"2026-10-13T09:32:00Z","state":"pending","decidedBy":null,"decidedAt":null}},
-   {"type":"approval_resolved","seq":14,"approval":{"approvalId":"00000000-0000-4000-8000-000000000071","sessionId":"00000000-0000-4000-8000-000000000060","laptopId":"00000000-0000-4000-8000-000000000010","agent":"claude_code","tool":"Edit","path":"src/auth/login.ts","command":null,"summary":"Edit the login handler","requestedAt":"2026-10-13T09:21:00Z","expiresAt":"2026-10-13T09:31:00Z","state":"allowed","decidedBy":{"kind":"aylul_grant","grantId":"00000000-0000-4000-8000-000000000080"},"decidedAt":"2026-10-13T09:21:01Z"}},
-   {"type":"session_changed","seq":15,"session":{"sessionId":"00000000-0000-4000-8000-000000000060","laptopId":"00000000-0000-4000-8000-000000000010","agent":"claude_code","projectName":"Synthetic Lighthouse","cwd":"C:/work/synthetic-lighthouse","state":"waiting","startedAt":"2026-10-13T09:15:00Z","updatedAt":"2026-10-13T09:22:00Z","lastStep":{"stepId":"00000000-0000-4000-8000-000000000063","seq":3,"at":"2026-10-13T09:22:00Z","tool":"Bash","path":null,"summary":"Asked to run the test suite"},"lastSeq":4}},
-   {"type":"laptop_offline","seq":16,"laptop":{"laptopId":"00000000-0000-4000-8000-000000000010","name":"Laptop","status":"offline","lastSeenAt":"2026-10-13T09:45:00Z"}},
-   {"type":"laptop_online","seq":17,"laptop":{"laptopId":"00000000-0000-4000-8000-000000000010","name":"Laptop","status":"online","lastSeenAt":"2026-10-13T09:50:00Z"}},
-   {"type":"topic_updated","seq":18,"topic":{"topicId":"00000000-0000-4000-8000-000000000030","title":"وين وصلنا في Synthetic Lighthouse؟","project":{"laptopId":"00000000-0000-4000-8000-000000000010","projectId":"proj-synthetic-1","name":"Synthetic Lighthouse"},"state":"open","createdAt":"2026-10-13T09:30:00Z","updatedAt":"2026-10-13T09:35:03Z","lastSeq":8}}
+  "refusals": [
+    {
+      "status": 401,
+      "body": {
+        "code": "unauthorized"
+      }
+    },
+    {
+      "status": 409,
+      "body": {
+        "code": "approval_already_decided"
+      }
+    },
+    {
+      "status": 410,
+      "body": {
+        "code": "resnapshot_required"
+      }
+    }
   ]
- },
- "responses":{"POST /v1/nylra/approvals/{approvalId}/decide":{"approvalId":"00000000-0000-4000-8000-000000000070","sessionId":"00000000-0000-4000-8000-000000000060","laptopId":"00000000-0000-4000-8000-000000000010","agent":"claude_code","tool":"Bash","path":null,"command":"npm test","summary":"Run the test suite","requestedAt":"2026-10-13T09:22:00Z","expiresAt":"2026-10-13T09:32:00Z","state":"allowed","decidedBy":{"kind":"person"},"decidedAt":"2026-10-13T09:23:00Z"}},
- "mock":{"decidedApprovalId":"00000000-0000-4000-8000-000000000071","expiredApprovalId":"00000000-0000-4000-8000-000000000072","approvalDecisions":{"allow":{"approvalId":"00000000-0000-4000-8000-000000000070","sessionId":"00000000-0000-4000-8000-000000000060","laptopId":"00000000-0000-4000-8000-000000000010","agent":"claude_code","tool":"Bash","path":null,"command":"npm test","summary":"Run the test suite","requestedAt":"2026-10-13T09:22:00Z","expiresAt":"2026-10-13T09:32:00Z","state":"allowed","decidedBy":{"kind":"person"},"decidedAt":"2026-10-13T09:23:00Z"},"deny":{"approvalId":"00000000-0000-4000-8000-000000000070","sessionId":"00000000-0000-4000-8000-000000000060","laptopId":"00000000-0000-4000-8000-000000000010","agent":"claude_code","tool":"Bash","path":null,"command":"npm test","summary":"Run the test suite","requestedAt":"2026-10-13T09:22:00Z","expiresAt":"2026-10-13T09:32:00Z","state":"denied","decidedBy":{"kind":"person"},"decidedAt":"2026-10-13T09:23:00Z"}}},
- "invalid":[
-  {"schema":"Step","why":"stream positions must remain exact safe integers","value":{"stepId":"00000000-0000-4000-8000-000000000061","seq":9007199254740992,"at":"2026-10-13T09:20:00Z","tool":"Read","path":"src/auth/login.ts","summary":"Read the login handler"}},
-  {"schema":"Step","why":"a summary is one line","value":{"stepId":"00000000-0000-4000-8000-000000000061","seq":1,"at":"2026-10-13T09:20:00Z","tool":"Read","path":"src/auth/login.ts","summary":"Read the handler\nRead another file"}},
-  {"schema":"Step","why":"no file content leaves the laptop","value":{"stepId":"00000000-0000-4000-8000-000000000061","seq":1,"at":"2026-10-13T09:20:00Z","tool":"Read","path":"src/auth/login.ts","summary":"Read the login handler","content":"synthetic file text"}},
-  {"schema":"LinkClaim","why":"0 and O are excluded from pairing codes","value":{"commandId":"00000000-0000-4000-8000-0000000000c1","code":"K7QF-3MZ0"}},
-  {"schema":"ApprovalDecide","why":"a decision is allow or deny","value":{"commandId":"00000000-0000-4000-8000-0000000000c4","decision":"approve"}},
-  {"schema":"ApprovalDecide","why":"the account comes from the session, never the body","value":{"commandId":"00000000-0000-4000-8000-0000000000c4","decision":"allow","accountId":"00000000-0000-4000-8000-000000000001"}},
-  {"schema":"Step","why":"no diff leaves the laptop","value":{"stepId":"00000000-0000-4000-8000-000000000061","seq":1,"at":"2026-10-13T09:20:00Z","tool":"Read","path":"src/auth/login.ts","summary":"Read the login handler","diff":"@@ -1 +1 @@"}},
-  {"schema":"Step","why":"a summary is one line of at most 200 characters","value":{"stepId":"00000000-0000-4000-8000-000000000061","seq":1,"at":"2026-10-13T09:20:00Z","tool":"Read","path":"src/auth/login.ts","summary":"@@LONG_SUMMARY@@"}},
-  {"schema":"Approval","why":"a grant decision names its grant","value":{"approvalId":"00000000-0000-4000-8000-000000000071","sessionId":"00000000-0000-4000-8000-000000000060","laptopId":"00000000-0000-4000-8000-000000000010","agent":"claude_code","tool":"Edit","path":"src/auth/login.ts","command":null,"summary":"Edit the login handler","requestedAt":"2026-10-13T09:21:00Z","expiresAt":"2026-10-13T09:31:00Z","state":"allowed","decidedBy":{"kind":"aylul_grant"},"decidedAt":"2026-10-13T09:21:01Z"}},
-  {"schema":"TurnRequest","why":"a message is at most 2000 characters","value":{"commandId":"00000000-0000-4000-8000-0000000000c3","message":"@@LONG_MESSAGE@@"}},
-  {"schema":"Laptop","why":"times are UTC","value":{"laptopId":"00000000-0000-4000-8000-000000000010","name":"Laptop","status":"online","lastSeenAt":"2026-10-13T12:40:00+03:00"}}
- ],
- "refusals":[{"status":401,"body":{"code":"unauthorized"}},{"status":409,"body":{"code":"approval_already_decided"}},{"status":410,"body":{"code":"resnapshot_required"}}]
 }

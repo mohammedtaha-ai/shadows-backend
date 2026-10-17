@@ -44,3 +44,11 @@ change and report what was run. Validate YAML contracts with a parser.
 Distinguish local checks, remote CI, and real-device acceptance.
 Do not infer permission to commit, push, deploy, or change another repository
 from a request to write local documentation.
+
+## The backend lead
+
+Hamoud (`.claude/agents/hamoud.md`) leads backend work through a Sonnet builder
+and an Opus fixer: [docs/backend/AGENTS.md](docs/backend/AGENTS.md). NYLRA's
+leads ask for API changes in [docs/shared/](docs/shared/README.md) before code.
+Specs and plans go to `docs/backend/{specs,plans}/`. Earlier decisions are
+summarized in `docs/backend/specs/2026-10-10-backend-foundations.md`.

@@ -18,3 +18,7 @@ obligations:
     note: tests/integration/migrations.test.ts
 open_questions:
   - Production TLS, identity database restore and physical backup expiry are not established by disposable PG acceptance.
+
+# Activity tables are typed here; ActivityStore alone queries them.
+# Links owns its five declared tables; no credentials are persisted in those tables.
+# Sessions owns its projection, step and per-session journal tables.

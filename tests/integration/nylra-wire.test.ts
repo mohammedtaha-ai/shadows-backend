@@ -61,11 +61,25 @@ test('nylra_wire every operation is bearer-protected and refuses with the shared
 
 test('nylra_wire every operation has a fixture the mock can answer with', () => {
   for (const op of nylraOperations) {
+    if (op.transport === 'websocket') continue;
     if (op.okType === 'text/event-stream' || op.ok === S.Empty) continue;
     const name = Object.entries(S).find(([, value]) => value === op.ok)![0];
     const value = fixtures.responses[`${op.method.toUpperCase()} ${op.path}`] ?? fixtures.valid[name];
     assert.ok(value && Value.Check(op.ok, value), `${op.method} ${op.path}`);
   }
+});
+
+test('nylra_wire operation identities expose upgrade and planned state honestly', () => {
+  const document = JSON.parse(nylraSchema());
+  assert.equal(new Set(nylraOperations.map(op=>op.operationId)).size,nylraOperations.length);
+  const upgrade=nylraOperations.find(op=>op.operationId==='openLaptopLink')!;
+  assert.ok(upgrade);
+  assert.equal(upgrade.transport,'websocket');
+  const exported=document.paths[upgrade.path][upgrade.method];
+  assert.ok(exported.responses['101']); assert.equal(exported.responses['200'],undefined);
+  assert.equal(exported.operationId,'openLaptopLink');
+  assert.equal(nylraOperations.find(op=>op.operationId==='createTopic')!.status,'planned');
+  assert.ok(Number.isSafeInteger(fixtures.valid.LaptopList.cursor));
 });
 
 test('nylra_wire exported nullable shapes accept null while retaining object constraints', async () => {

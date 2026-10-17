@@ -1,7 +1,7 @@
 # AYLUL cleanup and nylra-v1 contract execution (2026-10-13)
 
 Scope: Tasks 1, 2, 3, 5, 6 and 7 of the
-[plan](../superpowers/plans/2026-10-13-aylul-steps-0-1-cleanup-and-contract.md).
+plan `docs/superpowers/plans/2026-10-13-aylul-steps-0-1-cleanup-and-contract.md` (removed 2026-10-18; in Git history).
 Mohammed authorized commits and HTTP/1.1 pushes, excluded Tasks 4 and 8,
 required branches from latest `origin/main`, and requested plan corrections
 with their reasons. No PR, merge, deployment, provider call or real content

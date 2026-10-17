@@ -1,42 +1,16 @@
 // Actual Compose journey. Credentials remain in memory/files; report only safe counts/status.
 import assert from 'node:assert/strict';
-import { randomBytes } from 'node:crypto';
 import { readFile,writeFile } from 'node:fs/promises';
 import pg from 'pg';
 import { decodeJwt } from 'jose';
 import { localEnvironment } from './runtime.js';
-import { hash,type SessionGrant } from '../src/modules/identity/index.js';
+import { type SessionGrant } from '../src/modules/identity/index.js';
 import { TokenVault } from '../src/modules/identity/token-vault.js';
-const origin='https://127.0.0.1:8443',root=process.env.LOCAL_RUNTIME ?? '/local';
+import {syntheticLogin} from './synthetic-login.js';
+const {cookies,secret,request,post,login}=syntheticLogin();
 const env=await localEnvironment(),pool=new pg.Pool({connectionString:env.DATABASE_URL});
-const secret=async(name:string)=>(await readFile(root+'/secrets/'+name,'utf8')).trim();
-const cookies=new Map<string,string>();
 const results:Record<string,unknown>={};
-async function request(url:string,options:RequestInit={}) {
- const target=new URL(url,origin);assert.equal(target.origin,origin);
- const r=await fetch(target,{...options,redirect:'manual',signal:AbortSignal.timeout(15000),headers:{...options.headers,cookie:[...cookies].map(([k,v])=>`${k}=${v}`).join('; ')}});
- for(const cookie of r.headers.getSetCookie()){const pair=cookie.split(';')[0]!,i=pair.indexOf('=');cookies.set(pair.slice(0,i),pair.slice(i+1));}return r;
-}
-async function post(path:string,body:unknown,handle?:string){return request(path,{method:'POST',headers:{'content-type':'application/json',...(handle?{authorization:`Bearer ${handle}`}:{})},body:JSON.stringify(body)});}
 async function session(grant:SessionGrant){return (await request('/v1/auth/session',{headers:{authorization:`Bearer ${grant.handle}`}})).status;}
-async function login(enrollment:unknown) {
- cookies.clear();const verifier=randomBytes(32).toString('base64url');
- const start=await post('/v1/auth/login',{platform:'windows',returnUri:'http://127.0.0.1:49152/oidc-return',returnChallenge:hash(verifier)});
- assert.equal(start.status,200);let url=(await start.json() as {authorizationUrl:string}).authorizationUrl;
- let ticket:string|undefined;
- for(let i=0;i<20;i++){
-  const r=await request(url),location=r.headers.get('location');
-  if(location){const target=new URL(location,url);if(target.origin==='http://127.0.0.1:49152'){ticket=target.searchParams.get('ticket')!;break;}url=target.href;continue;}
-  const html=await r.text(),action=/<form[^>]*id="kc-form-login"[^>]*action="([^"]+)"/.exec(html)?.[1] ?? /<form[^>]*action="([^"]+)"[^>]*id="kc-form-login"/.exec(html)?.[1];
-  assert.ok(action,'expected_synthetic_login_form');
-  const submitted=await request(new URL(action.replaceAll('&amp;','&'),url).href,{method:'POST',headers:{'content-type':'application/x-www-form-urlencoded'},body:new URLSearchParams({username:'synthetic-user',password:await secret('user-password'),credentialId:''})});
-  const next=submitted.headers.get('location');assert.ok(next,'synthetic_login_redirect');url=new URL(next,url).href;
- }
- assert.ok(ticket,'bounded_native_return');const body={ticket,returnVerifier:verifier,enrollment};
- const response=await post('/v1/auth/return',body);assert.equal(response.status,200);
- assert.equal((await post('/v1/auth/return',body)).status,400);
- return await response.json() as SessionGrant & {enrollmentCredential?:string};
-}
 async function adminToken(){
  const r=await request('/realms/master/protocol/openid-connect/token',{method:'POST',headers:{'content-type':'application/x-www-form-urlencoded'},body:new URLSearchParams({client_id:'admin-cli',grant_type:'password',username:'local-admin',password:await secret('admin-password')})});
  assert.equal(r.status,200);return (await r.json() as {access_token:string}).access_token;

@@ -127,6 +127,43 @@ restoration of revoked authority occurs.
 
 ## Native sequences
 
+### Development relay acceptance
+
+After migrating and starting the existing stack, validate and reload a changed
+ingress configuration without recreating its shared network namespace:
+
+```powershell
+docker compose exec -T ingress nginx -t
+docker compose exec -T ingress nginx -s reload
+docker compose run --rm --no-deps tools node --import tsx docker/relay-journey.ts
+```
+
+The journey logs in through the actual synthetic Keycloak realm, creates two
+synthetic devices, pairs a laptop, sends generated-type frames over WSS and
+checks session/account SSE through `8443`. It simulates an unpersisted ACK
+checkpoint, reconnects/replays without duplicating the projected step, then
+unlinks the laptop and revokes only its created devices. Credentials stay in
+memory; it uses no model/provider or `.env`, and never resets database volumes.
+It changes synthetic identity/link/journal state, so it is an explicit development
+acceptance command, not a read-only health probe or production check.
+
+The generic `/v1/` proxy forwards Upgrade/Connection with HTTP/1.1, preserves
+forwarded host/protocol information, disables response buffering/cache and uses
+a 75-second upstream read timeout above the existing 15-second heartbeats.
+Its 8 KiB HTTP request-body limit remains; it does not limit upgraded WS frames.
+The header forwarding and response policy follow the upstream
+[WebSocket proxying](https://nginx.org/en/docs/http/websocket.html) and
+[proxy buffering](https://nginx.org/en/docs/http/ngx_http_proxy_module.html#proxy_buffering)
+documentation.
+Normal backend authentication, bounded frame handling and stream authority checks
+remain in their source owners. The actual-Nginx regression fixture copies this
+configuration with only owned ports and TLS-file paths replaced.
+
+Passing this command establishes local synthetic ingress acceptance, not an
+implemented Native consumer, actual hook/phone integration or real-data readiness.
+
+### Native authentication
+
 1. Bind an application-controlled IPv4 listener on an available port >=1024,
    fixed path `/oidc-return`. Generate a 32-byte random base64url return verifier;
    send its SHA-256/base64url challenge and the exact listener URI to

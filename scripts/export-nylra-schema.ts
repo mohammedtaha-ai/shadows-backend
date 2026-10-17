@@ -1,9 +1,9 @@
 import { writeFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
-import { nylraOperations } from '../src/transports/http/nylra-paths.js';
+import { nylraOperations, NYLRA_CONTRACT_VERSION, type NylraOperation } from '../src/transports/http/nylra-paths.js';
 import * as S from '../src/transports/http/nylra-schema.js';
 
-export const nylraVersion = '0.2.0';
+export const nylraVersion = NYLRA_CONTRACT_VERSION;
 
 // Every exported object or union schema is one named component; a use of the same
 // TypeBox value becomes a $ref, so the document stays readable for generators.
@@ -50,8 +50,8 @@ const parameters = (schema: { properties?: Record<string, unknown>; required?: s
 
 export function nylraSchema(): string {
   const paths: Record<string, Record<string, unknown>> = {};
-  for (const op of nylraOperations) {
-    const responses: Record<string, unknown> = {
+  for (const op of nylraOperations as readonly NylraOperation[]) {
+    const responses: Record<string, unknown> = op.transport === 'websocket' ? {101:{description:'WebSocket upgrade; frames use laptop-link-v1'}} : {
       200: {
         description: op.okType === 'text/event-stream' ? 'Stream; each event data is one value of this schema' : 'OK',
         content: { [op.okType ?? 'application/json']: { schema: plain(op.ok) } },
@@ -60,7 +60,7 @@ export function nylraSchema(): string {
     for (const status of op.refusals)
       responses[status] = { description: 'Refusal', content: { 'application/json': { schema: plain(S.NylraRefusal) } } };
     paths[op.path] = { ...paths[op.path], [op.method]: {
-      summary: op.summary, security: [{ backendBearer: [] }],
+      operationId:op.operationId, 'x-implementation-status':op.status, summary: op.summary, security: [{ backendBearer: [] }],
       parameters: [...parameters(op.params as never, 'path'), ...parameters(op.query as never, 'query')],
       ...(op.body ? { requestBody: { required: true, content: { 'application/json': { schema: plain(op.body) } } } } : {}),
       responses,
