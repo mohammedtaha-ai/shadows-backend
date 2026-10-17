@@ -51,7 +51,7 @@ Branch `backend/account-chat`. Run checks with
 - Done when: `tests/integration/provider-destination.test.ts` passes, typecheck, check:contracts
 
 ### B-4 · Provider settings owner
-- Status: todo
+- Status: done
 - Plan: docs/backend/plans/2026-10-18-account-chat-step1.md#b-4--provider-settings-owner
 - Read: src/modules/links/{index,service,store}.ts as the owner pattern; src/platform/database/contract.yaml; scripts/check-boundaries.ts
 - Touch: src/modules/provider-settings/model.ts, src/modules/provider-settings/store.ts, src/modules/provider-settings/service.ts, src/modules/provider-settings/index.ts, src/modules/provider-settings/contract.yaml, migrations/009_provider_settings.sql, src/platform/database/schema.ts, src/platform/database/contract.yaml, scripts/check-boundaries.ts, tests/architecture/boundaries.test.ts, tests/architecture/contracts.test.ts, tests/integration/migrations.test.ts, tests/integration/provider-settings.test.ts, docs/codebase/README.md

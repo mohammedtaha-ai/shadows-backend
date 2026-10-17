@@ -1,9 +1,13 @@
-# This owner currently implements credential sealing and destination validation, not persistence.
+# Provider settings alone owns account connections, defaults and encrypted credentials.
 name: provider-settings
 status: current
 source: src/modules/provider-settings
-owns: Independent provider credential sealing with an active and retained-previous BYOK key ring, and public HTTPS destination validation.
+owns: Account provider connections and default selection, encrypted credentials, destination validation and revision-scoped dispatch resolution.
 public_api:
+  createProviderSettings: Constructs the account-scoped service with public Identity authorization, BYOK keys, an all-address resolver and clock.
+  ProviderSettingsService: Authenticated list, create, update, remove, getDefault and setDefault operations plus transactional resolveForDispatch.
+  resolveForDispatch: Locks an active account-owned connection at the expected revision, revalidates its destination and decrypts only for the calling workflow; caller must freshly authorize its origin principal in the same transaction.
+  ConnectionView: Metadata only; exposes keyConfigured and configuration revision, never plaintext or sealed credential material.
   seal: Encrypts with the active key and fresh 12-byte nonce, returning a key ID and base64url nonce, tag and ciphertext.
   open: Decrypts only with the authenticated named retained key and matching associated data; refuses malformed or tampered input with credential_refused.
   KeyRing: Active key ID plus the read-only map of 32-byte keys supplied by the host.
@@ -12,6 +16,21 @@ public_api:
   DestinationResolver: Injected all-address DNS resolution; IP literals are checked directly and never resolved through this port.
   ValidatedDestination: Canonical endpoint metadata and the complete copied address set that passed validation.
 obligations:
+  - rule: Metadata reads never expose credentials; encrypted storage and defaults are account scoped, all principal operations authorize through Identity, and a logged-out principal is refused.
+    tested_by: provider_settings_owns_encrypted_credentials_and_isolates_accounts_and_defaults
+    note: tests/integration/provider-settings.test.ts
+  - rule: Concurrent creates serialize per account; at most 20 active connections and one active connection per exact name are allowed, with removed names reusable.
+    tested_by: provider_settings_serializes_limits_and_unique_names_per_account
+    note: tests/integration/provider-settings.test.ts
+  - rule: Changing origin or base path requires a resubmitted key; key writes advance credential revision and every update fences old configuration revisions; dispatch revalidates DNS.
+    tested_by: provider_settings_destination_changes_require_new_keys_and_fence_old_revisions
+    note: tests/integration/provider-settings.test.ts
+  - rule: Removing a connection clears a matching default, blocks further reads and dispatch resolution, and immediately nulls its ciphertext and key ID while retaining removed metadata.
+    tested_by: provider_settings_remove_blocks_use_clears_default_and_purges_ciphertext
+    note: tests/integration/provider-settings.test.ts
+  - rule: Tampered credentials refuse resolution with credential_rejected and remain stored; an explicit key replacement can repair them.
+    tested_by: provider_settings_tampered_credentials_refuse_without_destroying_stored_evidence
+    note: tests/integration/provider-settings.test.ts
   - rule: Non-HTTPS, credentials, query or fragment delimiters, control characters, backslashes and invalid ports refuse before DNS.
     tested_by: provider_destination_refuses_unsafe_url_shapes_before_dns
     note: tests/integration/provider-destination.test.ts
@@ -46,5 +65,5 @@ obligations:
     tested_by: credential_seal_invalid_inputs_fail_with_a_fixed_safe_error
     note: tests/integration/credential-seal.test.ts
 open_questions:
-  - Connection ownership, persistence, authorized credential resolution and rotation migration are not implemented here yet.
+  - A resumable credential rotation migration and retention-dependent account lifecycle remain later work.
   - The provider adapter must use the validated address set with TLS hostname verification and redirect refusal; URL validation alone does not implement outbound transport.

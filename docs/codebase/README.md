@@ -9,10 +9,10 @@ Real identity data remains gated; no B2+, model adapter or production deployment
 | [Database primitives](../../src/platform/database) | Connection/transaction lifetime and migration history | [contract](../../src/platform/database/contract.yaml) |
 | [Identity](../../src/modules/identity) | OIDC account binding, encrypted login/session state, native ticket and logout | [contract](../../src/modules/identity/contract.yaml) |
 | [Devices](../../src/modules/devices) | Enrolled installation rows, hashed proof reuse and atomic device revoke via identity operations | [contract](../../src/modules/devices/contract.yaml) |
-| [Provider settings](../../src/modules/provider-settings) | AES-256-GCM credential sealing with active and retained-previous BYOK keys; public HTTPS destination validation across every resolved address; connection persistence remains pending | [contract](../../src/modules/provider-settings/contract.yaml) |
+| [Provider settings](../../src/modules/provider-settings) | Account connections/defaults, encrypted credentials, public HTTPS destination validation and revision-scoped transactional dispatch resolution | [contract](../../src/modules/provider-settings/contract.yaml) |
 | [HTTP](../../src/transports/http) | Canonical auth-v1 and nylra-v1 schemas and transport translation | [contract](../../src/transports/http/contract.yaml) |
 
-[Ordered migrations](../../migrations) name their identity/device/activity/links/sessions owners. Generated
+[Ordered migrations](../../migrations) name their identity/device/activity/links/sessions/provider-settings owners. Generated
 [OpenAPI](../../api/auth-v1.openapi.json) and [TypeScript](../../api/auth-v1.d.ts)
 come from the HTTP schema. Tests use newly owned PG clusters and pinned Keycloak;
 fixtures are not application modules. The [source structure](../source-structure.md)

@@ -20,3 +20,16 @@ test('service_cannot_query_foreign_store_or_tables',()=>{
  assert.ok(inspectBoundary(resolve('src/modules/identity/store.ts'),"db.updateTable('activity_events');").includes('foreign_table'));
  assert.ok(inspectBoundary(resolve('src/modules/activity/service.ts'),"import {Session} from '../../transports/http/nylra-schema.js';").includes('reverse_dependency'));
 });
+
+test('provider_settings_store_is_the_only_owner_of_connection_and_default_tables', () => {
+ const store=resolve('src/modules/provider-settings/store.ts');
+ for(const table of ['provider_settings_connections','provider_settings_accounts']) {
+  assert.deepEqual(inspectBoundary(store,`db.selectFrom('${table}');`),[]);
+  assert.ok(inspectBoundary(resolve('src/modules/provider-settings/service.ts'),`db.selectFrom('${table}');`).includes('non_store_query'));
+  assert.ok(inspectBoundary(resolve('src/modules/links/store.ts'),`db.selectFrom('${table}');`).includes('foreign_table'));
+ }
+ assert.ok(inspectBoundary(store,"db.selectFrom('identity_accounts');").includes('foreign_table'));
+ const http=resolve('src/transports/http/example.ts');
+ assert.ok(inspectBoundary(http,"import {ProviderSettingsStore} from '../../modules/provider-settings/store.js';").includes('private_module_import'));
+ assert.deepEqual(inspectBoundary(http,"import {createProviderSettings} from '../../modules/provider-settings/index.js';"),[]);
+});

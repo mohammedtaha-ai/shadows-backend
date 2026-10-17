@@ -3,6 +3,8 @@ type Time = ColumnType<Date, Date | string, Date | string>;
 type DefaultTime = ColumnType<Date, Date | string | undefined, Date | string>;
 type OptionalTime = ColumnType<Date | null, Date | string | null | undefined, Date | string | null>;
 export interface Database {
+  provider_settings_connections: {id:string;account_id:string;name:string;format:'openai_compatible';origin:string;base_path:string;model:string;credential_revision:ColumnType<string,string|number,string|number>;sealed_key:string|null;key_id:string|null;state:'active'|'removed';revision:ColumnType<string,string|number,string|number>;created_at:Time;updated_at:Time};
+  provider_settings_accounts: {account_id:string;default_connection_id:ColumnType<string|null,string|null|undefined,string|null>};
   sessions_sessions: {id:string;account_id:string;laptop_id:string;producer_id:string;local_id:string;payload:unknown;expires_at:Date;high_water:ColumnType<string,string|number|undefined,string|number>;floor:ColumnType<string,string|number|undefined,string|number>};
   sessions_steps: {id:string;session_id:string;local_id:string;seq:ColumnType<string,string|number,string|number>;fingerprint:string;payload:unknown;expires_at:Date};
   sessions_events: {session_id:string;seq:ColumnType<string,string|number,string|number>;payload:unknown;expires_at:Date};

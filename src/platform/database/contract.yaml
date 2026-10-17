@@ -7,6 +7,9 @@ public_api:
   createDatabase: Constructs pool with deadlines and safe error handling.
   runMigrations: Executes ordered SQL up/down migrations; maps errors to migration_failed.
 obligations:
+  - rule: Provider settings migration preserves earlier owner rows, supports rollback and reapply, and constrains defaults to account-owned connections.
+    tested_by: provider_settings_migration_preserves_existing_rows_and_enforces_owned_constraints
+    note: tests/integration/migrations.test.ts
   - rule: Enrollment upgrade preserves legacy sessions without silently minting reusable proof.
     tested_by: enrollment_upgrade_preserves_legacy_session_without_minting_proof
     note: tests/integration/migrations.test.ts
@@ -22,3 +25,4 @@ open_questions:
 # Activity tables are typed here; ActivityStore alone queries them.
 # Links owns its five declared tables; no credentials are persisted in those tables.
 # Sessions owns its projection, step and per-session journal tables.
+# ProviderSettingsStore alone queries provider_settings_connections and provider_settings_accounts.

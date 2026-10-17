@@ -8,7 +8,7 @@ test('empty_schema_up previous_schema_upgrade repeat_up_no_change down_up_reappl
     await runMigrations(f.connection, 'up', 1);
     assert.equal((await f.pool.query("SELECT to_regclass('identity_sessions') AS name")).rows[0].name, null);
     await runMigrations(f.connection, 'up'); await runMigrations(f.connection, 'up');
-    assert.equal((await f.pool.query('SELECT count(*)::int AS n FROM backend_migrations')).rows[0].n, 8);
+    assert.equal((await f.pool.query('SELECT count(*)::int AS n FROM backend_migrations')).rows[0].n, 9);
     await runMigrations(f.connection, 'down');
     assert.equal((await f.pool.query("SELECT to_regclass('identity_accounts') AS name")).rows[0].name, null);
     await runMigrations(f.connection, 'up');
@@ -19,6 +19,25 @@ test('empty_schema_up previous_schema_upgrade repeat_up_no_change down_up_reappl
     const device = '00000000-0000-4000-8000-000000000003';
     await f.pool.query('INSERT INTO devices(id,account_id) VALUES($1,$2)', [device,accounts[0]]);
     await assert.rejects(f.pool.query("INSERT INTO identity_sessions(id,handle_hash,account_id,device_id,provider_sid,tokens_ciphertext,tokens_key_id,absolute_expires_at) VALUES($1,'hashed',$2,$3,'sid','encrypted','key',now()+interval '1 day')", ['00000000-0000-4000-8000-000000000004',accounts[1],device]), { code: '23503' });
+  } finally { await f.close(); }
+});
+
+test('provider_settings_migration_preserves_existing_rows_and_enforces_owned_constraints', async () => {
+  const f = await postgresFixture();
+  try {
+    await runMigrations(f.connection, 'up', 8);
+    await f.pool.query("INSERT INTO identity_accounts(id,issuer,subject) VALUES('00000000-0000-4000-8000-000000000001','synthetic','provider-upgrade')");
+    await runMigrations(f.connection, 'up');
+    assert.equal((await f.pool.query('SELECT count(*)::int AS n FROM identity_accounts')).rows[0].n, 1);
+    assert.ok((await f.pool.query("SELECT to_regclass('provider_settings_connections') AS name")).rows[0].name);
+    await f.pool.query("INSERT INTO provider_settings_accounts(account_id) VALUES('00000000-0000-4000-8000-000000000001')");
+    await f.pool.query("INSERT INTO provider_settings_connections(id,account_id,name,format,origin,base_path,model,credential_revision,sealed_key,key_id,state,revision,created_at,updated_at) VALUES('00000000-0000-4000-8000-000000000002','00000000-0000-4000-8000-000000000003','Synthetic','openai_compatible','https://provider.example','/v1','synthetic-model',1,'synthetic-ciphertext','synthetic-key-id','active',1,now(),now())");
+    await assert.rejects(f.pool.query("UPDATE provider_settings_accounts SET default_connection_id='00000000-0000-4000-8000-000000000002'"), { code: '23503' });
+    await assert.rejects(f.pool.query("UPDATE provider_settings_connections SET state='removed'"), { code: '23514' });
+    await runMigrations(f.connection, 'down', 1);
+    assert.equal((await f.pool.query("SELECT to_regclass('provider_settings_connections') AS name")).rows[0].name, null);
+    assert.equal((await f.pool.query('SELECT count(*)::int AS n FROM identity_accounts')).rows[0].n, 1);
+    await runMigrations(f.connection, 'up');
   } finally { await f.close(); }
 });
 test('concurrent_migration_lock_refused', async () => {
