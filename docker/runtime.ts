@@ -11,7 +11,8 @@ export async function localEnvironment() {
  return {B1_DATA_MODE:'synthetic',DATABASE_URL:`postgresql://shadows:${await secret('app-db-password')}@app-db:5432/shadows`,
   OIDC_ISSUER:origin+'/realms/shadows-local',OIDC_CLIENT_ID:'shadows-backend',OIDC_CLIENT_SECRET:await secret('client-secret'),
   OIDC_CALLBACK_URL:origin+'/v1/auth/callback',OIDC_LOGOUT_CALLBACK_URL:origin+'/v1/auth/logout-callback',
-  TOKEN_ENCRYPTION_KEY:await secret('token-key'),TOKEN_ENCRYPTION_KEY_ID:'local-v1',PORT:'3000'};
+  TOKEN_ENCRYPTION_KEY:await secret('token-key'),TOKEN_ENCRYPTION_KEY_ID:'local-v1',
+  BYOK_KEY:await secret('byok-key'),BYOK_KEY_ID:'local-byok-v1',PORT:'3000'};
 }
 if(process.argv[2]==='start'||process.argv[2]==='migrate') {
  try {

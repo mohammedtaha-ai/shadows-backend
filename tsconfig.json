@@ -4,5 +4,5 @@
     "strict": true, "noUncheckedIndexedAccess": true, "esModuleInterop": true,
     "skipLibCheck": true, "noEmit": true, "types": ["node"]
   },
-  "include": ["src/**/*.ts", "tests/**/*.ts", "scripts/**/*.ts", "docker/**/*.ts"]
+  "include": ["src/**/*.ts", "packages/aylul-brain/src/**/*.ts", "tests/**/*.ts", "scripts/**/*.ts", "docker/**/*.ts"]
 }

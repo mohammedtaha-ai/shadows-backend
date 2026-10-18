@@ -5,7 +5,9 @@ import type { Enrollment } from '../../../src/modules/identity/index.js';
 import type { AppConfig } from '../../../src/app/config.js';
 async function restartChild(config:AppConfig,input:Record<string,unknown>) {
  const env={B1_DATA_MODE:'synthetic',DATABASE_URL:config.databaseUrl,OIDC_ISSUER:config.issuer,OIDC_CLIENT_ID:config.clientId,OIDC_CLIENT_SECRET:config.clientSecret,
-  OIDC_CALLBACK_URL:config.callbackUrl,OIDC_LOGOUT_CALLBACK_URL:config.logoutCallbackUrl,TOKEN_ENCRYPTION_KEY:config.encryptionKey.toString('base64'),TOKEN_ENCRYPTION_KEY_ID:config.encryptionKeyId,PORT:'0'};
+  OIDC_CALLBACK_URL:config.callbackUrl,OIDC_LOGOUT_CALLBACK_URL:config.logoutCallbackUrl,TOKEN_ENCRYPTION_KEY:config.encryptionKey.toString('base64'),TOKEN_ENCRYPTION_KEY_ID:config.encryptionKeyId,
+  BYOK_KEY:config.byokKey.toString('base64'),BYOK_KEY_ID:config.byokKeyId,PORT:'0',
+  ...(config.byokPreviousKeys.size?{BYOK_PREVIOUS_KEYS:[...config.byokPreviousKeys].map(([id,key])=>`${id}:${key.toString('base64')}`).join(',')}:{})};
  const child=spawn(process.execPath,['--import','tsx',fileURLToPath(new URL('restart-child.ts',import.meta.url))],{stdio:['pipe','pipe','pipe']});
  const output:Buffer[]=[], diagnostic:Buffer[]=[];
  child.stdout.on('data',c=>output.push(Buffer.from(c)));child.stderr.on('data',c=>diagnostic.push(Buffer.from(c)));

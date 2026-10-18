@@ -8,7 +8,10 @@ const configPath=ts.findConfigFile('.',ts.sys.fileExists,'tsconfig.json')!;
 const options=ts.parseJsonConfigFileContent(ts.readConfigFile(configPath,ts.sys.readFile).config,ts.sys,dirname(resolve(configPath))).options;
 export function inspectBoundary(path:string,text:string,compilerOptions:ts.CompilerOptions=options):string[] {
  const source=ts.createSourceFile(path,text,ts.ScriptTarget.Latest,true),failures:string[]=[];
+ const brainRoot=resolve('packages/aylul-brain');
+ const isBrain=resolve(path).startsWith(brainRoot+'/')||resolve(path).startsWith(brainRoot+'\\');
  function visit(node:ts.Node) {
+  if(isBrain && ts.isIdentifier(node) && ['process','globalThis','global','Deno','Bun','require'].includes(node.text)) failures.push('brain_host_access');
   let target:ts.Expression|undefined;
   if(ts.isImportDeclaration(node)||ts.isExportDeclaration(node)) target=node.moduleSpecifier;
   if(ts.isCallExpression(node) && (node.expression.kind===ts.SyntaxKind.ImportKeyword || (ts.isIdentifier(node.expression)&&node.expression.text==='require'))) target=node.arguments[0];
@@ -19,6 +22,14 @@ export function inspectBoundary(path:string,text:string,compilerOptions:ts.Compi
     const resolved=ts.resolveModuleName(target.text,path,compilerOptions,ts.sys).resolvedModule?.resolvedFileName;
     const targetPath=resolved?relative(resolve('src'),resolve(resolved)).replaceAll('\\','/'):target.text;
     const current=relative(resolve('src'),resolve(path)).replaceAll('\\','/');
+    if(isBrain) {
+     const local=resolved?relative(brainRoot,resolve(resolved)).replaceAll('\\','/'):undefined;
+     if(target.text!=='ai' && (!target.text.startsWith('.') || !local || local.startsWith('../') || local.startsWith('node_modules/'))) failures.push('brain_external_dependency');
+    }
+    const brainTarget=resolved?relative(brainRoot,resolve(resolved)).replaceAll('\\','/'):undefined;
+    if(!isBrain && !current.startsWith('../') && (target.text.startsWith('aylul-brain/') || (brainTarget && !brainTarget.startsWith('../'))) && target.text!=='aylul-brain') failures.push('private_brain_import');
+    const sdk=target.text==='ai'||target.text.startsWith('@ai-sdk/')||/\/node_modules\/(ai\/|@ai-sdk\/)/.test(resolved?.replaceAll('\\','/')??'');
+    if(sdk&&!current.startsWith('integrations/providers/')&&!(isBrain&&target.text==='ai')) failures.push('provider_sdk_dependency');
     const owner=/^modules\/([^/]+)\//.exec(targetPath)?.[1],caller=/^modules\/([^/]+)\//.exec(current)?.[1];
     if(owner && owner!==caller && !targetPath.endsWith('/index.ts')) failures.push('private_module_import');
     if(caller && /^(transports|app)\//.test(targetPath)) failures.push('reverse_dependency');
@@ -29,13 +40,14 @@ export function inspectBoundary(path:string,text:string,compilerOptions:ts.Compi
    const current=relative(resolve('src'),resolve(path)).replaceAll('\\','/'),table=node.arguments[0];
    if(!current.endsWith('/store.ts')) failures.push('non_store_query');
    const owner=/^modules\/([^/]+)\//.exec(current)?.[1];
-   if(!table || !ts.isStringLiteral(table) || !(owner==='identity'?table.text.startsWith('identity_'):(owner==='devices'&&table.text==='devices')||(owner==='activity'&&['activity_cursors','activity_events'].includes(table.text))||(owner==='links'&&['links_laptops','links_pairing_codes','links_claim_commands','links_rate_windows','links_ingress_receipts'].includes(table.text))||(owner==='sessions'&&['sessions_sessions','sessions_steps','sessions_events'].includes(table.text)))) failures.push('foreign_table');
+   if(!table || !ts.isStringLiteral(table) || !(owner==='identity'?table.text.startsWith('identity_'):(owner==='devices'&&table.text==='devices')||(owner==='activity'&&['activity_cursors','activity_events'].includes(table.text))||(owner==='links'&&['links_laptops','links_pairing_codes','links_claim_commands','links_rate_windows','links_ingress_receipts'].includes(table.text))||(owner==='provider-settings'&&['provider_settings_connections','provider_settings_accounts'].includes(table.text))||(owner==='conversations'&&['conversations_topics','conversations_messages','conversations_turns','conversations_intents','conversations_events','conversations_receipts'].includes(table.text))||(owner==='sessions'&&['sessions_sessions','sessions_steps','sessions_events'].includes(table.text)))) failures.push('foreign_table');
   }
   ts.forEachChild(node,visit);
  }
  visit(source);return failures;
 }
 export async function checkBoundaries() {
- const failures:string[]=[];for(const path of await sourceFiles()) for(const failure of inspectBoundary(path,await readFile(path,'utf8'))) failures.push(relative('.',path)+':'+failure);
+ const files=[...await sourceFiles(),...await sourceFiles('packages/aylul-brain/src')];
+ const failures:string[]=[];for(const path of files) for(const failure of inspectBoundary(path,await readFile(path,'utf8'))) failures.push(relative('.',path)+':'+failure);
  return failures;
 }

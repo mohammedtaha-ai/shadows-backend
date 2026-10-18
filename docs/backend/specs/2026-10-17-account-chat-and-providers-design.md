@@ -1,8 +1,9 @@
 # Backend text chat and BYOK providers
 
 Created: 2026-10-17. Revised: 2026-10-18.
-Status: delivery scope/order agreed; technical proposals await written-design review.
-Owner: Backend. Branch: codex/aylul-laptop-relay, original checkout, no worktrees.
+Status: delivery scope/order agreed; encryption, lease timing and limits
+approved; shared request accepted; step-1 plan written 2026-10-18.
+Owner: Backend. Branch: backend/account-chat, original checkout, no worktrees.
 
 ## Outcome and agreed scope
 
@@ -45,7 +46,20 @@ in local Docker; personal conversation content still waits for step 2.
 Automated tests keep a fake provider so they run without cost or network.
 
 One API format is not one hard-coded provider. MiniMax is a trial configuration,
-not the primary model or an automatically chosen account default.
+not the primary model or an automatically chosen account default. Trial values
+from the [2026-10-11 probe](../../evidence/2026-10-11-minimax-provider-probe.md):
+address `https://api.minimax.io/v1`, model `MiniMax-M3`. Verify the model is
+still offered and its price before the manual journey; the paid journey is a
+conditional plan step, not a blocker for writing the plan.
+
+Step 1 delete, agreed 2026-10-18: delete removes the topic, its messages and
+its stream events from the local Docker database, stops its active generation
+and refuses that generation's late writes. Until step 2 lifecycle lands, a
+restored older backup can bring deleted test content back; this is accepted
+because step 1 carries test text only.
+
+API agreement: [shared request 2026-10-18](../../shared/requests/2026-10-18-account-chat-and-providers.md).
+No task changes `api/nylra-v1.openapi.json` before it is `accepted`.
 
 ## Baseline, ownership and interfaces
 
@@ -150,7 +164,8 @@ After restart, an accepted unclaimed intent may run. An expired claimed intent
 becomes interrupted/partial and is not automatically redispatched, even if the
 provider outcome is unknown. Reject the old worker's late writes. Explicit retry
 uses a new request identity and can incur another charge. Configure generation
-SDK/HTTP retries to zero; exactly-once external billing is not promised.
+SDK/HTTP retries to zero. The guarantee is no automatic resend, not single
+billing: after an ambiguous interruption the provider may already have charged.
 
 SSE disconnect or closing the client window does not mean Stop. A persisted stop
 aborts the owned provider call and finishes with the committed partial prefix.
@@ -238,9 +253,11 @@ relay and generated-artifact regressions. Runtime keys stay out of model context
 logs and Git; this documentation task reads no secrets and calls no provider.
 
 Two operational choices close at their actual use point: production key/backup
-provisioning before deployment, and the exact trial endpoint/model plus explicit
-bounded test cost before real-provider acceptance. Neither lets personal
-content storage start before core deletion passes.
+provisioning before deployment, and the exact trial endpoint/model before
+real-provider acceptance. Human decision 2026-10-18: no cost cap on the trial;
+the manual journey may call the provider as often as acceptance needs.
+Automated tests still use the fake provider. Neither lets personal content
+storage start before core deletion passes.
 
 ## Self-review and handoff
 

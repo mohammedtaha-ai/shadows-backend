@@ -24,7 +24,7 @@ async function containerFixture(admin: string) {
     const client = new pg.Client({ connectionString: admin }); await client.connect();
     try { await client.query(sql); } finally { await client.end(); }
   };
-  await adminQuery(`CREATE DATABASE ${name}`);
+  await adminQuery(`CREATE DATABASE ${name} TEMPLATE template0 ENCODING 'UTF8'`);
   const connection = { host: base.hostname, port: Number(base.port), user: decodeURIComponent(base.username),
     password: decodeURIComponent(base.password), database: name };
   const pool = new pg.Pool(connection); let closing = false;
@@ -44,7 +44,8 @@ export async function postgresFixture() {
   const directory = await mkdtemp(resolve(root, 'pg-'));
   const port = await freePort(), password = randomBytes(32).toString('hex');
   const cluster = new EmbeddedPostgres({ databaseDir: resolve(directory, 'cluster'), user: 'b1', password,
-    port, persistent: false, authMethod: 'scram-sha-256', createPostgresUser: false, onLog: () => {}, onError: () => {} });
+    port, persistent: false, authMethod: 'scram-sha-256', createPostgresUser: false,
+    initdbFlags: ['--encoding=UTF8'], onLog: () => {}, onError: () => {} });
   let pool: pg.Pool | undefined; let closing = false;
   try {
     await cluster.initialise();

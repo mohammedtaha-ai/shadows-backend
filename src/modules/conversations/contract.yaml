@@ -1,0 +1,63 @@
+name: conversations
+status: current
+source: src/modules/conversations
+owns: Account-scoped topics, pinned connection metadata, messages, accepted turns, fenced dispatch leases, committed replies, command receipts and transactional per-topic event sequences.
+public_api:
+  createConversations: Creates authorized topic create/list/snapshot, turn acceptance, acknowledged connection change, cursor replay and confirmed deletion operations. A turn stores its origin principal for dispatch authorization.
+  ConversationsService: Public service type; application callers do not access the store or tables.
+  createTurnDispatcher: Starts and drains the owner worker. Pending intents may dispatch once; expired claimed intents finish interrupted without redispatch. Claims use a fresh token and a 30 second lease, renewed every 5 seconds after fresh origin and provider revision authorization.
+  ReplyPort: Host-supplied text stream with safe terminal categories; the domain imports neither brain nor provider adapter. The app supplies exact brain instructions to admission separately.
+obligations:
+  - rule: Deltas commit with the assistant prefix and journal before readers observe them, coalesce within 200 ms or 4000 UTF-8 bytes, and stop at 16000 UTF-16 characters without splitting supplementary characters. The host receives ordered topic history, the current message and a 4096 output-token ceiling.
+    tested_by: turn_dispatch_streams_committed_bounded_deltas_and_pins_history
+    note: tests/integration/turn-dispatch.test.ts uses shortened timing intervals and multibyte output; no real provider is called.
+  - rule: Persisted stop, deletion and origin-session/device or connection removal abort the in-process stream. Stop retains only the committed prefix; reauthentication cannot resume finished work. Missing topics refuse late writes.
+    tested_by: turn_dispatch_stop_keeps_only_the_committed_prefix_and_delete_refuses_late_writes
+    note: tests/integration/turn-dispatch.test.ts; turn_dispatch_revoked_origin_and_removed_connection_abort_without_resurrection covers heartbeat authority loss.
+  - rule: Pending intent stop, revoked origin and removed connection refuse before a provider call; completion revalidates success inside its transaction.
+    tested_by: turn_dispatch_predispatch_authority_and_persisted_stop_prevent_provider_calls
+    note: tests/integration/turn-dispatch.test.ts
+  - rule: Expired claims retain their committed prefix, finish interrupted and clear the token; replacement workers never redispatch them. Stale tokens cannot append text or finish, including before lease expiry.
+    tested_by: turn_dispatch_restart_interrupts_expired_claims_and_fences_old_tokens_without_redispatch
+    note: tests/integration/turn-dispatch.test.ts; turn_dispatch_rejects_stale_token_delta_and_finish_and_recovers_without_retry replaces a live token before late writes.
+  - rule: Slow destination validation cannot renew an already expired lease or reach the provider.
+    tested_by: turn_dispatch_slow_resolution_cannot_renew_an_expired_lease_or_call_provider
+    note: tests/integration/turn-dispatch.test.ts
+  - rule: Lease validity is evaluated after awaited row locks and again before committing output; renewal conditionally refuses an expired lease. Expiry during lock contention cannot commit a late delta.
+    tested_by: turn_dispatch_lease_expiring_while_waiting_for_row_locks_refuses_late_delta
+    note: tests/integration/turn-dispatch.test.ts blocks an actual intent row, advances the injected clock, then releases the writer; old Date capture reproduced a committed late prefix.
+  - rule: Competing workers cannot claim the same intent; heartbeat renews the 30 second lease and final success rechecks origin authority. Untyped exceptions are reduced to network without diagnostic text.
+    tested_by: turn_dispatch_competing_workers_claim_one_provider_call_and_renew_thirty_second_lease
+    note: tests/integration/turn-dispatch.test.ts; turn_dispatch_final_commit_rechecks_origin_and_scrubs_untyped_provider_exceptions covers final authorization and diagnostic removal.
+  - rule: Provider errors persist only an allowed category and are never automatically retried.
+    tested_by: turn_dispatch_safe_provider_category_is_persisted_without_diagnostics_or_retry
+    note: tests/integration/turn-dispatch.test.ts
+  - rule: New turn admission refuses removed or superseded connection pins; acknowledged reselection between turns refreshes the pin. Replay of an already accepted identical command still returns its original result.
+    tested_by: conversations_admission_refuses_removed_or_superseded_connection_until_acknowledged_reselection
+    note: tests/integration/conversations.test.ts
+  - rule: Journal failure rolls back message, turn, intent and receipt together; Activity failure rolls back deletion and cancellation. Topic metadata selection observes updated connection revision without opening its encrypted credential.
+    tested_by: conversations_rollback_keeps_admission_and_deletion_atomic_and_selects_metadata_without_decryption
+    note: tests/integration/conversations.test.ts
+  - rule: Topic creation pins the supplied or current default connection through ProviderSettings selectForTopic in the authorized transaction; later default changes do not alter old topics. Transfer requires acknowledgement and no active turn. Commands recover identical results and conflict on changed content.
+    tested_by: conversations_scope_default_pinning_transfer_and_command_replay
+    note: tests/integration/conversations.test.ts
+  - rule: Serialized account admission permits one active turn per topic and two per account; message, pinned turn, receipt, intent and entry event commit together, including concurrent identical-command replay.
+    tested_by: conversations_serializes_busy_limits_and_atomic_receipts
+    note: tests/integration/conversations.test.ts
+  - rule: Complete topic history plus exact publicly exported brain instructions and new message must fit 100 serialized messages and 65536 UTF-8 bytes. Refusal stores no turn or dispatch intent and does not truncate history.
+    tested_by: conversations_refuses_complete_context_overflow_without_partial_writes
+    note: tests/integration/conversations.test.ts
+  - rule: Snapshot and replay expose committed sequence positions, reject cursors below floor or above high water, and page at most 100 events. Confirmed deletion purges all owned rows and publishes only the opaque topic ID through Activity in the same transaction. Deleted topics refuse subsequent reads and admission.
+    tested_by: conversations_journal_floor_delete_purges_owned_rows_and_publishes_activity
+    note: tests/integration/conversations.test.ts
+  - rule: Topic deletion account events replay without requiring a laptop link or leaking internal Activity routing fields.
+    tested_by: topic_deleted_replays_over_account_sse_without_laptop_authority
+    note: tests/integration/conversations.test.ts
+  - rule: Only the conversations store may query its six tables, and models remain independent of database and provider SDKs.
+    tested_by: conversations_store_exclusively_owns_its_tables_and_keeps_models_pure
+    note: tests/architecture/boundaries.test.ts
+gaps:
+  - at: createConversations
+    note: HTTP bindings and topic SSE are implemented by the HTTP owner. Legacy project-bound TopicCreate input explicitly refuses request_invalid; project projection/context needs its own delivery scope. Retention/restore acceptance remains outside this synthetic slice.
+open_questions:
+  - Real-data retention, restore and provider/device acceptance remain separate gates; current test content is synthetic.

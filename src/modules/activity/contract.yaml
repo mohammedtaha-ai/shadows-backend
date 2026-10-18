@@ -7,6 +7,9 @@ public_api:
   createActivity: Creates transaction-scoped append, cursor, read, invalidateLaptop and prune operations.
   expire: Discovers expired payloads without account traffic and prunes through the owner store.
 obligations:
+  - rule: Topic deletion events have no laptop or session identity; existing laptop variants still require a laptop ID. Durable reads retain the discriminator and the account SSE excludes topic events from laptop authority checks.
+    tested_by: topic_deleted_replays_over_account_sse_without_laptop_authority
+    note: tests/integration/conversations.test.ts
   - rule: Rollbacks preserve gapless committed order; accounts, invalidation, expiry and overflow are isolated.
     tested_by: activity_journal_rollback_concurrency_scope_floor_expiry_and_overflow
     note: tests/integration/activity-journal.test.ts

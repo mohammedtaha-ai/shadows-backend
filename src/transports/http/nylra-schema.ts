@@ -35,20 +35,48 @@ export const LaptopParams = closed({ laptopId: Id });
 // Push registration for the current phone.
 export const PushRegistration = closed({ platform: literals(['fcm', 'apns']), token: text(4096, 1) });
 
+// Account-owned provider metadata. Credentials appear only in write bodies.
+const connectionFields = {
+  name: text(80, 1), format: literals(['openai_compatible']),
+  baseUrl: Type.String({ minLength: 1, maxLength: 2048, pattern: '^https://[^\\s]+$' }), model: text(200, 1),
+};
+const apiKey = Type.String({ minLength: 1, maxLength: 512, writeOnly: true });
+export const Connection = closed({
+  connectionId: Id, ...connectionFields, keyConfigured: Type.Boolean(),
+  revision: Type.Integer({ minimum: 1, maximum: Number.MAX_SAFE_INTEGER }), createdAt: Timestamp, updatedAt: Timestamp,
+});
+export const ConnectionList = closed({ connections: Type.Array(Connection, { maxItems: 20 }) });
+export const ConnectionCreate = closed({ ...connectionFields, apiKey });
+export const ConnectionUpdate = closed({
+  name: Type.Optional(connectionFields.name), format: Type.Optional(connectionFields.format),
+  baseUrl: Type.Optional(connectionFields.baseUrl), model: Type.Optional(connectionFields.model), apiKey: Type.Optional(apiKey),
+}, 'Changing destination requires a reconfirmed key in the same request; the provider-settings service enforces this.');
+export const ConnectionParams = closed({ connectionId: Id });
+export const DefaultConnection = closed({ connectionId: nullable(Id) });
+export const DefaultConnectionSet = closed({ connectionId: Id });
+export const ConnectionTest = closed({ costAcknowledged: Type.Literal(true) }, 'An explicit probe may incur provider charges.');
+export const ConnectionTestResult = closed({ outcome: literals([
+  'ok', 'credential_rejected', 'model_unavailable', 'quota', 'network', 'destination_refused',
+]) });
+
 // Chat: topics, their entries and their stream.
 export const ProjectRef = closed({ laptopId: Id, projectId: text(128, 1), name: text(200) },
   'A Shadows project shared with AYLUL on one laptop.');
 export const Topic = closed({
   topicId: Id, title: text(200), project: nullable(ProjectRef), state: literals(['open', 'resolved']),
+  connectionId: Id, model: connectionFields.model,
   createdAt: Timestamp, updatedAt: Timestamp, lastSeq: Seq,
 });
 export const TopicList = closed({ topics: Type.Array(Topic, { maxItems: 200 }), cursor: Seq },
   'cursor is the account stream position matching this list.');
 export const TopicCreate = closed({
-  commandId: CommandId, title: Type.Optional(text(200, 1)),
+  commandId: CommandId, title: Type.Optional(text(200, 1)), connectionId: Type.Optional(Id),
   project: Type.Optional(closed({ laptopId: Id, projectId: text(128, 1) })),
 });
 export const TopicParams = closed({ topicId: Id });
+export const TopicConnectionChange = closed({ connectionId: Id, transferAcknowledged: Type.Literal(true) },
+  'Acknowledges that the next turn sends topic context to the selected provider.');
+export const TopicDelete = closed({ confirm: Type.Literal(true) });
 export const AfterQuery = closed({ after: Type.Optional(Seq) });
 export const SourceRef = closed({
   kind: Type.String({ pattern: '^[a-z][a-z_]{0,39}$' }), id: text(128, 1), version: text(128, 1), readAt: Timestamp,
@@ -68,7 +96,10 @@ export const TopicEvent = Type.Union([
   event('entry_added', { entry: Entry }),
   event('delta', { entryId: Id, text: text(4000, 1) }),
   event('entry_updated', { entry: Entry }),
-  event('turn_finished', { turnId: Id, outcome: literals(['done', 'error', 'cancelled']), code: Type.Optional(text(64, 1)) }),
+  event('turn_finished', {
+    turnId: Id, connectionId: Id, model: connectionFields.model,
+    outcome: literals(['done', 'error', 'cancelled']), code: Type.Optional(text(64, 1)),
+  }),
   event('topic_updated', { topic: Topic }),
 ]);
 export const TurnRequest = closed({ commandId: CommandId, message: text(2000, 1) });
@@ -128,11 +159,14 @@ export const AccountEvent = Type.Union([
   event('laptop_offline', { laptop: Laptop }),
   event('laptop_unlinked', { laptopId: Id }),
   event('topic_updated', { topic: Topic }),
+  event('topic_deleted', { topicId: Id }),
 ]);
 
 export const NylraRefusal = closed({ code: literals([
   'request_invalid', 'unauthorized', 'not_found', 'rate_limited', 'operation_failed',
   'link_code_invalid', 'command_conflict', 'resnapshot_required', 'approval_already_decided', 'approval_expired',
+  'no_connection', 'credential_rejected', 'model_unavailable', 'quota', 'network', 'destination_refused',
+  'generation_busy', 'context_too_large',
 ]) });
 export const Empty = closed({});
 export type Schema = TSchema;

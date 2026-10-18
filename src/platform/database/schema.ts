@@ -3,6 +3,14 @@ type Time = ColumnType<Date, Date | string, Date | string>;
 type DefaultTime = ColumnType<Date, Date | string | undefined, Date | string>;
 type OptionalTime = ColumnType<Date | null, Date | string | null | undefined, Date | string | null>;
 export interface Database {
+  conversations_topics: {id:string;account_id:string;title:string;connection_id:string;connection_revision:ColumnType<string,string|number,string|number>;model:string;high_water:ColumnType<string,string|number|undefined,string|number>;floor:ColumnType<string,string|number|undefined,string|number>;created_at:Time;updated_at:Time};
+  conversations_messages: {id:string;topic_id:string;turn_id:string;role:'user'|'assistant';text:string;status:'streaming'|'complete'|'partial';seq:ColumnType<string,string|number,string|number>;created_at:Time};
+  conversations_turns: {id:string;topic_id:string;account_id:string;origin_device_id:string;origin_session_id:string;connection_id:string;connection_revision:ColumnType<string,string|number,string|number>;model:string;state:'accepted'|'running'|'done'|'error'|'cancelled'|'interrupted';cancel_requested:boolean;created_at:Time};
+  conversations_intents: {turn_id:string;topic_id:string;state:'pending'|'claimed'|'finished';lease_token:string|null;lease_expires_at:Time|null};
+  conversations_events: {topic_id:string;seq:ColumnType<string,string|number,string|number>;payload:unknown};
+  conversations_receipts: {account_id:string;operation:'topic'|'turn';command_id:string;topic_id:string;fingerprint:string;result:unknown};
+  provider_settings_connections: {id:string;account_id:string;name:string;format:'openai_compatible';origin:string;base_path:string;model:string;credential_revision:ColumnType<string,string|number,string|number>;sealed_key:string|null;key_id:string|null;state:'active'|'removed';revision:ColumnType<string,string|number,string|number>;created_at:Time;updated_at:Time};
+  provider_settings_accounts: {account_id:string;default_connection_id:ColumnType<string|null,string|null|undefined,string|null>};
   sessions_sessions: {id:string;account_id:string;laptop_id:string;producer_id:string;local_id:string;payload:unknown;expires_at:Date;high_water:ColumnType<string,string|number|undefined,string|number>;floor:ColumnType<string,string|number|undefined,string|number>};
   sessions_steps: {id:string;session_id:string;local_id:string;seq:ColumnType<string,string|number,string|number>;fingerprint:string;payload:unknown;expires_at:Date};
   sessions_events: {session_id:string;seq:ColumnType<string,string|number,string|number>;payload:unknown;expires_at:Date};
@@ -12,7 +20,7 @@ export interface Database {
   links_rate_windows: {account_id:string;key:string;window_start:Date;count:number};
   links_ingress_receipts: {laptop_id:string;producer_id:string;seq:ColumnType<string,string|number,string|number>;fingerprint:string;dropped:boolean;expires_at:Date};
   activity_cursors: {account_id:string;high_water:ColumnType<string,string|number|undefined,string|number>;floor:ColumnType<string,string|number|undefined,string|number>};
-  activity_events: {account_id:string;seq:ColumnType<string,string|number,string|number>;kind:'laptop_online'|'laptop_offline'|'laptop_unlinked'|'session_changed';laptop_id:string;session_id:string|null;payload:Record<string,unknown>;expires_at:Time};
+  activity_events: {account_id:string;seq:ColumnType<string,string|number,string|number>;kind:'laptop_online'|'laptop_offline'|'laptop_unlinked'|'session_changed'|'topic_deleted';laptop_id:string|null;session_id:string|null;payload:Record<string,unknown>;expires_at:Time};
   identity_accounts: { id: string; issuer: string; subject: string; status: Generated<'active' | 'deleting'>; created_at: DefaultTime };
   identity_login_attempts: { id: string; state_hash: string; binding_ciphertext: string; binding_key_id: string; return_uri: string; return_challenge: string; expires_at: Time; claimed_at: OptionalTime };
   identity_return_tickets: { id: string; ticket_hash: string; account_id: string; return_challenge: string; provider_sid: string; tokens_ciphertext: string; tokens_key_id: string; expires_at: Time; consumed_at: OptionalTime };

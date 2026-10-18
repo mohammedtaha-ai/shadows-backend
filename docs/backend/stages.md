@@ -5,14 +5,13 @@ here and set its status. Task shape: [`AGENTS.md`](./AGENTS.md#a-task-in-stagesm
 
 ## Now
 
-**Next: account chat and BYOK provider settings.** Account-owned text chat and
-per-account provider keys, backend only. The
-[design](specs/2026-10-17-account-chat-and-providers-design.md) has an agreed
-delivery order (2026-10-18): chat first, calling real MiniMax with the
-human's own trial key and test text; then the lifecycle policy on its tables;
-then the real-data gate for personal content; then open registration. Its
-technical proposals (encryption, worker lease, limits) await written-design
-review. No plan, no tasks and no client changes are approved yet.
+**Now: account chat, step 1 (B-1 to B-11).** Account-owned text chat with
+encrypted BYOK connections, backend only.
+[Design](specs/2026-10-17-account-chat-and-providers-design.md),
+[plan](plans/2026-10-18-account-chat-step1.md),
+[accepted request](../shared/requests/2026-10-18-account-chat-and-providers.md).
+Later steps: lifecycle and the real-data gate (2), open signup and more API
+formats (3).
 
 **Done: laptop relay (B-R1 to B-R8).** Below. Plan and contract approved by the
 human on 2026-10-17; built inline on `codex/aylul-laptop-relay`, checked in
@@ -20,6 +19,118 @@ Docker only. Native integration, real-device acceptance and real-data
 lifecycle remain separate work.
 
 ## Tasks
+
+### Account chat, step 1
+
+Branch `backend/account-chat`. Run checks with
+`docker compose run --rm --no-deps tools <command>`; see the plan's
+"How to run checks". Every task may also set its status here.
+
+### B-1 · Generated contract for chat and connections
+- Status: done
+- Plan: docs/backend/plans/2026-10-18-account-chat-step1.md#b-1--generated-contract-for-chat-and-connections
+- Read: docs/shared/requests/2026-10-18-account-chat-and-providers.md; src/transports/http/contract.yaml
+- Touch: src/transports/http/nylra-schema.ts, src/transports/http/nylra-paths.ts, src/transports/http/contract.yaml, scripts/mock-nylra.ts, scripts/export-nylra-schema.ts, api/nylra-v1.openapi.json, api/nylra-v1.d.ts, api/nylra-v1.fixtures.json, tests/integration/nylra-wire.test.ts, tests/integration/nylra-mock.test.ts
+- Scope amendment (human-approved 2026-10-18): allow the exporter to convert boolean literals to OpenAPI 3.0 one-value enums for the required acknowledgement fields.
+- Done when: `npm run schema:nylra` then `npm run schema:check`, `tests/integration/nylra-mock.test.ts`, typecheck, check:contracts pass
+
+### B-2 · Credential sealing and the BYOK key ring
+- Status: done
+- Plan: docs/backend/plans/2026-10-18-account-chat-step1.md#b-2--credential-sealing-and-the-byok-key-ring
+- Read: spec "Proposed encryption and rotation"; src/app/config.ts; src/app/contract.yaml; docker/runtime.ts at `secret(`
+- Touch: src/modules/provider-settings/credential-seal.ts, src/modules/provider-settings/contract.yaml, src/app/config.ts, src/app/contract.yaml, docker/runtime.ts, docker/bootstrap.mjs, tests/integration/fixtures/config.ts, tests/integration/credential-seal.test.ts, tests/integration/startup.test.ts, tests/architecture/contracts.test.ts, docs/codebase/README.md
+- Scope amendment (human-approved 2026-10-18): register the new credential-sealing owner in the contract coverage check and implemented code map.
+- Done when: `tests/integration/credential-seal.test.ts` and `tests/integration/startup.test.ts` pass, typecheck, check:contracts
+
+### B-3 · Destination validation
+- Status: done
+- Plan: docs/backend/plans/2026-10-18-account-chat-step1.md#b-3--destination-validation
+- Read: spec "Provider behavior"; src/modules/provider-settings/contract.yaml
+- Touch: src/modules/provider-settings/destination.ts, src/modules/provider-settings/contract.yaml, tests/integration/provider-destination.test.ts, docs/codebase/README.md
+- Scope amendment (human-approved 2026-10-18): update the provider-settings code-map row to include destination validation alongside credential sealing.
+- Done when: `tests/integration/provider-destination.test.ts` passes, typecheck, check:contracts
+
+### B-4 · Provider settings owner
+- Status: done
+- Plan: docs/backend/plans/2026-10-18-account-chat-step1.md#b-4--provider-settings-owner
+- Read: src/modules/links/{index,service,store}.ts as the owner pattern; src/platform/database/contract.yaml; scripts/check-boundaries.ts
+- Touch: src/modules/provider-settings/model.ts, src/modules/provider-settings/store.ts, src/modules/provider-settings/service.ts, src/modules/provider-settings/index.ts, src/modules/provider-settings/contract.yaml, migrations/009_provider_settings.sql, src/platform/database/schema.ts, src/platform/database/contract.yaml, scripts/check-boundaries.ts, tests/architecture/boundaries.test.ts, tests/architecture/contracts.test.ts, tests/integration/migrations.test.ts, tests/integration/provider-settings.test.ts, docs/codebase/README.md
+- Done when: `tests/integration/provider-settings.test.ts`, `tests/integration/migrations.test.ts`, `npm run test:boundaries` pass, typecheck, check:contracts
+
+### B-5 · OpenAI-compatible adapter and fake provider
+- Status: done
+- Plan: docs/backend/plans/2026-10-18-account-chat-step1.md#b-5--openai-compatible-adapter-and-fake-provider
+- Read: B-3 destination.ts exports; tests/integration/fixtures/tls.ts
+- Touch: src/integrations/providers/openai-compatible.ts, src/integrations/providers/contract.yaml, tests/integration/fixtures/fake-provider.ts, tests/integration/provider-adapter.test.ts, package.json, package-lock.json, scripts/check-boundaries.ts, tests/architecture/boundaries.test.ts, tests/architecture/contracts.test.ts, docs/codebase/README.md
+- Done when: `tests/integration/provider-adapter.test.ts`, `npm run test:boundaries` pass, typecheck, check:contracts
+
+### B-6 · aylul-brain package
+- Status: done
+- Plan: docs/backend/plans/2026-10-18-account-chat-step1.md#b-6--aylul-brain-package
+- Read: docs/source-structure.md "AYLUL brain package"; B-5 adapter exports
+- Touch: packages/aylul-brain/package.json, packages/aylul-brain/src/index.ts, packages/aylul-brain/src/instructions.ts, packages/aylul-brain/contract.yaml, package.json, package-lock.json, tsconfig.json, Dockerfile, scripts/check-boundaries.ts, tests/architecture/boundaries.test.ts, tests/architecture/contracts.test.ts, tests/integration/aylul-brain.test.ts, docs/codebase/README.md
+- Done when: `tests/integration/aylul-brain.test.ts`, `npm run test:boundaries` pass, typecheck, check:contracts
+
+### B-F1 · PostgreSQL test fixture fails in Docker
+- Status: done (environmental: the dependency volume missed embedded-postgres's postinstall; repaired with `docker compose run --rm --no-deps tools npm ci --no-audit --no-fund`; no code change)
+- Found: Hamoud, 2026-10-18, at `9467ec9`. `docker compose run --rm --no-deps tools node --import tsx --test tests/integration/migrations.test.ts` fails 4/4 with `postgres_fixture_setup` (tests/integration/fixtures/postgres.ts:60); startup.test.ts fails 3/9 the same way. Every PostgreSQL test is affected, so B-4 is unverified. Not yet known whether B-1 to B-6 caused it (dependency volume after the workspace install, B-6) or the environment did.
+- Read: tests/integration/fixtures/postgres.ts; Dockerfile; compose.yaml `tools` service; package.json workspaces
+- Touch: tests/integration/fixtures/postgres.ts, Dockerfile, compose.yaml, package.json, package-lock.json. If the cause is only environmental (no file change), fix nothing in Git, report the cause and the command that repairs it.
+- Done when: `tests/integration/migrations.test.ts`, `tests/integration/startup.test.ts` and `tests/integration/provider-settings.test.ts` pass in Docker
+
+### B-F2 · schema:check fails after the BYOK config (B-2)
+- Status: done (both env builders now pass BYOK_KEY/BYOK_KEY_ID; restart also forwards BYOK_PREVIOUS_KEYS)
+- Found: Hamoud, 2026-10-18. `docker compose run --rm --no-deps tools npm run schema:check` fails with `config_invalid` at src/app/config.ts:38, from scripts/export-auth-schema.ts:8, which passes no `BYOK_KEY`/`BYOK_KEY_ID`. tests/integration/fixtures/restart.ts:8 builds the same env and likely fails too.
+- Read: src/app/config.ts readConfig; scripts/export-auth-schema.ts; tests/integration/fixtures/restart.ts
+- Touch: scripts/export-auth-schema.ts, tests/integration/fixtures/restart.ts
+- Done when: `npm run schema:check` and `npm run test:restart` pass in Docker, typecheck
+
+### B-6b · Keep the provider failure category through the brain
+- Status: done
+- Found: Hamoud review, 2026-10-18. `replyStream` in packages/aylul-brain/src/index.ts reports only `{finish:'error'}`, dropping the adapter's `ProviderFailure.code`, so B-8 cannot finish a turn with `credential_rejected`/`quota`/`model_unavailable`/`network`. The adapter maps HTTP 400 to `network`; a provider context/length refusal must map to `context_too_large`.
+- Plan: docs/backend/plans/2026-10-18-account-chat-step1.md#b-6--aylul-brain-package
+- Read: src/integrations/providers/contract.yaml; packages/aylul-brain/contract.yaml
+- Touch: packages/aylul-brain/src/index.ts, packages/aylul-brain/contract.yaml, src/integrations/providers/openai-compatible.ts, src/integrations/providers/contract.yaml, tests/integration/aylul-brain.test.ts, tests/integration/provider-adapter.test.ts, tests/integration/fixtures/fake-provider.ts
+- Done when: `tests/integration/aylul-brain.test.ts` (error finish carries the category, no key or body text) and `tests/integration/provider-adapter.test.ts` (400 context refusal → `context_too_large`) pass, typecheck, check:contracts
+
+### B-7 · Conversations owner: topics, turns, delete
+- Status: done
+- Plan: docs/backend/plans/2026-10-18-account-chat-step1.md#b-7--conversations-owner-topics-turns-delete
+- Read: src/modules/sessions/contract.yaml and its store.ts journal; src/modules/activity/index.ts; src/modules/provider-settings/index.ts
+- Touch: src/modules/conversations/model.ts, src/modules/conversations/store.ts, src/modules/conversations/service.ts, src/modules/conversations/index.ts, src/modules/conversations/contract.yaml, migrations/010_conversations.sql, src/platform/database/schema.ts, src/platform/database/contract.yaml, src/modules/activity/model.ts, src/modules/activity/contract.yaml, scripts/check-boundaries.ts, tests/architecture/boundaries.test.ts, tests/architecture/contracts.test.ts, tests/integration/migrations.test.ts, tests/integration/conversations.test.ts, docs/codebase/README.md, src/modules/activity/store.ts, src/transports/http/nylra-routes.ts, packages/aylul-brain/src/index.ts, packages/aylul-brain/contract.yaml, src/modules/provider-settings/service.ts, src/modules/provider-settings/contract.yaml, tests/integration/fixtures/activity-publisher.ts
+- Scope amendment (human-approved 2026-10-18): support topic_deleted without a laptop in activity storage/account SSE and export brain instructions for the actual context budget. Additional approved scope: declare transaction-safe selectForTopic metadata selection in provider settings to avoid nested transactions. Also allow the activity-publisher test fixture to preserve the AccountChange discriminator during date serialization.
+- Done when: `tests/integration/conversations.test.ts`, `tests/integration/migrations.test.ts`, `npm run test:boundaries` pass, typecheck, check:contracts
+
+### B-8 · Dispatch worker, stop and restart fencing
+- Status: done
+- Plan: docs/backend/plans/2026-10-18-account-chat-step1.md#b-8--dispatch-worker-stop-and-restart-fencing
+- Read: src/modules/conversations/contract.yaml; IdentityService.authorizeTransaction; packages/aylul-brain contract; src/app/compose.ts and shutdown.ts
+- Touch: src/modules/conversations/dispatch.ts, src/modules/conversations/reply-port.ts, src/modules/conversations/service.ts, src/modules/conversations/store.ts, src/modules/conversations/model.ts, src/modules/conversations/index.ts, src/modules/conversations/contract.yaml, src/app/compose.ts, src/app/shutdown.ts, src/app/contract.yaml, tests/integration/turn-dispatch.test.ts, tests/integration/conversations.test.ts, docs/codebase/README.md, tests/integration/fixtures/postgres.ts
+- Scope amendment (human-approved 2026-10-18): update Conversations construction tests for app-supplied instructions, preserving the exact context budget while removing the domain brain import. Also update the Conversations code-map row to reflect implemented dispatch while live topic routes remain deferred to B-9. Also initialize isolated embedded PostgreSQL fixtures with UTF8 for faithful Unicode character-limit tests.
+- Done when: `tests/integration/turn-dispatch.test.ts` passes, `npm run test:startup`, typecheck, check:contracts
+
+### B-9 · Live HTTP routes and topic SSE
+- Status: done
+- Plan: docs/backend/plans/2026-10-18-account-chat-step1.md#b-9--live-http-routes-and-topic-sse
+- Read: src/transports/http/contract.yaml; nylra-routes.ts and nylra-sse.ts at the session bindings
+- Touch: src/transports/http/nylra-paths.ts, src/transports/http/nylra-routes.ts, src/transports/http/nylra-sse.ts, src/transports/http/contract.yaml, src/app/compose.ts, scripts/mock-nylra.ts, api/nylra-v1.openapi.json, api/nylra-v1.d.ts, api/nylra-v1.fixtures.json, tests/integration/chat-routes.test.ts, tests/integration/nylra-live-routes.test.ts, tests/integration/nylra-mock.test.ts, docs/codebase/README.md, tests/integration/nylra-wire.test.ts, src/modules/provider-settings/service.ts, src/modules/provider-settings/contract.yaml, src/app/contract.yaml, src/modules/conversations/contract.yaml
+- Scope amendment (human-approved 2026-10-18): update wire implementation assertions, add the provider-owned acknowledged connection probe, and keep provider/application/conversations contracts current with live HTTP composition.
+- Done when: `tests/integration/chat-routes.test.ts`, `tests/integration/nylra-live-routes.test.ts`, `npm run schema:check` pass, typecheck, check:contracts
+
+### B-10 · Synthetic chat journey
+- Status: done
+- Plan: docs/backend/plans/2026-10-18-account-chat-step1.md#b-10--synthetic-chat-journey
+- Read: tests/journeys/laptop-relay.test.ts; docker/relay-journey.ts
+- Touch: tests/journeys/account-chat.test.ts, docker/chat-journey.ts, docs/evidence/2026-10-18-account-chat-acceptance.md, docs/codebase/README.md, api/laptop-link-v1.schema.json, api/laptop-link-v1.d.ts
+- Scope amendment (human-approved 2026-10-18): regenerate laptop-link wire artifacts through schema:laptop-link after shared HTTP refusal codes changed, as detected by the complete test suite.
+- Done when: `tests/journeys/account-chat.test.ts` passes, then the full `npm test` in Docker with zero failures
+
+### B-11 · Manual MiniMax journey (human-run)
+- Status: done
+- Plan: docs/backend/plans/2026-10-18-account-chat-step1.md#b-11--manual-minimax-journey-human-run-conditional
+- Read: docs/evidence/2026-10-11-minimax-provider-probe.md
+- Touch: docs/evidence/2026-10-18-account-chat-acceptance.md (Hamoud only)
+- Done when: the human's run of `docker/chat-journey.ts` against MiniMax is recorded; no builder
 
 ### Laptop relay (done)
 

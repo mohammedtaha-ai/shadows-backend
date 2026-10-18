@@ -1,0 +1,80 @@
+# Provider settings alone owns account connections, defaults and encrypted credentials.
+name: provider-settings
+status: current
+source: src/modules/provider-settings
+owns: Account provider connections and default selection, encrypted credentials, destination validation and revision-scoped dispatch resolution.
+public_api:
+  test: Requires costAcknowledged true and fresh account authorization, locks the current active connection/revision and resolves its credential, then invokes the app-supplied one-shot probe outside the database transaction. Returns only fixed safe outcomes; never retries or exposes provider diagnostics.
+  selectForTopic: Requires fresh same-transaction principal authorization; locks the account default and active account-scoped connection, returns its current metadata/revision without credential decryption or a nested transaction, and refuses missing defaults or removed connections.
+  createProviderSettings: Constructs the account-scoped service with public Identity authorization, BYOK keys, an all-address resolver and clock.
+  ProviderSettingsService: Authenticated list, create, update, remove, getDefault and setDefault operations plus transactional resolveForDispatch.
+  resolveForDispatch: Locks an active account-owned connection at the expected revision, revalidates its destination and decrypts only for the calling workflow; caller must freshly authorize its origin principal in the same transaction.
+  ConnectionView: Metadata only; exposes keyConfigured and configuration revision, never plaintext or sealed credential material.
+  seal: Encrypts with the active key and fresh 12-byte nonce, returning a key ID and base64url nonce, tag and ciphertext.
+  open: Decrypts only with the authenticated named retained key and matching associated data; refuses malformed or tampered input with credential_refused.
+  KeyRing: Active key ID plus the read-only map of 32-byte keys supplied by the host.
+  CredentialAad: Account, connection, destination and credential revision authenticated together with unambiguous field boundaries.
+  validateDestination: Validates HTTPS URL syntax and every resolved address, returning canonical origin, TLS host, port and copied eligible addresses for the caller to pin; failures expose only destination_refused.
+  DestinationResolver: Injected all-address DNS resolution; IP literals are checked directly and never resolved through this port.
+  ValidatedDestination: Canonical endpoint metadata and the complete copied address set that passed validation.
+obligations:
+  - rule: Authority is checked again after destination resolution; a session expiring during resolution cannot invoke the paid provider probe.
+    tested_by: chat_routes_probe_reauthorizes_after_destination_resolution_before_provider_call
+    note: tests/integration/chat-routes.test.ts advances only the isolated fixture clock during DNS resolution and asserts zero host invocations.
+  - rule: Unacknowledged or cross-account probes never invoke the provider; acknowledged calls return only safe outcome categories and use the current connection.
+    tested_by: chat_routes_paid_probe_requires_explicit_acknowledgement_and_returns_only_safe_outcomes
+    note: tests/integration/chat-routes.test.ts; cross-account refusal is exercised by chat_routes_bind_implemented_operations_isolate_accounts_and_never_return_credentials.
+  - rule: Topic selection uses authorized caller transactions, pins the active current connection revision, isolates accounts, and follows the account default only for new topics without decrypting credentials.
+    tested_by: conversations_scope_default_pinning_transfer_and_command_replay
+    note: tests/integration/conversations.test.ts
+  - rule: Metadata reads never expose credentials; encrypted storage and defaults are account scoped, all principal operations authorize through Identity, and a logged-out principal is refused.
+    tested_by: provider_settings_owns_encrypted_credentials_and_isolates_accounts_and_defaults
+    note: tests/integration/provider-settings.test.ts
+  - rule: Concurrent creates serialize per account; at most 20 active connections and one active connection per exact name are allowed, with removed names reusable.
+    tested_by: provider_settings_serializes_limits_and_unique_names_per_account
+    note: tests/integration/provider-settings.test.ts
+  - rule: Changing origin or base path requires a resubmitted key; key writes advance credential revision and every update fences old configuration revisions; dispatch revalidates DNS.
+    tested_by: provider_settings_destination_changes_require_new_keys_and_fence_old_revisions
+    note: tests/integration/provider-settings.test.ts
+  - rule: Removing a connection clears a matching default, blocks further reads and dispatch resolution, and immediately nulls its ciphertext and key ID while retaining removed metadata.
+    tested_by: provider_settings_remove_blocks_use_clears_default_and_purges_ciphertext
+    note: tests/integration/provider-settings.test.ts
+  - rule: Tampered credentials refuse resolution with credential_rejected and remain stored; an explicit key replacement can repair them.
+    tested_by: provider_settings_tampered_credentials_refuse_without_destroying_stored_evidence
+    note: tests/integration/provider-settings.test.ts
+  - rule: Non-HTTPS, credentials, query or fragment delimiters, control characters, backslashes and invalid ports refuse before DNS.
+    tested_by: provider_destination_refuses_unsafe_url_shapes_before_dns
+    note: tests/integration/provider-destination.test.ts
+  - rule: Non-public IPv4 ranges and their IPv4-mapped IPv6 forms refuse, including nonstandard URL spellings normalized to loopback.
+    tested_by: provider_destination_refuses_each_unsafe_ipv4_class_and_mapped_form
+    note: tests/integration/provider-destination.test.ts; includes private, CGNAT, loopback, link-local, metadata, multicast, unspecified, documentation and reserved ranges.
+  - rule: IPv6 must be global unicast or mapped public IPv4; scoped, special-use and transition addresses refuse.
+    tested_by: provider_destination_refuses_unsafe_ipv6_and_transition_addresses
+    note: tests/integration/provider-destination.test.ts; excludes unique-local, metadata, loopback, link-local, multicast, unspecified, mapped-private, NAT64, Teredo and 6to4 targets.
+  - rule: Any unsafe answer refuses the entire destination; empty, malformed, family-mismatched or failed DNS resolution refuses safely.
+    tested_by: provider_destination_checks_every_dns_answer_and_refuses_empty_malformed_or_failed_resolution
+    note: tests/integration/provider-destination.test.ts
+  - rule: Each validation resolves the destination anew instead of caching an earlier public answer.
+    tested_by: provider_destination_revalidates_each_call_without_reusing_a_previous_public_answer
+    note: tests/integration/provider-destination.test.ts
+  - rule: Public IPv4 and IPv6 pass with canonical endpoint metadata and an address copy independent of resolver mutation.
+    tested_by: provider_destination_returns_public_answers_and_canonical_tls_host_port_origin
+    note: tests/integration/provider-destination.test.ts
+  - rule: AES-256-GCM sealing uses a fresh 12-byte nonce and a 16-byte tag for every write.
+    tested_by: credential_seal_round_trip_uses_fresh_nonce_and_active_key
+    note: tests/integration/credential-seal.test.ts
+  - rule: Every associated-data field and its boundary is authenticated before plaintext is returned.
+    tested_by: credential_seal_binds_every_aad_field_and_unambiguous_field_boundaries
+    note: tests/integration/credential-seal.test.ts
+  - rule: Changed nonce, tag, ciphertext, key or key ID and malformed encodings refuse with no underlying diagnostics.
+    tested_by: credential_seal_refuses_tampering_unknown_keys_and_malformed_ciphertext
+    note: tests/integration/credential-seal.test.ts
+  - rule: Retained old keys still decrypt while new writes use only the active key.
+    tested_by: credential_seal_rotation_reads_retained_previous_keys_and_writes_only_active_key
+    note: tests/integration/credential-seal.test.ts
+  - rule: Invalid active keys, key IDs and credential revisions refuse with a fixed error.
+    tested_by: credential_seal_invalid_inputs_fail_with_a_fixed_safe_error
+    note: tests/integration/credential-seal.test.ts
+open_questions:
+  - A resumable credential rotation migration and retention-dependent account lifecycle remain later work.
+  - The provider adapter must use the validated address set with TLS hostname verification and redirect refusal; URL validation alone does not implement outbound transport.

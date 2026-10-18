@@ -14,6 +14,21 @@ public_api:
   authenticateRevocation: Uses local account/session/device verification only for operations that surrender authority.
   output: Explicitly checks outgoing values before Fastify serialization.
 obligations:
+  - rule: Account text chat and connection operations are implemented; credentials are write-only, bodies reject extra fields, and paid probes, context transfer and deletion require explicit true acknowledgements.
+    tested_by: nylra_wire account chat operations are implemented and keep credentials write only
+    note: tests/integration/nylra-wire.test.ts; also nylra_wire chat acknowledgements metadata and safe refusal categories are required.
+  - rule: Mock serves only planned operations and never shadows implemented routes; planned responses are schema-checked.
+    tested_by: nylra_mock answers every planned operation and never shadows implemented routes
+    note: tests/integration/nylra-mock.test.ts
+  - rule: Live metadata remains credential-free, wrong-account resources return 404, and paid probes require an explicit acknowledgement before one host provider invocation.
+    tested_by: chat_routes_paid_probe_requires_explicit_acknowledgement_and_returns_only_safe_outcomes
+    note: tests/integration/chat-routes.test.ts; chat_routes_bind_implemented_operations_isolate_accounts_and_never_return_credentials covers metadata and wrong-account operations.
+  - rule: Topic SSE replays committed owner events with fresh principal/topic checks, rejects missing or expired cursors, and uses the shared 100-event page, 15-second watchdog and 1 MiB buffering limits.
+    tested_by: chat_routes_topic_sse_replays_committed_events_with_scoped_cursor_refusals
+    note: tests/integration/chat-routes.test.ts; shared stalled-send behavior remains covered by review_sse_stalled_send_cancels_on_revoke.
+  - rule: Deletion or origin revocation between a topic journal read and SSE delivery closes the stream before the captured payload is sent.
+    tested_by: chat_routes_topic_stream_rechecks_deletion_and_revocation_after_journal_read
+    note: tests/integration/chat-routes.test.ts
   - rule: Stalled SSE writes do not block independent authority checks or disconnect cancellation.
     tested_by: review_sse_stalled_send_cancels_on_revoke
     note: tests/integration/relay-review-regressions.test.ts; disconnect also releases a pending send without drain.
@@ -36,7 +51,7 @@ obligations:
     tested_by: nylra_wire every operation is bearer-protected and refuses with the shared shape
     note: tests/integration/nylra-wire.test.ts
   - rule: Every nylra-v1 operation with a JSON answer has a fixture its schema accepts.
-    tested_by: nylra_wire every operation has a fixture the mock can answer with
+    tested_by: nylra_wire every operation has a schema-valid synthetic response fixture
     note: tests/integration/nylra-wire.test.ts
   - rule: Synthetic nylra-v1 fixtures pass and streams are gapless; invalid bounds, account fields, step content and multiline step summaries refuse.
     tested_by: nylra_wire fixtures pass and invalid samples refuse for their stated reason
@@ -57,6 +72,6 @@ obligations:
     tested_by: backchannel_standard_form_transport_and_duplicate_field_refusal
     note: tests/integration/auth-wire.test.ts; signed-token form/replay assertions also run in tests/integration/oidc-client.test.ts.
 open_questions:
-  - Chat, approvals, grants and push remain planned declarations; only laptop/session/account relay operations are live.
+  - Approvals, grants and push remain planned. Text chat has no project context; project-bound create refuses explicitly until project integration exists.
   - Native Windows browser/loopback/secure-store and later Flutter conformance remain client integration work.
   - Temporary in-process rate buckets do not establish distributed production abuse controls.

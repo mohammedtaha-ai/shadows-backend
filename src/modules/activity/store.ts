@@ -21,7 +21,15 @@ export class ActivityStore {
  }
  async events(tx:Tx,accountId:string,after:number,limit:number):Promise<AccountEvent[]> {
   const rows=await tx.selectFrom('activity_events').selectAll().where('account_id','=',accountId).where('seq','>',String(after)).orderBy('seq').limit(limit).execute();
-  return rows.map(r=>({seq:safeCursor(r.seq),type:r.kind,laptopId:r.laptop_id,sessionId:r.session_id,payload:r.payload,expiresAt:r.expires_at}));
+  return rows.map(r=>{
+   const common={seq:safeCursor(r.seq),payload:r.payload,expiresAt:r.expires_at};
+   if(r.kind==='topic_deleted'){
+    if(r.laptop_id!==null||r.session_id!==null)throw new Error('operation_failed');
+    return {...common,type:r.kind,laptopId:null,sessionId:null};
+   }
+   if(r.laptop_id===null)throw new Error('operation_failed');
+   return {...common,type:r.kind,laptopId:r.laptop_id,sessionId:r.session_id};
+  });
  }
  async discard(tx:Tx,accountId:string,filter:{laptopId:string}|{now:Date}) {
   const p=await this.lock(tx,accountId);

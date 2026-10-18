@@ -4,5 +4,6 @@ export function configEnv(databaseUrl: string) {
     OIDC_CLIENT_ID: 'backend', OIDC_CLIENT_SECRET: randomBytes(32).toString('hex'),
     OIDC_CALLBACK_URL: 'https://backend.example.invalid/v1/auth/callback',
     OIDC_LOGOUT_CALLBACK_URL: 'https://backend.example.invalid/v1/auth/logout-callback',
-    TOKEN_ENCRYPTION_KEY: randomBytes(32).toString('base64'), TOKEN_ENCRYPTION_KEY_ID: 'b1-test', PORT: '0' };
+    TOKEN_ENCRYPTION_KEY: randomBytes(32).toString('base64'), TOKEN_ENCRYPTION_KEY_ID: 'b1-test',
+    BYOK_KEY: randomBytes(32).toString('base64'), BYOK_KEY_ID: 'byok-test', PORT: '0' };
 }

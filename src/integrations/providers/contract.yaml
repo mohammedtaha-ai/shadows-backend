@@ -1,0 +1,33 @@
+# Provider adapters translate a resolved connection, never own account settings.
+name: provider-adapters
+status: current
+source: src/integrations/providers
+owns: Bounded OpenAI-compatible model invocation using one previously validated destination and synthetic-testable HTTPS transport.
+public_api:
+  createOpenAICompatibleModel: Constructs an AI SDK model and maxRetries zero settings for a resolved destination, model ID and credential; copies the pinned address set and exposes only safe failures.
+  PROVIDER_DEADLINES: Maximum connect, network-idle and total call lifetimes of 5, 30 and 120 seconds; injected values may shorten these bounds.
+obligations:
+  - rule: Real verified HTTPS streams text through the selected pinned address, with the original Host header and zero retry settings.
+    tested_by: provider_adapter_streams_text_over_verified_pinned_https_with_zero_retries
+    note: tests/integration/provider-adapter.test.ts; calls only the synthetic local TLS provider.
+  - rule: HTTP credential, model, quota and other failures become nonretryable fixed categories without provider bodies, headers, keys or causes; SDK default retry settings cannot repeat those failures.
+    tested_by: provider_adapter_maps_http_failures_to_safe_nonretryable_categories
+    note: tests/integration/provider-adapter.test.ts; includes 401, 403, 404, 429 and 500.
+  - rule: HTTP 413, and HTTP 400 whose first 8 KB names a context or length refusal, become context_too_large; other 400 stays network. The inspected text is discarded.
+    tested_by: provider_adapter_maps_400_context_refusal_to_context_too_large
+    note: tests/integration/provider-adapter.test.ts
+  - rule: Redirects refuse before follow-up, and connecting to a pinned address preserves original TLS hostname verification even for an unresolvable hostname.
+    tested_by: provider_adapter_refuses_redirects_and_invalid_tls_hostnames_without_following_dns
+    note: tests/integration/provider-adapter.test.ts; verifies the second TCP connection occurs without a second HTTP request.
+  - rule: Connect, network-idle and total deadlines abort their owned request without retry.
+    tested_by: provider_adapter_enforces_connect_idle_and_total_deadlines
+    note: tests/integration/provider-adapter.test.ts; shortened deadlines exercise stalled handshake, stalled response and ongoing streaming.
+  - rule: Caller abort closes the provider connection and never repeats the request.
+    tested_by: provider_adapter_abort_closes_the_owned_request_without_retry
+    note: tests/integration/provider-adapter.test.ts
+  - rule: Malformed stream diagnostics are sanitized, and a failed pinned address never falls back to resolving or connecting to the URL hostname.
+    tested_by: provider_adapter_sanitizes_malformed_stream_errors_and_does_not_reresolve_pinned_addresses
+    note: tests/integration/provider-adapter.test.ts
+open_questions:
+  - Actual external provider conformance and human-run MiniMax acceptance are not established by the synthetic TLS fixture.
+  - Domain workers still own fresh authorization, context limits, persistence, stop outcomes and safe public HTTP translation.

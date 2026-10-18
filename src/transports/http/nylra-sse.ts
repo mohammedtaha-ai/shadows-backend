@@ -46,3 +46,4 @@ export async function serveEvents(reply:FastifyReply,after:number|undefined,sche
 }
 export const serveAccountEvents=serveEvents;
 export const serveSessionEvents=serveEvents;
+export const serveTopicEvents=serveEvents;
