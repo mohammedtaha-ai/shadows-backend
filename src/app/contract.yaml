@@ -5,10 +5,13 @@ source: src/app
 owns: Synthetic-only runtime configuration, loopback listeners, one application composition and shutdown.
 public_api:
   readConfig: Rejects absent/invalid config without values; requires B1_DATA_MODE synthetic and a dedicated active BYOK key with optional retained previous IDs.
-  compose: Wires public identity, devices, Activity, Links, Sessions and authenticated relay; supports auth-only schema composition and drains sockets before database shutdown.
+  compose: Wires public identity, devices, Activity, Links, Sessions, Provider settings, Conversations and authenticated relay. Supplies exact brain instructions and a brain/provider-adapter ReplyPort, starts dispatch for the full route set, and drains dispatch before sockets and database shutdown; auth-only schema composition starts no worker.
   createExpiry: Runs owner expiry at startup and every minute without overlap; drains work at shutdown.
   installShutdown: Registers one-shot termination handlers.
 obligations:
+  - rule: Application startup processes pending turns through the supplied ReplyPort; repeated shutdown aborts and drains active generation before closing its pool, preserving an interrupted terminal result.
+    tested_by: turn_dispatch_application_starts_worker_and_drains_abort_before_database_shutdown
+    note: tests/integration/turn-dispatch.test.ts uses synthetic identity, an injected resolver and fake text stream.
   - rule: BYOK keys require canonical 32-byte base64 and valid unique IDs; active and previous IDs cannot collide.
     tested_by: byok_config_refuses_invalid_keys_ids_and_ambiguous_key_rings
     note: tests/integration/startup.test.ts

@@ -6,13 +6,14 @@ import { createProviderSettings } from '../../src/modules/provider-settings/inde
 import { createActivity } from '../../src/modules/activity/index.js';
 import { createConversations } from '../../src/modules/conversations/index.js';
 import { compose } from '../../src/app/compose.js';
+import { NYLRA_INSTRUCTIONS } from 'aylul-brain';
 
 async function fixture() {
   const f = await identityFixture(), person = await f.login();
   const providers = createProviderSettings(f.db, f.identity,
     { activeKeyId: 'test', keys: new Map([['test', randomBytes(32)]]) }, async () => [{ address:'93.184.216.34',family:4 }]);
   const activity = createActivity(f.db, () => f.now);
-  const service = createConversations(f.db, f.identity, providers, activity, () => f.now);
+  const service = createConversations(f.db, f.identity, providers, activity, () => f.now, NYLRA_INSTRUCTIONS);
   const connection = await providers.create(person.principal, { name:'one',format:'openai_compatible',baseUrl:'https://example.test/v1',model:'test-model',apiKey:'synthetic' });
   await providers.setDefault(person.principal, connection.connectionId);
   return { ...f, person, providers, activity, service, connection };

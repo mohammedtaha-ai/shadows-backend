@@ -102,10 +102,11 @@ Branch `backend/account-chat`. Run checks with
 - Done when: `tests/integration/conversations.test.ts`, `tests/integration/migrations.test.ts`, `npm run test:boundaries` pass, typecheck, check:contracts
 
 ### B-8 · Dispatch worker, stop and restart fencing
-- Status: todo
+- Status: done
 - Plan: docs/backend/plans/2026-10-18-account-chat-step1.md#b-8--dispatch-worker-stop-and-restart-fencing
 - Read: src/modules/conversations/contract.yaml; IdentityService.authorizeTransaction; packages/aylul-brain contract; src/app/compose.ts and shutdown.ts
-- Touch: src/modules/conversations/dispatch.ts, src/modules/conversations/reply-port.ts, src/modules/conversations/service.ts, src/modules/conversations/store.ts, src/modules/conversations/model.ts, src/modules/conversations/index.ts, src/modules/conversations/contract.yaml, src/app/compose.ts, src/app/shutdown.ts, src/app/contract.yaml, tests/integration/turn-dispatch.test.ts
+- Touch: src/modules/conversations/dispatch.ts, src/modules/conversations/reply-port.ts, src/modules/conversations/service.ts, src/modules/conversations/store.ts, src/modules/conversations/model.ts, src/modules/conversations/index.ts, src/modules/conversations/contract.yaml, src/app/compose.ts, src/app/shutdown.ts, src/app/contract.yaml, tests/integration/turn-dispatch.test.ts, tests/integration/conversations.test.ts, docs/codebase/README.md, tests/integration/fixtures/postgres.ts
+- Scope amendment (human-approved 2026-10-18): update Conversations construction tests for app-supplied instructions, preserving the exact context budget while removing the domain brain import. Also update the Conversations code-map row to reflect implemented dispatch while live topic routes remain deferred to B-9. Also initialize isolated embedded PostgreSQL fixtures with UTF8 for faithful Unicode character-limit tests.
 - Done when: `tests/integration/turn-dispatch.test.ts` passes, `npm run test:startup`, typecheck, check:contracts
 
 ### B-9 · Live HTTP routes and topic SSE
