@@ -2363,7 +2363,7 @@
     "/v1/nylra/topics": {
       "get": {
         "operationId": "listTopics",
-        "x-implementation-status": "planned",
+        "x-implementation-status": "implemented",
         "summary": "Topics, newest activity first, with the account cursor",
         "security": [
           {
@@ -2426,8 +2426,8 @@
       },
       "post": {
         "operationId": "createTopic",
-        "x-implementation-status": "planned",
-        "summary": "Start a conversation, optionally about one shared project",
+        "x-implementation-status": "implemented",
+        "summary": "Start an account text conversation; project-bound topics await project integration",
         "security": [
           {
             "backendBearer": []
@@ -2521,7 +2521,7 @@
     "/v1/nylra/topics/{topicId}": {
       "get": {
         "operationId": "getTopic",
-        "x-implementation-status": "planned",
+        "x-implementation-status": "implemented",
         "summary": "Topic snapshot; its events after the cursor are exactly the later ones",
         "security": [
           {
@@ -2604,7 +2604,7 @@
       },
       "delete": {
         "operationId": "deleteTopic",
-        "x-implementation-status": "planned",
+        "x-implementation-status": "implemented",
         "summary": "Confirm permanent topic deletion and stop any generation",
         "security": [
           {
@@ -2699,7 +2699,7 @@
     "/v1/nylra/topics/{topicId}/events": {
       "get": {
         "operationId": "topicEvents",
-        "x-implementation-status": "planned",
+        "x-implementation-status": "implemented",
         "summary": "Topic events after a cursor (SSE; id = seq). Unknown or expired cursor: 410 resnapshot_required",
         "security": [
           {
@@ -2805,7 +2805,7 @@
     "/v1/nylra/topics/{topicId}/turns": {
       "post": {
         "operationId": "createTurn",
-        "x-implementation-status": "planned",
+        "x-implementation-status": "implemented",
         "summary": "Send a message; the answer arrives on the topic stream",
         "security": [
           {
@@ -2910,7 +2910,7 @@
     "/v1/nylra/topics/{topicId}/turns/{turnId}/cancel": {
       "post": {
         "operationId": "cancelTurn",
-        "x-implementation-status": "planned",
+        "x-implementation-status": "implemented",
         "summary": "Stop an answer; its output so far stays, marked partial",
         "security": [
           {
@@ -3014,7 +3014,7 @@
     "/v1/nylra/topics/{topicId}/connection": {
       "put": {
         "operationId": "changeTopicConnection",
-        "x-implementation-status": "planned",
+        "x-implementation-status": "implemented",
         "summary": "Change connection between turns after acknowledging context transfer",
         "security": [
           {
@@ -3119,7 +3119,7 @@
     "/v1/nylra/connections": {
       "get": {
         "operationId": "listConnections",
-        "x-implementation-status": "planned",
+        "x-implementation-status": "implemented",
         "summary": "List account connection metadata without credentials",
         "security": [
           {
@@ -3182,7 +3182,7 @@
       },
       "post": {
         "operationId": "createConnection",
-        "x-implementation-status": "planned",
+        "x-implementation-status": "implemented",
         "summary": "Save a provider connection and its write-only key",
         "security": [
           {
@@ -3267,7 +3267,7 @@
     "/v1/nylra/connections/{connectionId}": {
       "put": {
         "operationId": "updateConnection",
-        "x-implementation-status": "planned",
+        "x-implementation-status": "implemented",
         "summary": "Update connection metadata or replace its key",
         "security": [
           {
@@ -3370,7 +3370,7 @@
       },
       "delete": {
         "operationId": "deleteConnection",
-        "x-implementation-status": "planned",
+        "x-implementation-status": "implemented",
         "summary": "Remove a connection and block future use",
         "security": [
           {
@@ -3455,7 +3455,7 @@
     "/v1/nylra/connections/default": {
       "get": {
         "operationId": "getDefaultConnection",
-        "x-implementation-status": "planned",
+        "x-implementation-status": "implemented",
         "summary": "Get the account default, or null when none is set",
         "security": [
           {
@@ -3518,7 +3518,7 @@
       },
       "put": {
         "operationId": "setDefaultConnection",
-        "x-implementation-status": "planned",
+        "x-implementation-status": "implemented",
         "summary": "Set the account default for new topics",
         "security": [
           {
@@ -3603,7 +3603,7 @@
     "/v1/nylra/connections/{connectionId}/test": {
       "post": {
         "operationId": "testConnection",
-        "x-implementation-status": "planned",
+        "x-implementation-status": "implemented",
         "summary": "Explicit paid probe returning a safe category",
         "security": [
           {

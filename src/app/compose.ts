@@ -26,14 +26,20 @@ export async function compose(config: AppConfig, options: { oidc?: OidcPort; clo
     const devices=createDevices(db,options.clock), identity=createIdentity(db,config,options.oidc ?? createOidcClient(config),devices.registration,devices.trust,options.clock);
     devices.bindIdentity(identity);
     const activity=createActivity(db,options.clock),links=createLinks(db,identity,activity,options.clock),sessions=createSessions(db,identity,links,activity,options.clock);
-    const providerSettings=createProviderSettings(db,identity,{activeKeyId:config.byokKeyId,keys:new Map([[config.byokKeyId,config.byokKey],...config.byokPreviousKeys])},options.resolver??(host=>lookup(host,{all:true})),options.clock);
+    const providerSettings=createProviderSettings(db,identity,{activeKeyId:config.byokKeyId,keys:new Map([[config.byokKeyId,config.byokKey],...config.byokPreviousKeys])},options.resolver??(host=>lookup(host,{all:true})),options.clock,async connection=>{
+      for await(const part of reply({connection,history:[],message:'Reply OK.',signal:AbortSignal.timeout(120000),maxOutputTokens:1})){
+        if(typeof part==='string')continue;
+        return part.finish==='error'?(part.category==='context_too_large'?'network':part.category??'network'):'ok';
+      }
+      return 'network';
+    });
     const conversations=createConversations(db,identity,providerSettings,activity,options.clock??(()=>new Date()),NYLRA_INSTRUCTIONS);
     const reply:ReplyPort=options.reply??(input=>replyStream({model:createOpenAICompatibleModel(input.connection).model,history:input.history,message:input.message,signal:input.signal,maxOutputTokens:input.maxOutputTokens}));
     const turnDispatcher=createTurnDispatcher(db,identity,providerSettings,reply,options.clock);
     const expiry=createExpiry([sessions,activity,links]);
     if(options.routeSet!=='auth')await registerLaptopLink(server,{identity,links,sessions},options.clock);
     registerAuth(server,identity,devices,config);
-    if(options.routeSet!=='auth')await registerNylra(server,{db,identity,links,sessions,activity},options.clock);
+    if(options.routeSet!=='auth')await registerNylra(server,{db,identity,links,sessions,activity,providerSettings,conversations},options.clock);
     server.get('/health',{schema:{hide:true}},async (_request,reply) => {
       try {await pool.query('SELECT 1');return {status:'ok'};}
       catch{return reply.code(503).send({status:'unavailable'});}

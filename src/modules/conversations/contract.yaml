@@ -58,6 +58,6 @@ obligations:
     note: tests/architecture/boundaries.test.ts
 gaps:
   - at: createConversations
-    note: Topic HTTP bindings and topic SSE remain B-9. The worker uses the host ReplyPort; provider adapter and brain composition belong to the application. Retention/restore acceptance is not implemented by this synthetic slice.
+    note: HTTP bindings and topic SSE are implemented by the HTTP owner. Legacy project-bound TopicCreate input explicitly refuses request_invalid; project projection/context needs its own delivery scope. Retention/restore acceptance remains outside this synthetic slice.
 open_questions:
   - Real-data retention, restore and provider/device acceptance remain separate gates; current test content is synthetic.

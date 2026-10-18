@@ -4,10 +4,12 @@ import type { Database } from '../../platform/database/schema.js';
 import type { IdentityService, Principal } from '../identity/index.js';
 import type { ConnectionCreate, ConnectionUpdate, ConnectionView } from './model.js';
 import { open, seal, type KeyRing } from './credential-seal.js';
-import { validateDestination, type DestinationResolver } from './destination.js';
+import { validateDestination, type DestinationResolver, type ValidatedDestination } from './destination.js';
 import { ProviderSettingsStore, type ConnectionRow } from './store.js';
 
 type Tx = Transaction<Database>;
+type ProbeOutcome = 'ok'|'credential_rejected'|'model_unavailable'|'quota'|'network'|'destination_refused';
+type ConnectionProbe = (connection:{destination:ValidatedDestination&{baseUrl:string};model:string;apiKey:string})=>Promise<ProbeOutcome>;
 const allowed = new Set(['request_invalid', 'not_found', 'unauthorized', 'operation_failed', 'command_conflict',
   'rate_limited', 'destination_refused', 'credential_rejected', 'no_connection']);
 function refusal(error: unknown): Error {
@@ -45,7 +47,7 @@ const view = (row: ConnectionRow): ConnectionView => ({
 });
 
 export function createProviderSettings(db: Kysely<Database>, access: Pick<IdentityService, 'authorizeTransaction'>,
-  keyRing: KeyRing, resolver: DestinationResolver, clock: () => Date = () => new Date()) {
+  keyRing: KeyRing, resolver: DestinationResolver, clock: () => Date = () => new Date(), probe?:ConnectionProbe) {
   const store = new ProviderSettingsStore();
   const run = async <T>(principal: Principal, operation: (tx: Tx) => Promise<T>): Promise<T> => {
     try {
@@ -60,9 +62,27 @@ export function createProviderSettings(db: Kysely<Database>, access: Pick<Identi
     if (!row) throw new Error('not_found');
     return row;
   };
-  return {
+  const service = {
     list(principal: Principal) {
       return run(principal, async tx => ({ connections: (await store.list(tx, principal.accountId)).map(view) }));
+    },
+    async test(principal:Principal,id:string,input:{costAcknowledged:boolean}):Promise<{outcome:ProbeOutcome}>{
+      if(input?.costAcknowledged!==true||Object.keys(input).some(key=>key!=='costAcknowledged'))throw new Error('request_invalid');
+      const outcomes=new Set<ProbeOutcome>(['ok','credential_rejected','model_unavailable','quota','network','destination_refused']);
+      try{
+        const connection=await run(principal,async tx=>{
+          await store.guard(tx,principal.accountId);
+          const row=await requireConnection(tx,principal.accountId,id);
+          const resolved=await service.resolveForDispatch(tx,principal.accountId,id,revision(row.revision));
+          await access.authorizeTransaction(tx,principal);
+          return resolved;
+        });
+        if(!probe)throw new Error('operation_failed');
+        const outcome=await probe(connection);return {outcome:outcomes.has(outcome)?outcome:'network'};
+      }catch(error){
+        if(error instanceof Error&&['unauthorized','not_found','operation_failed'].includes(error.message))throw new Error(error.message);
+        return {outcome:error instanceof Error&&outcomes.has(error.message as ProbeOutcome)?error.message as ProbeOutcome:'network'};
+      }
     },
     create(principal: Principal, input: ConnectionCreate) {
       return run(principal, async tx => {
@@ -148,5 +168,6 @@ export function createProviderSettings(db: Kysely<Database>, access: Pick<Identi
       } catch (error) { throw refusal(error); }
     },
   };
+  return service;
 }
 export type ProviderSettingsService = ReturnType<typeof createProviderSettings>;

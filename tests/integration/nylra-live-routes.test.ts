@@ -22,7 +22,7 @@ test('nylra_live_routes_registry_coverage_strict_cursor_errors_and_auth_isolatio
   for(const after of ['-1','1e2','9007199254740993','','01'])assert.equal((await app.server.inject({method:'GET',url:`/v1/nylra/events?after=${after}`,headers:phoneHeaders})).statusCode,400);
   assert.equal((await app.server.inject({method:'GET',url:'/v1/nylra/events?after=1',headers:phoneHeaders})).statusCode,410);
   assert.equal((await app.server.inject({method:'POST',url:'/v1/nylra/laptops/claim',headers:phoneHeaders,payload:{commandId:randomUUID(),code:'ZZZZ-ZZZZ'}})).statusCode,400);
-  assert.equal((await app.server.inject({method:'GET',url:'/v1/nylra/topics',headers:phoneHeaders})).statusCode,404);
+  assert.equal((await app.server.inject({method:'GET',url:'/v1/nylra/topics',headers:phoneHeaders})).statusCode,200);
   assert.equal(await authSchema(),await readFile('api/auth-v1.openapi.json','utf8'));
   const {registerNylra,assertNylraBindings}=await import('../../src/transports/http/nylra-routes.js');
   const observed:any[]=[];const probe=Fastify();probe.addHook('onRoute',route=>{if(route.method!=='HEAD')observed.push(route);});

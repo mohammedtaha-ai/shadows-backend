@@ -14,14 +14,14 @@ const schemas = S as unknown as Record<string, Parameters<typeof Value.Check>[0]
 const fixtures = JSON.parse(await readFile('api/nylra-v1.fixtures.json', 'utf8'));
 const streams: Record<string, string> = { TopicEvents: 'TopicEvent', SessionEvents: 'SessionEvent', AccountEvents: 'AccountEvent' };
 
-test('nylra_wire account chat operations are planned and keep credentials write only', () => {
+test('nylra_wire account chat operations are implemented and keep credentials write only', () => {
   const document = JSON.parse(nylraSchema());
   for (const id of ['listConnections', 'createConnection', 'updateConnection', 'deleteConnection',
     'getDefaultConnection', 'setDefaultConnection', 'testConnection', 'changeTopicConnection', 'deleteTopic']) {
     const op = nylraOperations.find(operation => operation.operationId === id);
     assert.ok(op, id);
-    assert.equal(op.status, 'planned', id);
-    assert.equal(document.paths[op.path][op.method]['x-implementation-status'], 'planned', id);
+    assert.equal(op.status, 'implemented', id);
+    assert.equal(document.paths[op.path][op.method]['x-implementation-status'], 'implemented', id);
   }
   for (const op of nylraOperations) {
     if (op.transport !== 'http') continue;
@@ -118,7 +118,7 @@ test('nylra_wire every operation is bearer-protected and refuses with the shared
   }
 });
 
-test('nylra_wire every operation has a fixture the mock can answer with', () => {
+test('nylra_wire every operation has a schema-valid synthetic response fixture', () => {
   for (const op of nylraOperations) {
     if (op.transport === 'websocket') continue;
     if (op.okType === 'text/event-stream' || op.ok === S.Empty) continue;
@@ -137,7 +137,7 @@ test('nylra_wire operation identities expose upgrade and planned state honestly'
   const exported=document.paths[upgrade.path][upgrade.method];
   assert.ok(exported.responses['101']); assert.equal(exported.responses['200'],undefined);
   assert.equal(exported.operationId,'openLaptopLink');
-  assert.equal(nylraOperations.find(op=>op.operationId==='createTopic')!.status,'planned');
+  assert.equal(nylraOperations.find(op=>op.operationId==='createTopic')!.status,'implemented');
   assert.ok(Number.isSafeInteger(fixtures.valid.LaptopList.cursor));
 });
 

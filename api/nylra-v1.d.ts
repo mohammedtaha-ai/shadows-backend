@@ -117,7 +117,7 @@ export interface paths {
         /** Topics, newest activity first, with the account cursor */
         get: operations["listTopics"];
         put?: never;
-        /** Start a conversation, optionally about one shared project */
+        /** Start an account text conversation; project-bound topics await project integration */
         post: operations["createTopic"];
         delete?: never;
         options?: never;

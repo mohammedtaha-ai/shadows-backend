@@ -4,6 +4,7 @@ status: current
 source: src/modules/provider-settings
 owns: Account provider connections and default selection, encrypted credentials, destination validation and revision-scoped dispatch resolution.
 public_api:
+  test: Requires costAcknowledged true and fresh account authorization, locks the current active connection/revision and resolves its credential, then invokes the app-supplied one-shot probe outside the database transaction. Returns only fixed safe outcomes; never retries or exposes provider diagnostics.
   selectForTopic: Requires fresh same-transaction principal authorization; locks the account default and active account-scoped connection, returns its current metadata/revision without credential decryption or a nested transaction, and refuses missing defaults or removed connections.
   createProviderSettings: Constructs the account-scoped service with public Identity authorization, BYOK keys, an all-address resolver and clock.
   ProviderSettingsService: Authenticated list, create, update, remove, getDefault and setDefault operations plus transactional resolveForDispatch.
@@ -17,6 +18,12 @@ public_api:
   DestinationResolver: Injected all-address DNS resolution; IP literals are checked directly and never resolved through this port.
   ValidatedDestination: Canonical endpoint metadata and the complete copied address set that passed validation.
 obligations:
+  - rule: Authority is checked again after destination resolution; a session expiring during resolution cannot invoke the paid provider probe.
+    tested_by: chat_routes_probe_reauthorizes_after_destination_resolution_before_provider_call
+    note: tests/integration/chat-routes.test.ts advances only the isolated fixture clock during DNS resolution and asserts zero host invocations.
+  - rule: Unacknowledged or cross-account probes never invoke the provider; acknowledged calls return only safe outcome categories and use the current connection.
+    tested_by: chat_routes_paid_probe_requires_explicit_acknowledgement_and_returns_only_safe_outcomes
+    note: tests/integration/chat-routes.test.ts; cross-account refusal is exercised by chat_routes_bind_implemented_operations_isolate_accounts_and_never_return_credentials.
   - rule: Topic selection uses authorized caller transactions, pins the active current connection revision, isolates accounts, and follows the account default only for new topics without decrypting credentials.
     tested_by: conversations_scope_default_pinning_transfer_and_command_replay
     note: tests/integration/conversations.test.ts

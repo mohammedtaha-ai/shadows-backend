@@ -110,10 +110,11 @@ Branch `backend/account-chat`. Run checks with
 - Done when: `tests/integration/turn-dispatch.test.ts` passes, `npm run test:startup`, typecheck, check:contracts
 
 ### B-9 · Live HTTP routes and topic SSE
-- Status: todo
+- Status: done
 - Plan: docs/backend/plans/2026-10-18-account-chat-step1.md#b-9--live-http-routes-and-topic-sse
 - Read: src/transports/http/contract.yaml; nylra-routes.ts and nylra-sse.ts at the session bindings
-- Touch: src/transports/http/nylra-paths.ts, src/transports/http/nylra-routes.ts, src/transports/http/nylra-sse.ts, src/transports/http/contract.yaml, src/app/compose.ts, scripts/mock-nylra.ts, api/nylra-v1.openapi.json, api/nylra-v1.d.ts, api/nylra-v1.fixtures.json, tests/integration/chat-routes.test.ts, tests/integration/nylra-live-routes.test.ts, tests/integration/nylra-mock.test.ts, docs/codebase/README.md
+- Touch: src/transports/http/nylra-paths.ts, src/transports/http/nylra-routes.ts, src/transports/http/nylra-sse.ts, src/transports/http/contract.yaml, src/app/compose.ts, scripts/mock-nylra.ts, api/nylra-v1.openapi.json, api/nylra-v1.d.ts, api/nylra-v1.fixtures.json, tests/integration/chat-routes.test.ts, tests/integration/nylra-live-routes.test.ts, tests/integration/nylra-mock.test.ts, docs/codebase/README.md, tests/integration/nylra-wire.test.ts, src/modules/provider-settings/service.ts, src/modules/provider-settings/contract.yaml, src/app/contract.yaml, src/modules/conversations/contract.yaml
+- Scope amendment (human-approved 2026-10-18): update wire implementation assertions, add the provider-owned acknowledged connection probe, and keep provider/application/conversations contracts current with live HTTP composition.
 - Done when: `tests/integration/chat-routes.test.ts`, `tests/integration/nylra-live-routes.test.ts`, `npm run schema:check` pass, typecheck, check:contracts
 
 ### B-10 · Synthetic chat journey

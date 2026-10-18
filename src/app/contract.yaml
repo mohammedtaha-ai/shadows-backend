@@ -9,6 +9,9 @@ public_api:
   createExpiry: Runs owner expiry at startup and every minute without overlap; drains work at shutdown.
   installShutdown: Registers one-shot termination handlers.
 obligations:
+  - rule: The provider-settings paid probe uses the host ReplyPort with a fixed synthetic message, no history, one output token and a 120-second signal; only acknowledged owner operations can invoke it.
+    tested_by: chat_routes_paid_probe_requires_explicit_acknowledgement_and_returns_only_safe_outcomes
+    note: tests/integration/chat-routes.test.ts uses the injected synthetic host stream; no real provider is called.
   - rule: Application startup processes pending turns through the supplied ReplyPort; repeated shutdown aborts and drains active generation before closing its pool, preserving an interrupted terminal result.
     tested_by: turn_dispatch_application_starts_worker_and_drains_abort_before_database_shutdown
     note: tests/integration/turn-dispatch.test.ts uses synthetic identity, an injected resolver and fake text stream.

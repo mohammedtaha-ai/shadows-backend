@@ -32,7 +32,7 @@ export function buildNylraMock(fixtures: NylraFixtures): FastifyInstance {
       : refuse(reply, 503, 'operation_failed');
   });
   const known = new Set(JSON.stringify(fixtures).match(uuid));
-  for (const op of nylraOperations.filter(op=>op.transport==='http'))
+  for (const op of nylraOperations.filter((op):op is HttpOperation=>op.transport==='http'&&op.status==='planned'))
     app.route({
       method: op.method.toUpperCase() as 'GET' | 'POST' | 'PUT' | 'DELETE',
       url: op.path.replace(/\{(\w+)\}/g, ':$1'),
