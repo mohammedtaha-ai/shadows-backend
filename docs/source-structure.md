@@ -28,6 +28,11 @@ its colocated contract and real code-map row. Its first consumer is the opt-in
 Docker acceptance journey. Public assistant module/HTTP schemas remain proposed;
 there is no account-facade or source-bridge implementation hidden in this client.
 
+Normal-chat checkpoint: the separate `src/modules/assistant/` capability now owns
+the implemented public facade and its PostgreSQL tables. HTTP remains schema/
+translation only. The native Hermes client remains an adapter with no account
+authority; local code/source bridging is still unimplemented.
+
 Use one modular TypeScript application organized by capability. HTTP and durable
 workers invoke the same application services. Start with one package; a separate
 process for delivery does not require a second implementation or a microservice.

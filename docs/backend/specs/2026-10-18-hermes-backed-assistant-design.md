@@ -5,6 +5,13 @@ wire/lifecycle design prepared here; the read-only connection probe is implement
 The internal native client and an isolated real MiniMax session journey are now
 implemented/tested; no account-backed public assistant conversation is wired yet.
 
+Later same-day normal-chat implementation: the human explicitly requested the
+usable desktop path now. Account-bound status/list/create/snapshot/send/stop/
+recover routes and PostgreSQL intent/history projections are now implemented in
+contract 0.5.0. Initial delivery uses bounded snapshot polling, not public SSE;
+MCP/Core work remains deferred. Native authenticated HTTP is reused without a
+sidecar bearer handoff. The previous paragraph describes the B-H1 checkpoint.
+
 ## 1. Product and composition
 
 NYLRA connects to shadows-backend for login and assistant services. Hermes is an

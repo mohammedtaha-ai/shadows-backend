@@ -5,7 +5,7 @@ source: src/app
 owns: Synthetic-only runtime configuration, loopback listeners, one application composition and shutdown.
 public_api:
   readConfig: Rejects absent/invalid config without values; requires B1_DATA_MODE synthetic and a dedicated active BYOK key with optional retained previous IDs.
-  compose: Wires public identity, devices, Activity, Links, Sessions, Provider settings, Conversations and authenticated relay. Supplies exact brain instructions and a brain/provider-adapter ReplyPort, starts dispatch for the full route set, and drains dispatch before sockets and database shutdown; auth-only schema composition starts no worker.
+  compose: Wires public identity, devices, Activity, Links, Sessions, Provider settings, Conversations, Assistant and authenticated relay. Supplies exact brain instructions and a brain/provider-adapter ReplyPort, starts dispatch for the full route set, and drains dispatch before sockets and database shutdown; auth-only schema composition starts no worker.
   createExpiry: Runs owner expiry at startup and every minute without overlap; drains work at shutdown.
   installShutdown: Registers one-shot termination handlers.
 obligations:

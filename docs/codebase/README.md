@@ -13,6 +13,7 @@ Real identity data remains gated; no B2+ or production deployment exists.
 | [Conversations](../../src/modules/conversations) | Account text topics, pinned connections, atomic turn admission and command replay, bounded input, fenced dispatch and committed replies, stop/restart recovery, journal and confirmed deletion through Activity; HTTP/SSE bindings are live, project context remains deferred | [contract](../../src/modules/conversations/contract.yaml) |
 | [Provider adapters](../../src/integrations/providers) | OpenAI-compatible SDK model, pinned verified HTTPS, bounded deadlines, no retries or redirects and safe error categories | [contract](../../src/integrations/providers/contract.yaml) |
 | [Hermes native client](../../src/integrations/hermes) | Operator-targeted native session/run HTTP translation with bounded reads and uncertain-write outcomes | [contract](../../src/integrations/hermes/contract.yaml) |
+| [Assistant](../../src/modules/assistant) | Account-owned conversation bindings, durable message intents and bounded polling projections | [contract](../../src/modules/assistant/contract.yaml) |
 | [AYLUL brain](../../packages/aylul-brain) | Private workspace with companion instructions, ordered text reply streaming, bounded output tokens, cancellation and terminal outcomes on a host-supplied model | [contract](../../packages/aylul-brain/contract.yaml) |
 | [HTTP](../../src/transports/http) | Canonical auth-v1 and nylra-v1 schemas and transport translation | [contract](../../src/transports/http/contract.yaml) |
 

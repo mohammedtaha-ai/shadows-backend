@@ -1,11 +1,20 @@
 # One backend entry point for the Hermes-backed assistant
 
-- Status: asked
+- Status: accepted
 - Asked by: controller, 2026-10-18
 - Owner: backend; native desktop consumes generated HTTP/SSE artifacts
 - Design: [assistant owner](../../backend/specs/2026-10-18-hermes-backed-assistant-design.md)
 
 ## Human-selected route
+
+2026-10-18 execution approval: the human requested a usable normal conversation
+from the existing desktop now, deferring MCP/Core integration. The controller
+implements both sides; no separate lead approval is represented. First delivery
+uses bounded authenticated snapshots with polling, not a public SSE contract.
+Status/list/create/snapshot/send/stop/recover are the selected operations. Stop
+and explicit recovery are idempotent operations on the addressed backend turn;
+create/send carry UUID command IDs. Native authenticated HTTP is reused so no
+bearer enters the renderer/sidecar. This amends the earlier credential-handoff sketch.
 
 NYLRA uses our backend for account and assistant operations. Hermes runs behind
 it. Local Docker reaches installed Windows Hermes; no duplicate installation.

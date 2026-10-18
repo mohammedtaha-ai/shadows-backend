@@ -2,6 +2,7 @@
 name: backend-database
 status: current
 source: src/platform/database
+# Assistant owns assistant_conversations and assistant_turns through migration 011.
 owns: pg pool, the Kysely instance whose transactions each workflow opens itself, typed table declarations and node-pg-migrate history.
 public_api:
   createDatabase: Constructs pool with deadlines and safe error handling.

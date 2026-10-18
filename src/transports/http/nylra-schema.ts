@@ -169,4 +169,13 @@ export const NylraRefusal = closed({ code: literals([
   'generation_busy', 'context_too_large',
 ]) });
 export const Empty = closed({});
+export const AssistantStatus=closed({state:literals(['ready','unavailable','unconfigured'])});
+export const AssistantConversation=closed({id:Id,title:text(200),createdAt:Timestamp,updatedAt:Timestamp});
+export const AssistantList=closed({conversations:Type.Array(AssistantConversation,{maxItems:100})});
+export const AssistantTurn=closed({id:Id,commandId:CommandId,input:text(4096),output:text(65536),state:literals(['submitting','running','done','error','cancelled','unknown','stopping']),createdAt:Timestamp});
+export const AssistantSnapshot=closed({conversation:AssistantConversation,turns:Type.Array(AssistantTurn,{maxItems:30}),truncated:Type.Boolean(),connection:literals(['ready','offline','unconfigured'])});
+export const AssistantCreate=closed({commandId:CommandId});
+export const AssistantSend=closed({commandId:CommandId,text:text(4096,1)});
+export const AssistantParams=closed({conversationId:Id});
+export const AssistantTurnParams=closed({conversationId:Id,turnId:Id});
 export type Schema = TSchema;

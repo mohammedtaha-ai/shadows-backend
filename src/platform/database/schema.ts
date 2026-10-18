@@ -3,6 +3,8 @@ type Time = ColumnType<Date, Date | string, Date | string>;
 type DefaultTime = ColumnType<Date, Date | string | undefined, Date | string>;
 type OptionalTime = ColumnType<Date | null, Date | string | null | undefined, Date | string | null>;
 export interface Database {
+  assistant_conversations:{id:string;account_id:string;command_id:string;title:string;session_id:string;created_at:Time;updated_at:Time};
+  assistant_turns:{id:string;conversation_id:string;account_id:string;command_id:string;fingerprint:string;input:string;output:string;run_id:string|null;state:string;created_at:Time;updated_at:Time};
   conversations_topics: {id:string;account_id:string;title:string;connection_id:string;connection_revision:ColumnType<string,string|number,string|number>;model:string;high_water:ColumnType<string,string|number|undefined,string|number>;floor:ColumnType<string,string|number|undefined,string|number>;created_at:Time;updated_at:Time};
   conversations_messages: {id:string;topic_id:string;turn_id:string;role:'user'|'assistant';text:string;status:'streaming'|'complete'|'partial';seq:ColumnType<string,string|number,string|number>;created_at:Time};
   conversations_turns: {id:string;topic_id:string;account_id:string;origin_device_id:string;origin_session_id:string;connection_id:string;connection_revision:ColumnType<string,string|number,string|number>;model:string;state:'accepted'|'running'|'done'|'error'|'cancelled'|'interrupted';cancel_requested:boolean;created_at:Time};

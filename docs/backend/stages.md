@@ -5,6 +5,13 @@ here and set its status. Task shape: [`AGENTS.md`](./AGENTS.md#a-task-in-stagesm
 
 ## Now
 
+2026-10-18 normal-chat slice: B-H2's account facade is implemented under
+`/v1/nylra/assistant`. TypeBox/OpenAPI/TypeScript contract is 0.5.0. Two assistant
+tables retain account-scoped conversations and message intents. Polling snapshots
+are the initial client transport; SSE/Core/MCP integration is deferred by the
+human's instruction. Normal local runtime is configured through the optional
+Hermes host Compose file and scripts/start-hermes-host.ps1.
+
 **Now: internal Hermes session/recovery slice complete (B-H1).** The human selected one
 backend entry point for account and assistant; local Docker reuses installed
 Windows Hermes. [Design](specs/2026-10-18-hermes-backed-assistant-design.md),

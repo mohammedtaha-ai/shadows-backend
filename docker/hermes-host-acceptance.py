@@ -17,6 +17,7 @@ parser.add_argument('--source', required=True)
 parser.add_argument('--home', required=True)
 parser.add_argument('--port', type=int, default=0)
 parser.add_argument('--use-configured-minimax', action='store_true')
+parser.add_argument('--serve', action='store_true', help='Run the local conversational API until its stop file appears.')
 args = parser.parse_args()
 if not args.use_configured_minimax:
     parser.error('Explicit --use-configured-minimax is required for the paid provider journey.')
@@ -59,10 +60,10 @@ async def run():
 
     class IsolatedAcceptanceAgent(real_agent):
         def __init__(self, **kwargs):
-            kwargs.update(enabled_toolsets=[], max_tokens=512, max_iterations=1,
+            kwargs.update(enabled_toolsets=[], max_tokens=4096 if args.serve else 512, max_iterations=1,
                           skip_context_files=True, skip_memory=True, skip_background_review=True,
                           load_soul_identity=False, reasoning_config={'enabled': False},
-                          ephemeral_system_prompt='This is an isolated integration test. Reply in English. Do not use tools.')
+                          ephemeral_system_prompt=('You are AYLUL, a helpful conversational assistant. Reply naturally in the user\'s language. Do not claim to use unavailable tools.' if args.serve else 'This is an isolated integration test. Reply in English. Do not use tools.'))
             super().__init__(**kwargs)
     run_agent.AIAgent = IsolatedAcceptanceAgent
     from gateway.config import PlatformConfig
@@ -87,10 +88,12 @@ async def run():
                     'model': model, 'enabledToolsets': 0, 'personalContextDisabled': True}
         (home / 'metadata.json').write_text(json.dumps(metadata))
         report(metadata)
-        for _ in range(6000):
+        elapsed=0
+        while args.serve or elapsed<6000:
             if stop_file.exists():
                 break
             await asyncio.sleep(0.1)
+            elapsed+=1
     finally:
         await adapter.disconnect()
         report({'state': 'stopped', 'serviceKeyRetainedForExplicitRestart': True})
