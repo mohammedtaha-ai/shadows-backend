@@ -40,6 +40,15 @@ fresh backend process. [The shared journey driver](../../docker/chat-journey.ts)
 also provides the separate human-run provider path; that manual run is not
 implied by automated synthetic acceptance.
 
+The [Hermes handoff](../hermes-host-handoff.md) owns the optional host readiness
+probe: `docker/hermes-connection.ts` validates an operator target and bounded
+native health/capability reads; `scripts/probe-hermes.ts` resolves an explicit
+runtime key-file reference and returns only a stable state; `compose.hermes-host.yaml`
+adds the Windows host target to the tools service. It is not wired into product
+dispatch and implements no public assistant endpoint. Focused coverage is
+`tests/integration/hermes-connection.test.ts`; the default API was unavailable,
+then an ephemeral API-only instance from the installation passed Docker readiness.
+
 - [Laptop link](../../src/transports/laptop-link/contract.yaml): canonical frame v1 schemas, generated JSON Schema/TypeScript, authenticated bounded sockets and fenced durable acknowledgements.
 
 - [Activity](../../src/modules/activity/contract.yaml): transaction-scoped durable account journal, expiry and replay floor; Links and Sessions publish through its public operations.

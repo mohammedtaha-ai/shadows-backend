@@ -1,0 +1,74 @@
+# Installed Hermes from local Docker
+
+The human selected one public backend entry point: NYLRA -> shadows-backend ->
+private Hermes. For local development, use the existing Windows installation;
+do not install Hermes inside Docker or mount its personal home into containers.
+
+Installed version observed: v0.22.2, source `d923a5eb487a17c0a68801bba9ef0f56c81040a8`,
+Python 3.14.7. Its native API source has `/health`, `/v1/capabilities`, sessions
+and `/v1/runs`; it differs from the F-drive canonical-WebSocket reference.
+
+## Read-only readiness command
+
+From this repository root, while the existing Compose ingress is running:
+
+```powershell
+docker compose -f compose.yaml -f compose.hermes-host.yaml run --rm --no-deps tools npm run probe:hermes
+```
+
+Default target is `http://host.docker.internal:8642`. The optional override adds
+only the tools-container target; it does not install/start Hermes, alter current
+backend dispatch or replace account routes. `ready` requires authenticated native
+capabilities, not just a successful TCP/health request. Non-ready returns exit 1.
+
+For authenticated probing, supply `HERMES_API_KEY_FILE` naming a file already
+available inside the container (for example an explicitly mounted Docker secret).
+The existing `/local` is read-only. No actual key is provided by this document;
+the probe does not read `.env`, discover personal credentials or print file content.
+Never pass a key in a URL or use the client's backend bearer for Hermes.
+
+States: `ready`, `unavailable`, `auth_required`, `unsupported`, `invalid_response`,
+or `configuration_required`. Every report includes `modelCallMade:false`.
+The probe reads only `/health` and `/v1/capabilities`; redirects are refused,
+response bodies capped at 64 KiB and request deadlines default to three seconds.
+
+## Observed on 2026-10-18
+
+- Docker TypeScript check and all seven focused connection tests passed after an
+  observed failing run. Tests cover auth boundaries, strict target policy,
+  capability mismatch, required bearer authentication, redirects, redacted errors, size and deadlines.
+- Actual installed target `8642`: no Windows listener; host and Docker checks
+  reported unavailable. No actual Hermes conversation or model invocation ran.
+- An owned synthetic Windows listener on loopback, port `62542`, was reached
+  from Docker through `host.docker.internal`. A temporary runtime-generated key
+  mounted read-only produced `ready`; the key was never printed. This proves
+  network/auth plumbing only, not actual Hermes startup or model semantics.
+- Then the installed Hermes `APIServerAdapter` itself ran API-only from its existing
+  managed Python environment, bound to Windows loopback port `54647` with a new
+  disposable home and temporary key. The Docker probe returned `ready`, exit 0,
+  `modelCallMade:false`. No model/provider was configured or invoked. This proves
+  actual installed-code health/auth/capabilities, not run/session completion.
+- No changes to installed `.env`, config, memories, sessions or messaging platforms.
+  No new Hermes installation. Existing backend stack was healthy before the probe.
+
+The initial test listeners self-close after 90 seconds; a final actual-API retry
+after the bearer-authentication guard also passed and self-closes after 30 seconds.
+The real adapter disconnects and
+removes its temporary key. The disposable Hermes home contains only newly created
+test state; it is not the personal installation home. No Docker/network/firewall
+setting was changed. The original default API remains unconfigured; these were
+ephemeral acceptance listeners, not a newly installed background service.
+
+## Next and server parity
+
+Follow [B-H1](backend/plans/2026-10-18-hermes-backed-assistant.md): select API-only
+startup/profile and runtime key reference, prove actual native lifecycle, then add
+the account-scoped facade and generated desktop client. Persistent API profile/
+provider selection and run/session lifecycle remain prerequisites; the ephemeral
+readiness pass does not claim a working chat conversation.
+
+The same internal client may target `http://hermes:8642` with explicit
+`HERMES_NETWORK=private-service` on the server, or a verified HTTPS origin.
+This is a proposed deployment address, not a created service. Public clients
+continue using our backend origin. Server credentials/data/backup/lifecycle and
+multi-user isolation remain separate deployment acceptance.

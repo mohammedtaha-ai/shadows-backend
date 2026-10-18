@@ -7,7 +7,7 @@ implements B1 identity/device operations for synthetic Linux acceptance, as
 recorded in [B1 evidence](evidence/2026-10-11-b1-linux-acceptance.md).
 This does not close retention, native client, joint integration or deployment gates.
 
-This file owns the shared architecture. The [NYLRA vision](../../nylra/Vision.md)
+This file owns the shared architecture. The [NYLRA vision](../../shadows/docs/aylul/vision.md)
 owns the companion's experience and future product capabilities. Shadows' own
 specifications continue to own its planning and execution rules.
 Specifically, [Shadows §1.7](../../shadows/docs/superpowers/specs/2026-09-21-architecture-design.md#17-workspace-authority-and-deployment)
@@ -20,9 +20,9 @@ owns external confirmation and assessment. These decisions were clarified on
 
 | Repository | Sole responsibility |
 | --- | --- |
-| `shadows` | Rust project rules and runtime for local and future server deployment |
+| `shadows` | Rust project runtime plus independently owned AYLUL desktop and code-service scopes |
 | `shadows-backend` | TypeScript cloud coordination and NYLRA application |
-| `nylra` | The companion's desktop and mobile experiences |
+| `nylra` | Preserved pre-relocation source/history; active desktop/docs moved into Shadows |
 
 The shared backend owns its implemented account/device, relay and account-chat
 application. Accounts, trusted devices and project linking remain their own
@@ -31,9 +31,23 @@ domains. Runtime allocation for the personal-first AYLUL delivery was amended
 bounded context and local agent integration. Existing backend code/data are not
 deleted or implicitly migrated, and no turn is dispatched to both brain engines.
 
+**Routing clarification, human-selected 2026-10-18:** NYLRA uses this backend as
+its single public entry for account and assistant services. Hermes runs behind
+the backend as an internal service in the same deployed product. Separate
+processes/application cores keep their own storage and lifecycle; do not copy the
+Python agent into the Node application or combine databases. Locally the Docker
+backend reuses Windows Hermes at `C:/Users/Mohammed/AppData/Local/hermes`, reached
+through an explicit host target, without another Hermes installation in Docker.
+On the server the internal target changes to its private Hermes service; the
+desktop-facing origin and account authority stay with our backend. The earlier
+direct-desktop-to-Hermes proposal is superseded. See the
+[assistant owner](backend/specs/2026-10-18-hermes-backed-assistant-design.md) and
+[host connection handoff](hermes-host-handoff.md). Readiness probes do not imply
+assistant endpoints, real-model acceptance or production deployment are complete.
+
 Since 2026-10-13 AYLUL is an independent companion that observes and talks to
 Shadows, Claude Code, Codex and later agents, and is none of them; the
-[NYLRA delivery spec](../../nylra/docs/superpowers/specs/2026-10-10-nylra-delivery-design.md#independent-companion)
+[NYLRA delivery spec](../../shadows/docs/aylul/specs/2026-10-10-nylra-delivery-design.md#independent-companion)
 owns that decision and its 2026-10-18 amendment. The implemented `aylul-brain`
 TypeScript package remains a fact of the account-chat slice, not the selected
 future engine for the same personal AYLUL conversation. The

@@ -5,7 +5,31 @@ here and set its status. Task shape: [`AGENTS.md`](./AGENTS.md#a-task-in-stagesm
 
 ## Now
 
-**Now: account chat, step 1 (B-1 to B-11).** Account-owned text chat with
+**Next: Hermes-backed assistant preparation (B-H0).** The human selected one
+backend entry point for account and assistant; local Docker reuses installed
+Windows Hermes. [Design](specs/2026-10-18-hermes-backed-assistant-design.md),
+[plan](plans/2026-10-18-hermes-backed-assistant.md),
+[handoff](../hermes-host-handoff.md). Read-only probe and seven focused Docker tests
+passed; the default API was off, then an ephemeral actual installed API instance
+passed health/auth/capabilities from Docker. Product session/run facade is not built.
+The previous account-chat implementation below is preserved, not extended into a
+second pilot brain. No further work continues merely to finish its old sequencing.
+
+### B-H0 · Verify the installed Hermes connection boundary
+- Status: done (preparation and ephemeral actual-Hermes connection only)
+- Plan: docs/backend/plans/2026-10-18-hermes-backed-assistant.md#b-h0--connection-preparation
+- Read: assistant owner, host handoff, installed native API source snapshot.
+- Touch: docker/hermes-connection.ts, scripts/probe-hermes.ts, compose.hermes-host.yaml, focused test and documentation only.
+- Done when: Docker focused tests/typecheck and honest host-target outcome are recorded without another Hermes installation or model call.
+
+### B-H1 · Prove API-only installed Hermes lifecycle
+- Status: pending operator-selected persistent API profile and run/session evidence
+- Plan: docs/backend/plans/2026-10-18-hermes-backed-assistant.md#b-h1--prove-installed-hermes-with-an-isolated-session
+- Read: assistant owner OPEN gates; actual installed API run/session/idempotency source.
+- Touch: dated evidence and revised accepted protocol plan first; no blind activation of personal messaging services.
+- Done when: actual authorized host API/session/receipt/replay/stop outcomes and tool/provider limits are recorded.
+
+**Preserved: account chat, step 1 (B-1 to B-11).** Account-owned text chat with
 encrypted BYOK connections, backend only.
 [Design](specs/2026-10-17-account-chat-and-providers-design.md),
 [plan](plans/2026-10-18-account-chat-step1.md),

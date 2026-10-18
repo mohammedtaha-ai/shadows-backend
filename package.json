@@ -8,6 +8,7 @@
     "node": ">=24 <25"
   },
   "scripts": {
+    "probe:hermes": "node --import tsx scripts/probe-hermes.ts",
     "start": "node --import tsx src/main.ts",
     "typecheck": "tsc --noEmit",
     "test": "node --import tsx --test tests/architecture/*.test.ts tests/integration/*.test.ts tests/journeys/*.test.ts",

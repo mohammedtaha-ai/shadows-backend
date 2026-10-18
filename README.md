@@ -1,5 +1,9 @@
 # Shadows Backend
 
+AYLUL/Hermes routing preparation: [installed-host handoff](docs/hermes-host-handoff.md).
+NYLRA keeps one backend origin; Docker reuses the installed Windows Hermes.
+The current read-only probe does not implement assistant conversation endpoints.
+
 Cloud coordination and NYLRA application alongside the future Rust Shadows server.
 
 **Status (2026-10-11):** B1 identity/device backend, stable installation enrollment
