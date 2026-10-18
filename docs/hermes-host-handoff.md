@@ -61,11 +61,40 @@ ephemeral acceptance listeners, not a newly installed background service.
 
 ## Next and server parity
 
-Follow [B-H1](backend/plans/2026-10-18-hermes-backed-assistant.md): select API-only
-startup/profile and runtime key reference, prove actual native lifecycle, then add
-the account-scoped facade and generated desktop client. Persistent API profile/
-provider selection and run/session lifecycle remain prerequisites; the ephemeral
-readiness pass does not claim a working chat conversation.
+The [session journey](evidence/2026-10-18-hermes-session-journey.md) now proves
+lost-ACK recovery, an actual MiniMax-M3 reply, completed-result recovery after API
+restart, conversation continuity, conflict refusal and native stop/SSE behavior.
+The internal client exists; the public account facade in B-H2 is the next slice.
+
+Opt-in reproduction uses the installed bootstrap interpreter in a separate terminal:
+
+```powershell
+& "$env:LOCALAPPDATA/hermes/tools/python-3.14.7+20260901-win32-x64/python.exe" -I docker/hermes-host-acceptance.py --source "$env:LOCALAPPDATA/hermes/hermes-agent" --home "$PWD/.local-runtime/hermes-bh1" --use-configured-minimax
+```
+
+The fixture reports its chosen loopback port. It resolves configured MiniMax
+inside Hermes, then uses an isolated home and disables tools/personal context.
+It never sends that provider credential to Node or Docker. Only the independently
+generated service key at `/local/hermes-bh1/service-key` reaches the test client.
+This explicit fixture may call the paid provider; ordinary tests do not.
+
+For each Docker phase supply the reported `HERMES_API_URL`, runtime
+`HERMES_API_KEY_FILE`, `HERMES_ACCEPT_PAID_PROBE=yes` and a test-only
+`HERMES_JOURNEY_FILE` inside the existing tools test volume. Run
+`npm run journey:hermes -- submit`, then `recover` in a separate container.
+Stop/restart the host fixture with the same isolated home/key/port before another
+`recover`; `continue` checks history, `history` checks duplicate admission,
+`stop` checks the separate stop ACK/outcome and SSE, `conflict` refuses changed
+input. No client retry loop or permanent background service is installed.
+
+Write `.local-runtime/hermes-bh1/stop` to stop the owned fixture. Its service key
+is retained only across explicit test restarts; remove that generated file after
+final use. Session state is isolated from the personal Hermes home. Persistent
+operator startup/production policy and the account-facing client remain separate.
+
+The installed PM environment was loaded through bootstrap `site_packages`, since
+its selected environment's `python.exe` launcher did not accept the stdin probe
+as an ordinary interpreter. Nothing was reinstalled or repaired globally.
 
 The same internal client may target `http://hermes:8642` with explicit
 `HERMES_NETWORK=private-service` on the server, or a verified HTTPS origin.

@@ -1,19 +1,7 @@
-export type HermesTarget={origin:string;timeoutMs:number};
+import {readHermesTarget,type HermesTarget} from '../src/integrations/hermes/target.js';
+export {readHermesTarget,type HermesTarget};
 export type HermesProbe={state:'ready'|'unavailable'|'auth_required'|'unsupported'|'invalid_response';modelCallMade:false};
 /** Operator-owned target; no request, URL query or provider setting chooses it. */
-export function readHermesTarget(env:NodeJS.ProcessEnv):HermesTarget{
- try{
-  const raw=env.HERMES_API_URL;if(!raw||raw!==raw.trim())throw 0;
-  const url=new URL(raw);
-  if(url.username||url.password||url.search||url.hash||url.pathname!=='/')throw 0;
-  const development=env.HERMES_NETWORK==='development-host'&&['127.0.0.1','localhost','[::1]','host.docker.internal'].includes(url.hostname);
-  const privateService=env.HERMES_NETWORK==='private-service'&&url.hostname==='hermes';
-  if(url.protocol!=='https:'&&!(url.protocol==='http:'&&(development||privateService)))throw 0;
-  const value=env.HERMES_PROBE_TIMEOUT_MS??'3000';if(!/^\d+$/.test(value))throw 0;
-  const timeoutMs=Number(value);if(timeoutMs<10||timeoutMs>10000)throw 0;
-  return {origin:url.origin,timeoutMs};
- }catch{throw new Error('hermes_config_invalid');}
-}
 const object=(v:unknown):v is Record<string,unknown>=>typeof v==='object'&&v!==null&&!Array.isArray(v);
 async function readJson(response:Response):Promise<unknown>{
  const reader=response.body?.getReader();if(!reader)throw new Error('invalid_response');

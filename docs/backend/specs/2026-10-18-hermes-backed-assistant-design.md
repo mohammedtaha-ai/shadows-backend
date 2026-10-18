@@ -2,7 +2,8 @@
 
 Date: 2026-10-18. Runtime placement/routing selected by the human. Exact assistant
 wire/lifecycle design prepared here; the read-only connection probe is implemented.
-No Hermes model turn or account-backed Hermes conversation is implemented yet.
+The internal native client and an isolated real MiniMax session journey are now
+implemented/tested; no account-backed public assistant conversation is wired yet.
 
 ## 1. Product and composition
 
@@ -127,9 +128,23 @@ Do not start all personal messaging platforms or edit `.env` merely to make it p
 session proving native create/run/idempotency replay, receipt-after-disconnect,
 events, stop and process restart outcomes against this installed version.
 
+2026-10-18 checkpoint: the [selected journey](../../evidence/2026-10-18-hermes-session-journey.md)
+proved these narrow native paths with configured MiniMax-M3 and an isolated home.
+The first wire accepts status `started` on admission; pollable state is a separate
+enum. Session messages use a `data` list envelope. Internal client now lives in
+`src/integrations/hermes`; its first consumer is the opt-in Docker journey.
+Account binding/public routing remain unimplemented. Cancellation was observed
+at the native run level, not as proof that a provider stopped billing/network work.
+Backlog expiry and arbitrary in-flight restart recovery remain open before the
+corresponding product guarantees are made.
+
 **OPEN — provider/tool policy.** Closes before a paid/model turn or real project
 disclosure with the selected profile/provider, scoped tool inventory and consent.
-The preparation invokes no model and copies no personal data.
+The initial readiness probe invoked no model. The human subsequently authorized
+a short actual journey using configured MiniMax. Native credential resolution
+stayed inside Hermes; isolated agents had tools, context files, personal memory
+and background review disabled. This closes that bounded synthetic-text probe,
+not permission for real project disclosure or a general production tool policy.
 
 **OPEN — redistribution/server readiness.** Closes before deployment with pinned
 Hermes version, private listener, runtime credential references, data retention,

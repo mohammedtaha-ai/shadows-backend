@@ -34,16 +34,29 @@ installed Hermes v0.22.2 native `/v1/runs` API. Docker-only backend verification
 
 ## B-H1 — Prove installed Hermes with an isolated session
 
-- [ ] Select API-only startup/profile without altering personal gateway services,
+Checkpoint: core installed-runtime journey passed with configured MiniMax-M3;
+see [evidence](../../evidence/2026-10-18-hermes-session-journey.md). Persistent
+operator service setup is not installed. This slice implements the internal client,
+not the account facade. The human explicitly authorized the message/recovery
+journey and identified configured MiniMax; all messages/tests are English.
+
+- [x] Select API-only startup/profile without altering personal gateway services,
   tools, memories or configuration. Record installed code hash and interpreter.
-- [ ] Run the Docker probe against actual health + authenticated capabilities.
+- [x] Run the Docker probe against actual health + authenticated capabilities.
   Secrets resolve at runtime and never enter tool output, generated code or evidence.
-- [ ] Record exact native request/result/event shapes and runtime idempotency
+- [x] Record exact native request/result/event shapes and runtime idempotency
   durability/retention. Do not use the different fork's WS schema by assumption.
-- [ ] Prove explicit session continuity, run receipt, identical-key replay/conflict,
+- [x] Prove explicit session continuity, run receipt, identical-key replay/conflict,
   disconnection, SSE gap/recovery and stop behavior. Use synthetic content; model
   acceptance is separate from no-model connection checks.
-- [ ] Write dated evidence and amend spec. Delete temporary probes afterward.
+- [x] Write dated evidence and amend spec. Temporary services stop after the
+  journey; the reusable opt-in acceptance drivers remain tests, not spike product code.
+
+Execution ruling: add the first internal transport consumer and native client in
+B-H1 rather than postponing that proven adapter to B-H2. Reuse target validation
+in one integration owner. Account bindings, PostgreSQL intents and public SSE
+translation stay B-H2. SSE restart/backlog expiry and cancellation of an actually
+in-flight provider request are not proved by the narrow completed-run/control tests.
 
 ## B-H2 — Account-scoped backend facade
 

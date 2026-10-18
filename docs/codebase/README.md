@@ -12,6 +12,7 @@ Real identity data remains gated; no B2+ or production deployment exists.
 | [Provider settings](../../src/modules/provider-settings) | Account connections/defaults, encrypted credentials, public HTTPS destination validation and revision-scoped transactional dispatch resolution | [contract](../../src/modules/provider-settings/contract.yaml) |
 | [Conversations](../../src/modules/conversations) | Account text topics, pinned connections, atomic turn admission and command replay, bounded input, fenced dispatch and committed replies, stop/restart recovery, journal and confirmed deletion through Activity; HTTP/SSE bindings are live, project context remains deferred | [contract](../../src/modules/conversations/contract.yaml) |
 | [Provider adapters](../../src/integrations/providers) | OpenAI-compatible SDK model, pinned verified HTTPS, bounded deadlines, no retries or redirects and safe error categories | [contract](../../src/integrations/providers/contract.yaml) |
+| [Hermes native client](../../src/integrations/hermes) | Operator-targeted native session/run HTTP translation with bounded reads and uncertain-write outcomes | [contract](../../src/integrations/hermes/contract.yaml) |
 | [AYLUL brain](../../packages/aylul-brain) | Private workspace with companion instructions, ordered text reply streaming, bounded output tokens, cancellation and terminal outcomes on a host-supplied model | [contract](../../packages/aylul-brain/contract.yaml) |
 | [HTTP](../../src/transports/http) | Canonical auth-v1 and nylra-v1 schemas and transport translation | [contract](../../src/transports/http/contract.yaml) |
 
@@ -45,9 +46,17 @@ probe: `docker/hermes-connection.ts` validates an operator target and bounded
 native health/capability reads; `scripts/probe-hermes.ts` resolves an explicit
 runtime key-file reference and returns only a stable state; `compose.hermes-host.yaml`
 adds the Windows host target to the tools service. It is not wired into product
-dispatch and implements no public assistant endpoint. Focused coverage is
+dispatch and implements no public assistant endpoint. Target validation now lives
+in the Hermes integration owner and is re-exported by the readiness tool. Focused coverage is
 `tests/integration/hermes-connection.test.ts`; the default API was unavailable,
 then an ephemeral API-only instance from the installation passed Docker readiness.
+
+`docker/hermes-host-acceptance.py` and `docker/hermes-journey.ts` own the explicit
+installed-runtime acceptance path. They use a separate test home, native MiniMax
+credential resolution inside Hermes, tool/context-free agents, a deliberate lost
+admission ACK and a receipt file shared by separate Docker invocations. That file
+is test evidence, not the future account service's persistence. The opt-in path is
+not run by `npm test`; see [journey evidence](../evidence/2026-10-18-hermes-session-journey.md).
 
 - [Laptop link](../../src/transports/laptop-link/contract.yaml): canonical frame v1 schemas, generated JSON Schema/TypeScript, authenticated bounded sockets and fenced durable acknowledgements.
 

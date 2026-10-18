@@ -3,6 +3,9 @@
 AYLUL/Hermes routing preparation: [installed-host handoff](docs/hermes-host-handoff.md).
 NYLRA keeps one backend origin; Docker reuses the installed Windows Hermes.
 The current read-only probe does not implement assistant conversation endpoints.
+The [installed MiniMax journey](docs/evidence/2026-10-18-hermes-session-journey.md)
+now verifies the internal session/run client, lost-ACK recovery and API restart.
+The account-scoped public assistant endpoints remain the next slice.
 
 Cloud coordination and NYLRA application alongside the future Rust Shadows server.
 
