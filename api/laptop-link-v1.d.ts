@@ -8788,5 +8788,13 @@ export type ServerFrame =
         | 'command_conflict'
         | 'resnapshot_required'
         | 'approval_already_decided'
-        | 'approval_expired';
+        | 'approval_expired'
+        | 'no_connection'
+        | 'credential_rejected'
+        | 'model_unavailable'
+        | 'quota'
+        | 'network'
+        | 'destination_refused'
+        | 'generation_busy'
+        | 'context_too_large';
     };

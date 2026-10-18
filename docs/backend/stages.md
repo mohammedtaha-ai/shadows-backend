@@ -118,10 +118,11 @@ Branch `backend/account-chat`. Run checks with
 - Done when: `tests/integration/chat-routes.test.ts`, `tests/integration/nylra-live-routes.test.ts`, `npm run schema:check` pass, typecheck, check:contracts
 
 ### B-10 · Synthetic chat journey
-- Status: todo
+- Status: done
 - Plan: docs/backend/plans/2026-10-18-account-chat-step1.md#b-10--synthetic-chat-journey
 - Read: tests/journeys/laptop-relay.test.ts; docker/relay-journey.ts
-- Touch: tests/journeys/account-chat.test.ts, docker/chat-journey.ts, docs/evidence/2026-10-18-account-chat-acceptance.md, docs/codebase/README.md
+- Touch: tests/journeys/account-chat.test.ts, docker/chat-journey.ts, docs/evidence/2026-10-18-account-chat-acceptance.md, docs/codebase/README.md, api/laptop-link-v1.schema.json, api/laptop-link-v1.d.ts
+- Scope amendment (human-approved 2026-10-18): regenerate laptop-link wire artifacts through schema:laptop-link after shared HTTP refusal codes changed, as detected by the complete test suite.
 - Done when: `tests/journeys/account-chat.test.ts` passes, then the full `npm test` in Docker with zero failures
 
 ### B-11 · Manual MiniMax journey (human-run)

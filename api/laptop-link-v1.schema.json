@@ -360,6 +360,38 @@
                 {
                   "const": "approval_expired",
                   "type": "string"
+                },
+                {
+                  "const": "no_connection",
+                  "type": "string"
+                },
+                {
+                  "const": "credential_rejected",
+                  "type": "string"
+                },
+                {
+                  "const": "model_unavailable",
+                  "type": "string"
+                },
+                {
+                  "const": "quota",
+                  "type": "string"
+                },
+                {
+                  "const": "network",
+                  "type": "string"
+                },
+                {
+                  "const": "destination_refused",
+                  "type": "string"
+                },
+                {
+                  "const": "generation_busy",
+                  "type": "string"
+                },
+                {
+                  "const": "context_too_large",
+                  "type": "string"
                 }
               ]
             }

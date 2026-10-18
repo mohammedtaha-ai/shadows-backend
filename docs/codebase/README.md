@@ -34,6 +34,12 @@ upgrades and unbuffered SSE; an owned pinned-Nginx fixture exercises that config
 These adapters do not introduce another identity implementation. The
 [NYLRA handoff](../nylra-local-auth-handoff.md) describes their exact commands.
 
+The [account chat evidence](../evidence/2026-10-18-account-chat-acceptance.md)
+records the actual HTTP/SSE journey through owned HTTPS provider fixtures and a
+fresh backend process. [The shared journey driver](../../docker/chat-journey.ts)
+also provides the separate human-run provider path; that manual run is not
+implied by automated synthetic acceptance.
+
 - [Laptop link](../../src/transports/laptop-link/contract.yaml): canonical frame v1 schemas, generated JSON Schema/TypeScript, authenticated bounded sockets and fenced durable acknowledgements.
 
 - [Activity](../../src/modules/activity/contract.yaml): transaction-scoped durable account journal, expiry and replay floor; Links and Sessions publish through its public operations.
