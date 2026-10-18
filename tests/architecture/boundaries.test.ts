@@ -2,6 +2,18 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { resolve } from 'node:path';
 import { inspectBoundary,checkBoundaries } from '../../scripts/check-boundaries.js';
+
+test('conversations_store_exclusively_owns_its_tables_and_keeps_models_pure',()=>{
+ const store=resolve('src/modules/conversations/store.ts');
+ for(const table of ['topics','messages','turns','intents','events','receipts'].map(t=>`conversations_${t}`)) {
+  assert.deepEqual(inspectBoundary(store,`db.selectFrom('${table}');`),[]);
+  assert.ok(inspectBoundary(resolve('src/modules/provider-settings/store.ts'),`db.selectFrom('${table}');`).includes('foreign_table'));
+  assert.ok(inspectBoundary(resolve('src/modules/conversations/service.ts'),`db.selectFrom('${table}');`).includes('non_store_query'));
+ }
+ assert.ok(inspectBoundary(store,"db.selectFrom('provider_settings_connections');").includes('foreign_table'));
+ assert.ok(inspectBoundary(resolve('src/modules/conversations/model.ts'),"import {x} from 'kysely';").includes('impure_model'));
+ assert.ok(inspectBoundary(resolve('src/transports/http/example.ts'),"import {ConversationStore} from '../../modules/conversations/store.js';").includes('private_module_import'));
+});
 test('transport_cannot_import_private_store relative_alias_dynamic_bypasses',async()=>{
  const path=resolve('src/transports/http/example.ts');
  for(const specifier of ['../../modules/identity/store.js','../../modules/identity/store','../../modules/identity/../identity/store.ts']) {

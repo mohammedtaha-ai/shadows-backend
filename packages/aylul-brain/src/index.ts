@@ -45,3 +45,4 @@ export async function* replyStream(input: ReplyInput): AsyncGenerator<ReplyPart>
   if (input.signal?.aborted || finish === 'error') yield category && !input.signal?.aborted ? { finish: 'error', category } : { finish: 'error' };
   else yield { finish };
 }
+export { NYLRA_INSTRUCTIONS } from './instructions.js';

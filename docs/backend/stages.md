@@ -94,10 +94,11 @@ Branch `backend/account-chat`. Run checks with
 - Done when: `tests/integration/aylul-brain.test.ts` (error finish carries the category, no key or body text) and `tests/integration/provider-adapter.test.ts` (400 context refusal → `context_too_large`) pass, typecheck, check:contracts
 
 ### B-7 · Conversations owner: topics, turns, delete
-- Status: todo
+- Status: done
 - Plan: docs/backend/plans/2026-10-18-account-chat-step1.md#b-7--conversations-owner-topics-turns-delete
 - Read: src/modules/sessions/contract.yaml and its store.ts journal; src/modules/activity/index.ts; src/modules/provider-settings/index.ts
-- Touch: src/modules/conversations/model.ts, src/modules/conversations/store.ts, src/modules/conversations/service.ts, src/modules/conversations/index.ts, src/modules/conversations/contract.yaml, migrations/010_conversations.sql, src/platform/database/schema.ts, src/platform/database/contract.yaml, src/modules/activity/model.ts, src/modules/activity/contract.yaml, scripts/check-boundaries.ts, tests/architecture/boundaries.test.ts, tests/architecture/contracts.test.ts, tests/integration/migrations.test.ts, tests/integration/conversations.test.ts, docs/codebase/README.md
+- Touch: src/modules/conversations/model.ts, src/modules/conversations/store.ts, src/modules/conversations/service.ts, src/modules/conversations/index.ts, src/modules/conversations/contract.yaml, migrations/010_conversations.sql, src/platform/database/schema.ts, src/platform/database/contract.yaml, src/modules/activity/model.ts, src/modules/activity/contract.yaml, scripts/check-boundaries.ts, tests/architecture/boundaries.test.ts, tests/architecture/contracts.test.ts, tests/integration/migrations.test.ts, tests/integration/conversations.test.ts, docs/codebase/README.md, src/modules/activity/store.ts, src/transports/http/nylra-routes.ts, packages/aylul-brain/src/index.ts, packages/aylul-brain/contract.yaml, src/modules/provider-settings/service.ts, src/modules/provider-settings/contract.yaml, tests/integration/fixtures/activity-publisher.ts
+- Scope amendment (human-approved 2026-10-18): support topic_deleted without a laptop in activity storage/account SSE and export brain instructions for the actual context budget. Additional approved scope: declare transaction-safe selectForTopic metadata selection in provider settings to avoid nested transactions. Also allow the activity-publisher test fixture to preserve the AccountChange discriminator during date serialization.
 - Done when: `tests/integration/conversations.test.ts`, `tests/integration/migrations.test.ts`, `npm run test:boundaries` pass, typecheck, check:contracts
 
 ### B-8 · Dispatch worker, stop and restart fencing

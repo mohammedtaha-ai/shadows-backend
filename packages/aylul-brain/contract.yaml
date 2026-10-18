@@ -3,6 +3,7 @@ status: current
 source: packages/aylul-brain
 owns: Companion instructions and a single text reply stream on a host-supplied AI SDK model, without storage, tools or provider selection.
 public_api:
+  NYLRA_INSTRUCTIONS: The exact system text, exported for host input-budget checks without duplicating the brain policy.
   replyStream: Async iterable of text delta strings followed by exactly one done, length or error finish object on complete consumption; takes a model, ordered user/assistant history, new message, optional signal and output token limit.
   ReplyInput: Host input using the externally owned AI SDK LanguageModel type and text-only user or assistant history.
   ReplyPart: Text delta or terminal finish object; errors contain no provider diagnostic data.

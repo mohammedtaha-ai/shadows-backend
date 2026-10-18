@@ -45,7 +45,7 @@ export async function registerNylra(server:FastifyInstance,services:Services,clo
    const wire=(e:AccountEvent)=>({type:e.type,...e.payload,seq:e.seq});
    return serveAccountEvents(reply,(r.query as {after?:number}).after,S.AccountEvent,
     async cursor=>{const page=await accountPage(p,cursor);return {highWater:page.highWater,events:page.events.map(wire)};},
-    async(cursor,events)=>{const page=await accountPage(p,cursor);await links.checkReadable(p,page.events.filter(e=>e.type!=='laptop_unlinked'&&events.some(v=>v.seq===e.seq)).map(e=>e.laptopId));});
+    async(cursor,events)=>{const page=await accountPage(p,cursor);await links.checkReadable(p,page.events.filter(e=>e.type!=='laptop_unlinked'&&e.type!=='topic_deleted'&&events.some(v=>v.seq===e.seq)).flatMap(e=>e.laptopId===null?[]:[e.laptopId]));});
   },
  };
  await server.register(async scope=>{

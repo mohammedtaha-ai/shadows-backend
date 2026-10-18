@@ -4,6 +4,7 @@ status: current
 source: src/modules/provider-settings
 owns: Account provider connections and default selection, encrypted credentials, destination validation and revision-scoped dispatch resolution.
 public_api:
+  selectForTopic: Requires fresh same-transaction principal authorization; locks the account default and active account-scoped connection, returns its current metadata/revision without credential decryption or a nested transaction, and refuses missing defaults or removed connections.
   createProviderSettings: Constructs the account-scoped service with public Identity authorization, BYOK keys, an all-address resolver and clock.
   ProviderSettingsService: Authenticated list, create, update, remove, getDefault and setDefault operations plus transactional resolveForDispatch.
   resolveForDispatch: Locks an active account-owned connection at the expected revision, revalidates its destination and decrypts only for the calling workflow; caller must freshly authorize its origin principal in the same transaction.
@@ -16,6 +17,9 @@ public_api:
   DestinationResolver: Injected all-address DNS resolution; IP literals are checked directly and never resolved through this port.
   ValidatedDestination: Canonical endpoint metadata and the complete copied address set that passed validation.
 obligations:
+  - rule: Topic selection uses authorized caller transactions, pins the active current connection revision, isolates accounts, and follows the account default only for new topics without decrypting credentials.
+    tested_by: conversations_scope_default_pinning_transfer_and_command_replay
+    note: tests/integration/conversations.test.ts
   - rule: Metadata reads never expose credentials; encrypted storage and defaults are account scoped, all principal operations authorize through Identity, and a logged-out principal is refused.
     tested_by: provider_settings_owns_encrypted_credentials_and_isolates_accounts_and_defaults
     note: tests/integration/provider-settings.test.ts

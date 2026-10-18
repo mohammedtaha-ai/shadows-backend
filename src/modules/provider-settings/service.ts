@@ -9,7 +9,7 @@ import { ProviderSettingsStore, type ConnectionRow } from './store.js';
 
 type Tx = Transaction<Database>;
 const allowed = new Set(['request_invalid', 'not_found', 'unauthorized', 'operation_failed', 'command_conflict',
-  'rate_limited', 'destination_refused', 'credential_rejected']);
+  'rate_limited', 'destination_refused', 'credential_rejected', 'no_connection']);
 function refusal(error: unknown): Error {
   if ((error as { code?: string })?.code === '23505') return new Error('command_conflict');
   return new Error(error instanceof Error && allowed.has(error.message) ? error.message : 'operation_failed');
@@ -122,6 +122,17 @@ export function createProviderSettings(db: Kysely<Database>, access: Pick<Identi
         await store.setDefault(tx, principal.accountId, id);
         return { connectionId: id };
       });
+    },
+    // Caller must freshly authorize the principal in this same transaction.
+    // Locks serialize default selection/removal/updates without opening a nested
+    // identity transaction or decrypting credentials for a metadata-only read.
+    async selectForTopic(tx: Tx, accountId: string, connectionId?: string) {
+      try {
+        await store.guard(tx, accountId);
+        const id = connectionId ?? await store.getDefault(tx, accountId);
+        if (!id) throw new Error('no_connection');
+        return view(await requireConnection(tx, accountId, id));
+      } catch (error) { throw refusal(error); }
     },
     // The owning dispatch workflow must freshly authorize its origin principal
     // in this same transaction before resolving this account-scoped revision.

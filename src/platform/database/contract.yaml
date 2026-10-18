@@ -7,6 +7,9 @@ public_api:
   createDatabase: Constructs pool with deadlines and safe error handling.
   runMigrations: Executes ordered SQL up/down migrations; maps errors to migration_failed.
 obligations:
+  - rule: Conversations upgrade creates six owned tables and permits only topic deletion events without laptop routing; rollback removes only topic deletion activity, advances affected replay floors, preserves laptop events and restores the non-null laptop column.
+    tested_by: conversations_upgrade_owns_tables_and_preserves_laptop_activity_on_rollback
+    note: tests/integration/migrations.test.ts
   - rule: Provider settings migration preserves earlier owner rows, supports rollback and reapply, and constrains defaults to account-owned connections.
     tested_by: provider_settings_migration_preserves_existing_rows_and_enforces_owned_constraints
     note: tests/integration/migrations.test.ts
