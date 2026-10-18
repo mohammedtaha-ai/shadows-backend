@@ -107,6 +107,30 @@ supplies the key and accepts the two turn calls; the script never retries a
 provider call. If the second reply finishes before Stop can be applied, it fails
 that assertion rather than claiming cancellation. B-11 remains human-run.
 
+## B-11 real MiniMax journey (run 2026-10-18)
+
+Delegated by the human ("الباقي عليك"); run by Hamoud on the human's machine.
+The human placed their own key in the ignored file
+`.local-runtime/secrets/minimax-key`; Hamoud checked only its shape (125 bytes,
+one line, no `=`, quote or BOM) and never read its value.
+
+- Model check: `MiniMax-M3` is listed in MiniMax's
+  [OpenAI-compatible API docs](https://platform.minimax.io/docs/api-reference/text-openai-api)
+  on 2026-10-18. Price not checked; the human set no cost cap.
+- Stack: images rebuilt from `e8af279`, `bootstrap.mjs` added the missing
+  `byok-key`, migrations 009 and 010 applied, backend healthy.
+- Command: `docker/chat-journey.ts --backend https://127.0.0.1:8443 --base-url https://api.minimax.io/v1 --model MiniMax-M3 --key-file /local/secrets/minimax-key`.
+  The restart prompt was answered by a watcher that ran
+  `docker compose restart backend` and waited for health before Enter.
+- Result: `PASS`, checks `saved_connection_and_default`,
+  `streamed_persisted_reply`, `stop_committed_partial`,
+  `history_after_restart_step`, `topic_delete_refuses_reads`. Exit 0.
+- Cleanup: the journey restored the previous default and deleted its
+  connection, including the sealed key row.
+
+This is one local real-provider run with test text. It is not CI, deployment,
+billing verification or a client/device acceptance.
+
 ## Limits and remaining gates
 
 - This is local synthetic acceptance, not remote CI, deployment, production,

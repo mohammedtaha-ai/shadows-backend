@@ -126,7 +126,7 @@ Branch `backend/account-chat`. Run checks with
 - Done when: `tests/journeys/account-chat.test.ts` passes, then the full `npm test` in Docker with zero failures
 
 ### B-11 · Manual MiniMax journey (human-run)
-- Status: todo
+- Status: done
 - Plan: docs/backend/plans/2026-10-18-account-chat-step1.md#b-11--manual-minimax-journey-human-run-conditional
 - Read: docs/evidence/2026-10-11-minimax-provider-probe.md
 - Touch: docs/evidence/2026-10-18-account-chat-acceptance.md (Hamoud only)
