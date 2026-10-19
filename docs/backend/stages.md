@@ -12,6 +12,12 @@ are the initial client transport; SSE/Core/MCP integration is deferred by the
 human's instruction. Normal local runtime is configured through the optional
 Hermes host Compose file and scripts/start-hermes-host.ps1.
 
+2026-10-19 pre-PR gate: complete Docker coverage passed 174/174, with journeys
+serialized after a prior Keycloak fixture readiness failure. Whole-branch review
+fixed two authorization races in `54d16e0`; focused checks passed 22/22. See
+[gate evidence](../evidence/2026-10-19-hermes-assistant-pr-gate.md). CI and production
+remain separate from these local results.
+
 **Now: internal Hermes session/recovery slice complete (B-H1).** The human selected one
 backend entry point for account and assistant; local Docker reuses installed
 Windows Hermes. [Design](specs/2026-10-18-hermes-backed-assistant-design.md),

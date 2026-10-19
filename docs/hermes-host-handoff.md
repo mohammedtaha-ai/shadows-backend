@@ -155,3 +155,12 @@ with Docker typecheck/contracts. Two actual native sessions with distinct titles
 were created/read/deleted successfully, without a model call. Local backend was
 rebuilt/recreated. Existing unknown turns retain their command IDs and require
 the person's explicit recovery action; nothing was automatically resubmitted.
+
+### Completed pre-PR gate
+
+The later [pre-PR verification](evidence/2026-10-19-hermes-assistant-pr-gate.md)
+records the complete Docker test set passing 174/174 after review fixes `54d16e0`:
+165 architecture/integration tests, then 9 serialized journeys. This closes the
+earlier incomplete full-suite gate; its failed attempts remain dated facts above.
+Types, contracts, generated wire checks, documentation and secret checks passed.
+Local evidence does not establish remote CI or production acceptance.

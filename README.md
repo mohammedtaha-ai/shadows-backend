@@ -1,11 +1,13 @@
 # Shadows Backend
 
-AYLUL/Hermes routing preparation: [installed-host handoff](docs/hermes-host-handoff.md).
-NYLRA keeps one backend origin; Docker reuses the installed Windows Hermes.
-The current read-only probe does not implement assistant conversation endpoints.
-The [installed MiniMax journey](docs/evidence/2026-10-18-hermes-session-journey.md)
-now verifies the internal session/run client, lost-ACK recovery and API restart.
-The account-scoped public assistant endpoints remain the next slice.
+AYLUL normal conversation uses the account-scoped `/v1/nylra/assistant` facade;
+the generated NYLRA contract is 0.5.0. Status, conversation list/create/snapshot,
+send, stop and explicit recovery are implemented with bounded snapshot polling.
+NYLRA keeps one backend origin; local Docker reuses the installed Windows Hermes
+instead of installing another copy. See the [host handoff](docs/hermes-host-handoff.md)
+for startup and the [installed MiniMax journey](docs/evidence/2026-10-18-hermes-session-journey.md)
+for real session continuity/recovery observations. Public assistant SSE, project
+context, MCP/Core integration and server deployment remain separate work.
 
 Cloud coordination and NYLRA application alongside the future Rust Shadows server.
 
