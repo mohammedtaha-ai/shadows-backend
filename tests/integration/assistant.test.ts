@@ -81,3 +81,24 @@ test('assistant_new_conversations_use_distinct_stable_native_titles',async()=>{
   assert.equal(titles.size,2);assert.equal(sessions.size,2);assert.equal(f.sends,2);
  }finally{await f.close();}
 });
+
+test('assistant_rechecks_authority_before_creating_a_missing_native_session',async()=>{
+ const f=await fixture();let created=0;
+ const client={...f.client,
+  async getSession(){await f.identity.logout(f.person.principal);throw new Error('not_found');},
+  async createSession(id:string){created++;return {id};}};
+ const service=createAssistant(f.db,f.identity,client,()=>f.now);
+ try{
+  const c=await service.create(f.person.principal,{commandId:randomUUID()});
+  await assert.rejects(service.send(f.person.principal,c.conversation.id,{commandId:randomUUID(),text:'Do not create a session after logout.'}),{message:'unauthorized'});
+  assert.equal(created,0,'Revocation during native lookup must prevent subsequent native writes');
+  assert.equal(f.sends,0);
+ }finally{await f.close();}
+});
+
+test('assistant_failed_status_read_rechecks_authority_before_delivery',async()=>{
+ const f=await fixture();
+ const client={...f.client,async capabilities(){await f.identity.logout(f.person.principal);throw new Error('unavailable');}};
+ const service=createAssistant(f.db,f.identity,client,()=>f.now);
+ try{await assert.rejects(service.status(f.person.principal),{message:'unauthorized'});}finally{await f.close();}
+});

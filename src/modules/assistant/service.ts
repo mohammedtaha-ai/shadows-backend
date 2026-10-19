@@ -36,7 +36,8 @@ export function createAssistant(db:Kysely<Database>,identity:Pick<IdentityServic
   if(!client){await store.update(db,turnId,{state:'error',updated_at:clock()});return snapshot(p,id);}
   try{
    const cap=await client.capabilities();if(!cap.durableIdempotency||clock().getTime()-data.t.created_at.getTime()>cap.retentionSeconds*1000)throw new Error('outcome_unknown');
-   try{await client.getSession(data.c.session_id);}catch(error){if(!(error instanceof Error)||error.message!=='not_found')throw error;await client.createSession(data.c.session_id,'AYLUL '+data.c.id);}
+   await transaction(p,async tx=>{await owned(tx,p,id);});
+   try{await client.getSession(data.c.session_id);}catch(error){if(!(error instanceof Error)||error.message!=='not_found')throw error;await transaction(p,async tx=>{await owned(tx,p,id);});await client.createSession(data.c.session_id,'AYLUL '+data.c.id);}
    await transaction(p,async tx=>{await owned(tx,p,id);});
    const result=await client.submitRun({sessionId:data.c.session_id,commandId:data.t.id,input:data.t.input});
    await store.update(db,turnId,{run_id:result.runId,state:'running',updated_at:clock()});
@@ -44,7 +45,7 @@ export function createAssistant(db:Kysely<Database>,identity:Pick<IdentityServic
   return snapshot(p,id);
  }
  return {
-  async status(p:Principal){await transaction(p,async()=>{});if(!client)return {state:'unconfigured' as const};try{await client.capabilities();await transaction(p,async()=>{});return {state:'ready' as const};}catch(error){if(error instanceof Error&&error.message==='unauthorized')throw error;return {state:'unavailable' as const};}},
+  async status(p:Principal){await transaction(p,async()=>{});if(!client)return {state:'unconfigured' as const};let state:'ready'|'unavailable'='ready';try{await client.capabilities();}catch{state='unavailable';}await transaction(p,async()=>{});return {state};},
   async list(p:Principal){return transaction(p,async tx=>({conversations:(await store.list(tx,p.accountId)).map(conversation)}));},
   async create(p:Principal,request:{commandId:string}){uuid(request.commandId);const id=await transaction(p,async tx=>{await store.lock(tx,p.accountId);const old=await store.byCommand(tx,p.accountId,request.commandId);if(old)return old.id;const id=randomUUID();await store.create(tx,{id,account_id:p.accountId,command_id:request.commandId,title:'New conversation',session_id:'aylul_'+id.replaceAll('-',''),created_at:clock(),updated_at:clock()});return id;});return snapshot(p,id);},
   snapshot,

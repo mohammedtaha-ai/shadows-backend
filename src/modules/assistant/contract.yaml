@@ -17,6 +17,12 @@ obligations:
   - rule: Read delivery rechecks account authority after upstream work and stop resolves the owned turn.
     tested_by: assistant_rechecks_account_after_upstream_read_and_stop_targets_owned_turn
     note: tests/integration/assistant.test.ts
+  - rule: Missing native session creation rechecks authority after upstream lookup; revocation blocks the write and run submission.
+    tested_by: assistant_rechecks_authority_before_creating_a_missing_native_session
+    note: tests/integration/assistant.test.ts revokes the actual backend session during native lookup.
+  - rule: Availability delivery rechecks account authority even after a failed native capabilities read.
+    tested_by: assistant_failed_status_read_rechecks_authority_before_delivery
+    note: tests/integration/assistant.test.ts
 open_questions:
   - Public SSE, deletion/retention UI and multiple independent Hermes memory profiles are outside the initial personal conversation slice.
   - Polling refresh is demand-driven; an abandoned unacknowledged turn becomes unknown, not automatically retried by a background worker.
