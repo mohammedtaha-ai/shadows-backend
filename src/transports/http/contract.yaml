@@ -5,7 +5,7 @@ source: src/transports/http
 owns: Canonical auth-v1 and nylra-v1 TypeBox schemas, strict request/output validation, bearer translation and safe refusals.
 public_api:
   nylraOperations: The code-owned HTTP/WebSocket operation registry with stable IDs and implementation status; exported to api/nylra-v1.openapi.json. Implemented rows bind live; planned rows are mock-only.
-  registerNylra: Binds only implemented canonical operations in an isolated refusal scope.
+  registerNylra: Binds only implemented canonical operations in an isolated refusal scope, including account-authorized assistant status/list/create/snapshot/send/stop/recover. The initial assistant transport is bounded polling, not public SSE.
   assertNylraBindings: Detects method, path and schema drift in actual HTTP registrations.
   serveEvents: Replays durable pages through SSE with fresh delivery guards and bounded buffering.
   NylraRefusal: The one refusal shape every nylra-v1 operation returns.

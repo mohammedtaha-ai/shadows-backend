@@ -1,0 +1,36 @@
+name: hermes-native-client
+status: current
+source: src/integrations/hermes
+owns: Operator-configured native Hermes HTTP translation with bounded reads and explicit uncertain-write outcomes.
+public_api:
+  readHermesTarget: Validates a credential-free origin and bounded request deadline; plain HTTP requires an explicit reviewed host/private-service mode.
+  createHermesClient: Creates a secret-holding closure for native capabilities, explicit session create/get, idempotent run submission, run lookup and stop acknowledgement. It owns no account authority, database or retry loop.
+obligations:
+  - rule: Session/run addresses and input keys remain exact; a new client can retrieve the prior run without resubmitting.
+    tested_by: hermes_client_preserves_session_run_and_idempotency_identity
+    note: tests/integration/hermes-client.test.ts uses an owned HTTP fixture; actual installed MiniMax acceptance is separate.
+  - rule: Invalid path IDs, oversized input and an unreviewed plain-HTTP origin refuse before network dispatch.
+    tested_by: hermes_client_refuses_invalid_target_and_path_or_input_before_network
+    note: tests/integration/hermes-client.test.ts
+  - rule: A transport failure during submit reports outcome_unknown and sends no automatic retry.
+    tested_by: hermes_client_uncertain_submit_is_unknown_and_never_automatically_repeated
+    note: tests/integration/hermes-client.test.ts
+  - rule: A run answer must match both the addressed run and expected session.
+    tested_by: hermes_client_refuses_wrong_run_or_session_identity
+    note: tests/integration/hermes-client.test.ts
+  - rule: Upstream error bodies never become caller diagnostics; authentication, conflict and missing resources have fixed categories.
+    tested_by: hermes_client_maps_refusals_without_upstream_diagnostics
+    note: tests/integration/hermes-client.test.ts
+  - rule: JSON responses have a 1 MiB cap and requests never follow redirects.
+    tested_by: hermes_client_bounds_reads_and_does_not_follow_redirects
+    note: tests/integration/hermes-client.test.ts
+  - rule: Stop acknowledges stopping only; it does not manufacture completed or cancelled state.
+    tested_by: hermes_client_stop_ack_is_stopping_not_completion
+    note: tests/integration/hermes-client.test.ts
+  - rule: The native started admission is distinct from a later run status or completion.
+    tested_by: hermes_client_accepts_started_admission_without_claiming_run_completion
+    note: tests/integration/hermes-client.test.ts; discovered in the actual installed API journey.
+open_questions:
+  - Account/profile ownership, persistent command intents and backend event delivery are not implemented by this transport client; their assistant capability must enforce them before public routes.
+  - Native 409 currently maps to command_conflict, including stop refusal; a public cancellation contract must translate exact owner state before offering retry.
+  - Public backend SSE translation and recovery after upstream retention expiry remain separate work. The explicit acceptance driver observes native SSE only.

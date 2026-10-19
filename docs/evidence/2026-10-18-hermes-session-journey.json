@@ -1,0 +1,24 @@
+{
+  "sessionId": "shadows_probe_a553098ffbfd474e8ae4e1a6d3eae1b0",
+  "commandId": "eb7d38e8-2bb9-4f56-8957-d393b35f90e0",
+  "input": "Reply with exactly HERMES_BRIDGE_OK.",
+  "durableIdempotency": true,
+  "admission": {
+    "runId": "run_635091de145541be988130c832fc624d",
+    "state": "running",
+    "replayed": true
+  },
+  "output": "HERMES_BRIDGE_OK",
+  "historyReply": "HERMES_BRIDGE_OK",
+  "stopProbe": {
+    "commandId": "4704811f-3bc1-466a-8c72-c72540462ad0",
+    "admission": {
+      "runId": "run_82036d5b1901485799d7782b943df602",
+      "state": "started",
+      "replayed": false
+    },
+    "terminalState": "cancelled",
+    "sseEvents": 1
+  },
+  "conflictRefused": true
+}

@@ -1,5 +1,6 @@
 import type { IdentitySettings } from '../modules/identity/index.js';
 export type AppConfig = IdentitySettings & {
+  hermes?:{origin:string;network?:string;keyFile:string};
   databaseUrl:string;port:number;
   byokKey: Buffer; byokKeyId: string; byokPreviousKeys: ReadonlyMap<string, Buffer>;
 };
@@ -32,7 +33,9 @@ export function readConfig(env: NodeJS.ProcessEnv): AppConfig {
     }
     const portText = required('PORT'); if (!/^\d{1,5}$/.test(portText)) throw 0;
     const port = Number(portText); if (port > 65535) throw 0;
-    return { databaseUrl, issuer, callbackUrl, logoutCallbackUrl, encryptionKey, encryptionKeyId, port,
+    let hermes:AppConfig['hermes'];
+    if(env.HERMES_API_URL||env.HERMES_API_KEY_FILE)hermes={origin:required('HERMES_API_URL'),keyFile:required('HERMES_API_KEY_FILE'),network:env.HERMES_NETWORK};
+    return { databaseUrl, issuer, callbackUrl, logoutCallbackUrl, encryptionKey, encryptionKeyId, port,...(hermes?{hermes}:{}),
       byokKey, byokKeyId, byokPreviousKeys,
       clientId: required('OIDC_CLIENT_ID'), clientSecret: required('OIDC_CLIENT_SECRET') };
   } catch { throw new Error('config_invalid'); }

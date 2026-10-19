@@ -8,12 +8,13 @@ import type {SessionsService} from '../../modules/sessions/index.js';
 import type {ActivityService,AccountEvent} from '../../modules/activity/index.js';
 import type {ProviderSettingsService,ConnectionCreate,ConnectionUpdate} from '../../modules/provider-settings/index.js';
 import type {ConversationsService,TopicCreate,TurnRequest} from '../../modules/conversations/index.js';
+import type {AssistantService} from '../../modules/assistant/index.js';
 import {Value} from '@sinclair/typebox/value';
 import {nylraOperations,type HttpOperation,type NylraOperationId} from './nylra-paths.js';
 import * as S from './nylra-schema.js';
 import {authenticate,authenticateRevocation} from './authenticate.js';
 import {serveAccountEvents,serveSessionEvents,serveTopicEvents} from './nylra-sse.js';
-type Services={db:Kysely<Database>;identity:IdentityService;links:LinksService;sessions:SessionsService;activity:ActivityService;providerSettings:ProviderSettingsService;conversations:ConversationsService};
+type Services={db:Kysely<Database>;identity:IdentityService;links:LinksService;sessions:SessionsService;activity:ActivityService;providerSettings:ProviderSettingsService;conversations:ConversationsService;assistant:AssistantService};
 type Handler=(principal:Principal,request:FastifyRequest,reply:FastifyReply)=>Promise<unknown>;
 const path=(p:string)=>p.replace(/\{(\w+)\}/g,':$1');
 function routeSchema(op:HttpOperation) {
@@ -34,6 +35,12 @@ export async function registerNylra(server:FastifyInstance,services:Services,clo
   return db.transaction().setIsolationLevel('repeatable read').setAccessMode('read only').execute(async tx=>activity.read(tx,principal.accountId,after??await activity.cursor(tx,principal.accountId),100));
  };
  const handlers:Partial<Record<NylraOperationId,Handler>>={
+  assistantStatus:p=>services.assistant.status(p),assistantList:p=>services.assistant.list(p),
+  assistantCreate:(p,r)=>services.assistant.create(p,r.body as {commandId:string}),
+  assistantSnapshot:(p,r)=>services.assistant.snapshot(p,(r.params as {conversationId:string}).conversationId),
+  assistantSend:(p,r)=>services.assistant.send(p,(r.params as {conversationId:string}).conversationId,r.body as {commandId:string;text:string}),
+  assistantStop:(p,r)=>{const a=r.params as {conversationId:string;turnId:string};return services.assistant.stop(p,a.conversationId,a.turnId);},
+  assistantRecover:(p,r)=>{const a=r.params as {conversationId:string;turnId:string};return services.assistant.recover(p,a.conversationId,a.turnId);},
   listConnections:async p=>providerSettings.list(p),
   createConnection:async(p,r)=>providerSettings.create(p,r.body as ConnectionCreate),
   updateConnection:async(p,r)=>providerSettings.update(p,(r.params as {connectionId:string}).connectionId,r.body as ConnectionUpdate),

@@ -13,6 +13,26 @@ the selected stack and joint client gates; this file remains the source-placemen
 
 ## Selected approach
 
+2026-10-18 routing amendment: the backend is the single NYLRA account/assistant
+entry point and composes an internal Hermes API client. The selected Windows
+installation is reused from Docker; server deployment changes the private target.
+The [assistant owner](backend/specs/2026-10-18-hermes-backed-assistant-design.md)
+defines proposed application modules. Current preparation is operational tooling
+(`docker/hermes-connection.ts`, `scripts/probe-hermes.ts`), not an implemented
+assistant module or a replacement for provider chat. No speculative source
+folders, Python copy or second local Hermes installation are created.
+
+B-H1 implementation checkpoint: `src/integrations/hermes/{target.ts,client.ts}`
+now owns operator-target validation and native session/run HTTP translation, with
+its colocated contract and real code-map row. Its first consumer is the opt-in
+Docker acceptance journey. Public assistant module/HTTP schemas remain proposed;
+there is no account-facade or source-bridge implementation hidden in this client.
+
+Normal-chat checkpoint: the separate `src/modules/assistant/` capability now owns
+the implemented public facade and its PostgreSQL tables. HTTP remains schema/
+translation only. The native Hermes client remains an adapter with no account
+authority; local code/source bridging is still unimplemented.
+
 Use one modular TypeScript application organized by capability. HTTP and durable
 workers invoke the same application services. Start with one package; a separate
 process for delivery does not require a second implementation or a microservice.

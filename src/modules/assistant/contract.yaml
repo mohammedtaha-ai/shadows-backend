@@ -1,0 +1,28 @@
+name: account-assistant
+status: current
+source: src/modules/assistant
+owns: Account-owned Hermes conversation bindings, durable turn intents and bounded authenticated polling projections.
+public_api:
+  createAssistant: Composes account status/list/create/snapshot/send/stop/explicit recovery through the native Hermes client; credentials and upstream addresses never enter projections.
+obligations:
+  - rule: New native sessions use a stable title derived from the backend conversation ID, avoiding the installed Hermes title uniqueness constraint.
+    tested_by: assistant_new_conversations_use_distinct_stable_native_titles
+    note: tests/integration/assistant.test.ts models duplicate-title refusal; actual installed API reproduced invalid_title before the fix.
+  - rule: Account scope and replay preserve the original command without a second dispatch; changed input conflicts.
+    tested_by: assistant_scopes_history_and_recovers_command_replay_without_duplicate_dispatch
+    note: tests/integration/assistant.test.ts uses PostgreSQL and an injected native-client fixture.
+  - rule: Unknown outcomes remain active and reads do not automatically resubmit them.
+    tested_by: assistant_unknown_write_is_not_automatically_resent_and_busy_turn_is_preserved
+    note: tests/integration/assistant.test.ts
+  - rule: Read delivery rechecks account authority after upstream work and stop resolves the owned turn.
+    tested_by: assistant_rechecks_account_after_upstream_read_and_stop_targets_owned_turn
+    note: tests/integration/assistant.test.ts
+  - rule: Missing native session creation rechecks authority after upstream lookup; revocation blocks the write and run submission.
+    tested_by: assistant_rechecks_authority_before_creating_a_missing_native_session
+    note: tests/integration/assistant.test.ts revokes the actual backend session during native lookup.
+  - rule: Availability delivery rechecks account authority even after a failed native capabilities read.
+    tested_by: assistant_failed_status_read_rechecks_authority_before_delivery
+    note: tests/integration/assistant.test.ts
+open_questions:
+  - Public SSE, deletion/retention UI and multiple independent Hermes memory profiles are outside the initial personal conversation slice.
+  - Polling refresh is demand-driven; an abandoned unacknowledged turn becomes unknown, not automatically retried by a background worker.

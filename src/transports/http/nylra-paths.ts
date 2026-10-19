@@ -2,7 +2,7 @@
 // table, so the exported contract and what is served cannot drift apart.
 import * as S from './nylra-schema.js';
 
-export const NYLRA_CONTRACT_VERSION = '0.4.0';
+export const NYLRA_CONTRACT_VERSION = '0.5.0';
 interface OperationBase {
   method: 'get' | 'post' | 'put' | 'delete';
   path: string;
@@ -17,6 +17,13 @@ const common = [400, 401, 429, 503];
 const stream = 'text/event-stream';
 
 const definitions = [
+  {transport:'http',operationId:'assistantStatus',status:'implemented',method:'get',path:'/v1/nylra/assistant/status',summary:'Signed-in assistant availability',ok:S.AssistantStatus,refusals:common},
+  {transport:'http',operationId:'assistantList',status:'implemented',method:'get',path:'/v1/nylra/assistant/conversations',summary:'Owned assistant conversations',ok:S.AssistantList,refusals:common},
+  {transport:'http',operationId:'assistantCreate',status:'implemented',method:'post',path:'/v1/nylra/assistant/conversations',summary:'Prepare an owned conversation',body:S.AssistantCreate,ok:S.AssistantSnapshot,refusals:[...common,409]},
+  {transport:'http',operationId:'assistantSnapshot',status:'implemented',method:'get',path:'/v1/nylra/assistant/conversations/{conversationId}',summary:'Bounded conversation snapshot',params:S.AssistantParams,ok:S.AssistantSnapshot,refusals:[...common,404]},
+  {transport:'http',operationId:'assistantSend',status:'implemented',method:'post',path:'/v1/nylra/assistant/conversations/{conversationId}/turns',summary:'Send an idempotent assistant message',params:S.AssistantParams,body:S.AssistantSend,ok:S.AssistantSnapshot,refusals:[...common,404,409]},
+  {transport:'http',operationId:'assistantStop',status:'implemented',method:'post',path:'/v1/nylra/assistant/conversations/{conversationId}/turns/{turnId}/stop',summary:'Stop the owned run',params:S.AssistantTurnParams,body:S.Empty,ok:S.AssistantSnapshot,refusals:[...common,404,409]},
+  {transport:'http',operationId:'assistantRecover',status:'implemented',method:'post',path:'/v1/nylra/assistant/conversations/{conversationId}/turns/{turnId}/recover',summary:'Explicit uncertain-admission recovery',params:S.AssistantTurnParams,body:S.Empty,ok:S.AssistantSnapshot,refusals:[...common,404,409]},
   {transport:'http', operationId:'issueLaptopCode', status:'implemented', method:'post',path:'/v1/nylra/laptops/pairing-code',summary:'Issue or replace this native device pairing code',body:S.PairingCodeIssue,ok:S.PairingCodeIssued,refusals:common},
   {transport:'websocket', operationId:'openLaptopLink',status:'implemented',method:'get',path:'/v1/nylra/laptop-link',summary:'Open the native laptop relay',refusals:common},
   { transport:'http', operationId:'registerPush', status:'planned', method: 'put', path: '/v1/nylra/devices/current/push', summary: 'Register this phone for push notifications', body: S.PushRegistration, ok: S.Empty, refusals: common },

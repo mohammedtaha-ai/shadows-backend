@@ -7,7 +7,7 @@ implements B1 identity/device operations for synthetic Linux acceptance, as
 recorded in [B1 evidence](evidence/2026-10-11-b1-linux-acceptance.md).
 This does not close retention, native client, joint integration or deployment gates.
 
-This file owns the shared architecture. The [NYLRA vision](../../nylra/Vision.md)
+This file owns the shared architecture. The [NYLRA vision](../../shadows/docs/aylul/vision.md)
 owns the companion's experience and future product capabilities. Shadows' own
 specifications continue to own its planning and execution rules.
 Specifically, [Shadows §1.7](../../shadows/docs/superpowers/specs/2026-09-21-architecture-design.md#17-workspace-authority-and-deployment)
@@ -20,22 +20,39 @@ owns external confirmation and assessment. These decisions were clarified on
 
 | Repository | Sole responsibility |
 | --- | --- |
-| `shadows` | Rust project rules and runtime for local and future server deployment |
+| `shadows` | Rust project runtime plus independently owned AYLUL desktop and code-service scopes |
 | `shadows-backend` | TypeScript cloud coordination and NYLRA application |
-| `nylra` | The companion's desktop and mobile experiences |
+| `nylra` | Preserved pre-relocation source/history; active desktop/docs moved into Shadows |
 
-The shared backend hosts NYLRA's conversation orchestration, personal memory,
-context retrieval, model calls, notification policy, and human-intervention
-workflow. Accounts, trusted devices, and project linking serve both products.
-NYLRA remains a distinct optional product domain within that application.
+The shared backend owns its implemented account/device, relay and account-chat
+application. Accounts, trusted devices and project linking remain their own
+domains. Runtime allocation for the personal-first AYLUL delivery was amended
+2026-10-18: Hermes is the selected assistant brain; AYLUL's local sidecar owns
+bounded context and local agent integration. Existing backend code/data are not
+deleted or implicitly migrated, and no turn is dispatched to both brain engines.
+
+**Routing clarification, human-selected 2026-10-18:** NYLRA uses this backend as
+its single public entry for account and assistant services. Hermes runs behind
+the backend as an internal service in the same deployed product. Separate
+processes/application cores keep their own storage and lifecycle; do not copy the
+Python agent into the Node application or combine databases. Locally the Docker
+backend reuses Windows Hermes at `C:/Users/Mohammed/AppData/Local/hermes`, reached
+through an explicit host target, without another Hermes installation in Docker.
+On the server the internal target changes to its private Hermes service; the
+desktop-facing origin and account authority stay with our backend. The earlier
+direct-desktop-to-Hermes proposal is superseded. See the
+[assistant owner](backend/specs/2026-10-18-hermes-backed-assistant-design.md) and
+[host connection handoff](hermes-host-handoff.md). Readiness probes do not imply
+assistant endpoints, real-model acceptance or production deployment are complete.
 
 Since 2026-10-13 AYLUL is an independent companion that observes and talks to
 Shadows, Claude Code, Codex and later agents, and is none of them; the
-[NYLRA delivery spec](../../nylra/docs/superpowers/specs/2026-10-10-nylra-delivery-design.md#independent-companion)
-owns that decision. Its brain is one `aylul-brain` TypeScript package on the AI
-SDK, run by AYLUL desktop's sidecar on the laptop and by this application in
-the cloud. This application holds its memory and its cloud half; the
-[source structure](source-structure.md) places the package.
+[NYLRA delivery spec](../../shadows/docs/aylul/specs/2026-10-10-nylra-delivery-design.md#independent-companion)
+owns that decision and its 2026-10-18 amendment. The implemented `aylul-brain`
+TypeScript package remains a fact of the account-chat slice, not the selected
+future engine for the same personal AYLUL conversation. The
+[transition plan](../../shadows/docs/aylul/plans/2026-10-18-nylra-transition.md)
+owns review of retained/replaced documents and implementation before retirement.
 
 Shadows works locally without NYLRA. Its local daemon owns local projects,
 plans, contracts, Planner sessions, and execution as those capabilities are
@@ -118,6 +135,15 @@ future paths. It is a design for review, not an existing code map or scaffolding
 
 ## 4. Connection topology
 
+**2026-10-18 scope amendment:** the diagram/table below records the earlier
+2026-10-13 custom local/cloud-brain arrangement. For the selected personal pilot,
+AYLUL sidecar connects to Hermes and to independently running local services;
+there is no global Core or required second laptop model loop. Pilot model memory
+belongs to the Hermes profile under the existing disclosure/content rules. The
+old relay remains implemented work, and future mobile/hosted continuity requires
+its own accepted contract. This amendment changes design allocation, not deployed
+behavior or historical acceptance.
+
 Decided 2026-10-13: AYLUL desktop, not the Shadows daemon, owns the link to the
 cloud.
 
@@ -178,7 +204,8 @@ This is the sharing inventory. Shadows §1.7 owns workspace authority and sync.
 | Personal source tree, artifacts and code index | Owning computer | No automatic upload; selected excerpts or explicit artifact transfer |
 | Team plans, agreements and execution records | Server Rust runtime's PostgreSQL store | Authorized projections and topic evidence through its API |
 | Team code and artifacts | Selected Git remote and scoped artifact storage, with worker checkouts | References/digests; content only for authorized operations |
-| NYLRA conversations, personal memory and notification preferences | Cloud NYLRA store | Cloud-owned data with scoped client caches |
+| Existing backend account-chat topics and hosted application data | Existing cloud application store | Existing data remains with its owner until explicit migration |
+| Personal-first AYLUL model conversations and memory | Selected Hermes profile | No automatic duplication/migration into the backend chat store; source/disclosure rules still apply |
 | Accounts, membership, device trust and project links | Cloud coordination store | Cloud-owned access metadata |
 | Active harness processes and execution state | Assigned machine | Status/evidence through the owner, never live-process replication |
 

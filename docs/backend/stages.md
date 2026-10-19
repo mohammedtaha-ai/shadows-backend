@@ -5,7 +5,73 @@ here and set its status. Task shape: [`AGENTS.md`](./AGENTS.md#a-task-in-stagesm
 
 ## Now
 
-**Now: account chat, step 1 (B-1 to B-11).** Account-owned text chat with
+2026-10-18 normal-chat slice: B-H2's account facade is implemented under
+`/v1/nylra/assistant`. TypeBox/OpenAPI/TypeScript contract is 0.5.0. Two assistant
+tables retain account-scoped conversations and message intents. Polling snapshots
+are the initial client transport; SSE/Core/MCP integration is deferred by the
+human's instruction. Normal local runtime is configured through the optional
+Hermes host Compose file and scripts/start-hermes-host.ps1.
+
+2026-10-19 pre-PR gate: complete Docker coverage passed 174/174, with journeys
+serialized after a prior Keycloak fixture readiness failure. Whole-branch review
+fixed two authorization races in `54d16e0`; focused checks passed 22/22. See
+[gate evidence](../evidence/2026-10-19-hermes-assistant-pr-gate.md). CI and production
+remain separate from these local results.
+
+**Now: internal Hermes session/recovery slice complete (B-H1).** The human selected one
+backend entry point for account and assistant; local Docker reuses installed
+Windows Hermes. [Design](specs/2026-10-18-hermes-backed-assistant-design.md),
+[plan](plans/2026-10-18-hermes-backed-assistant.md),
+[handoff](../hermes-host-handoff.md). Read-only probe and seven focused Docker tests
+passed; the default API was off, then an ephemeral actual installed API instance
+passed health/auth/capabilities from Docker. The internal client and actual
+MiniMax-M3 recovery/continuity/control journey now pass; the public account
+session/run facade was subsequently implemented in `02aca92`.
+The previous account-chat implementation below is preserved, not extended into a
+second pilot brain. No further work continues merely to finish its old sequencing.
+
+### B-H0 · Verify the installed Hermes connection boundary
+- Status: done (preparation and ephemeral actual-Hermes connection only)
+- Plan: docs/backend/plans/2026-10-18-hermes-backed-assistant.md#b-h0--connection-preparation
+- Read: assistant owner, host handoff, installed native API source snapshot.
+- Touch: docker/hermes-connection.ts, scripts/probe-hermes.ts, compose.hermes-host.yaml, focused test and documentation only.
+- Done when: Docker focused tests/typecheck and honest host-target outcome are recorded without another Hermes installation or model call.
+
+### B-H1 · Prove API-only installed Hermes lifecycle
+- Status: done for the selected isolated session/recovery journey
+- Plan: docs/backend/plans/2026-10-18-hermes-backed-assistant.md#b-h1--prove-installed-hermes-with-an-isolated-session
+- Read: assistant owner OPEN gates; actual installed API run/session/idempotency source.
+- Touch: src/integrations/hermes/, docker/hermes-host-acceptance.py, docker/hermes-journey.ts, target-validation reuse, focused tests/contracts and dated evidence; no personal gateway activation.
+- Done when: actual authorized host API/session/receipt/replay/stop outcomes and tool/provider limits are recorded.
+
+Evidence: docs/evidence/2026-10-18-hermes-session-journey.md. Completed result
+survived API restart; actual MiniMax session continuity, idempotency conflict,
+native cancelled outcome and SSE cursor replay were observed. Public account API,
+backlog expiry and proof of in-flight provider cancellation remain separate.
+B-H2's facade is now implemented; its earlier internal-only evidence remains dated.
+
+### B-H2 · Account-scoped assistant conversations
+- Status: done for normal-chat snapshot polling; public assistant SSE deferred
+- Plan: docs/backend/plans/2026-10-18-hermes-backed-assistant.md#b-h2--account-scoped-backend-facade
+- Read: assistant, Hermes, HTTP, app and database source contracts; accepted assistant request.
+- Touch: src/modules/assistant/, migrations/011_assistant.sql, existing database/app/HTTP composition, TypeBox-generated API, focused tests, host runtime scripts and current contracts/map.
+- Done when: account isolation/replay/unknown/revocation/owned-stop tests, Docker typecheck and generated contract checks pass.
+
+Committed `02aca92`. The desktop uses native authenticated HTTP; no sidecar bearer
+handoff. Real backend/MiniMax browser continuity and separate native HTTP acceptance
+are recorded in the sibling Shadows normal-chat evidence. Physical GUI remains open.
+
+2026-10-19 follow-up: the person's first desktop message exposed Hermes's unique
+session-title constraint. Fix scope: assistant service/contract and its integration
+test; replace the shared native title with a stable backend-conversation title.
+The public conversation title and command/run identities remain unchanged. The
+regression failed before the fix, then assistant/client tests passed 13/13; Docker
+typecheck and contracts passed. Actual installed Hermes accepted two distinct
+stable titles without a model call; diagnostic sessions were removed. The local
+backend image was rebuilt/recreated. The person's retained unknown request can
+use explicit Recover original request; no automatic resend or database reset.
+
+**Preserved: account chat, step 1 (B-1 to B-11).** Account-owned text chat with
 encrypted BYOK connections, backend only.
 [Design](specs/2026-10-17-account-chat-and-providers-design.md),
 [plan](plans/2026-10-18-account-chat-step1.md),

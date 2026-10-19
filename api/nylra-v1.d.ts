@@ -4,6 +4,109 @@
  */
 
 export interface paths {
+    "/v1/nylra/assistant/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Signed-in assistant availability */
+        get: operations["assistantStatus"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/nylra/assistant/conversations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Owned assistant conversations */
+        get: operations["assistantList"];
+        put?: never;
+        /** Prepare an owned conversation */
+        post: operations["assistantCreate"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/nylra/assistant/conversations/{conversationId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Bounded conversation snapshot */
+        get: operations["assistantSnapshot"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/nylra/assistant/conversations/{conversationId}/turns": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Send an idempotent assistant message */
+        post: operations["assistantSend"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/nylra/assistant/conversations/{conversationId}/turns/{turnId}/stop": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Stop the owned run */
+        post: operations["assistantStop"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/nylra/assistant/conversations/{conversationId}/turns/{turnId}/recover": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Explicit uncertain-admission recovery */
+        post: operations["assistantRecover"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/nylra/laptops/pairing-code": {
         parameters: {
             query?: never;
@@ -503,6 +606,55 @@ export interface components {
         ApprovalParams: {
             approvalId: string;
         };
+        AssistantConversation: {
+            id: string;
+            title: string;
+            /** @description UTC, RFC 3339. */
+            createdAt: string;
+            /** @description UTC, RFC 3339. */
+            updatedAt: string;
+        };
+        AssistantCreate: {
+            /** @description Client-generated. The same id with the same request replays; with another, command_conflict. */
+            commandId: string;
+        };
+        AssistantList: {
+            conversations: components["schemas"]["AssistantConversation"][];
+        };
+        AssistantParams: {
+            conversationId: string;
+        };
+        AssistantSend: {
+            /** @description Client-generated. The same id with the same request replays; with another, command_conflict. */
+            commandId: string;
+            text: string;
+        };
+        AssistantSnapshot: {
+            conversation: components["schemas"]["AssistantConversation"];
+            turns: components["schemas"]["AssistantTurn"][];
+            truncated: boolean;
+            /** @enum {string} */
+            connection: "ready" | "offline" | "unconfigured";
+        };
+        AssistantStatus: {
+            /** @enum {string} */
+            state: "ready" | "unavailable" | "unconfigured";
+        };
+        AssistantTurn: {
+            id: string;
+            /** @description Client-generated. The same id with the same request replays; with another, command_conflict. */
+            commandId: string;
+            input: string;
+            output: string;
+            /** @enum {string} */
+            state: "submitting" | "running" | "done" | "error" | "cancelled" | "unknown" | "stopping";
+            /** @description UTC, RFC 3339. */
+            createdAt: string;
+        };
+        AssistantTurnParams: {
+            conversationId: string;
+            turnId: string;
+        };
         Connection: {
             connectionId: string;
             name: string;
@@ -842,6 +994,496 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+    assistantStatus: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AssistantStatus"];
+                };
+            };
+            /** @description Refusal */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NylraRefusal"];
+                };
+            };
+            /** @description Refusal */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NylraRefusal"];
+                };
+            };
+            /** @description Refusal */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NylraRefusal"];
+                };
+            };
+            /** @description Refusal */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NylraRefusal"];
+                };
+            };
+        };
+    };
+    assistantList: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AssistantList"];
+                };
+            };
+            /** @description Refusal */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NylraRefusal"];
+                };
+            };
+            /** @description Refusal */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NylraRefusal"];
+                };
+            };
+            /** @description Refusal */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NylraRefusal"];
+                };
+            };
+            /** @description Refusal */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NylraRefusal"];
+                };
+            };
+        };
+    };
+    assistantCreate: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AssistantCreate"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AssistantSnapshot"];
+                };
+            };
+            /** @description Refusal */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NylraRefusal"];
+                };
+            };
+            /** @description Refusal */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NylraRefusal"];
+                };
+            };
+            /** @description Refusal */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NylraRefusal"];
+                };
+            };
+            /** @description Refusal */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NylraRefusal"];
+                };
+            };
+            /** @description Refusal */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NylraRefusal"];
+                };
+            };
+        };
+    };
+    assistantSnapshot: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                conversationId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AssistantSnapshot"];
+                };
+            };
+            /** @description Refusal */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NylraRefusal"];
+                };
+            };
+            /** @description Refusal */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NylraRefusal"];
+                };
+            };
+            /** @description Refusal */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NylraRefusal"];
+                };
+            };
+            /** @description Refusal */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NylraRefusal"];
+                };
+            };
+            /** @description Refusal */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NylraRefusal"];
+                };
+            };
+        };
+    };
+    assistantSend: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                conversationId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AssistantSend"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AssistantSnapshot"];
+                };
+            };
+            /** @description Refusal */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NylraRefusal"];
+                };
+            };
+            /** @description Refusal */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NylraRefusal"];
+                };
+            };
+            /** @description Refusal */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NylraRefusal"];
+                };
+            };
+            /** @description Refusal */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NylraRefusal"];
+                };
+            };
+            /** @description Refusal */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NylraRefusal"];
+                };
+            };
+            /** @description Refusal */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NylraRefusal"];
+                };
+            };
+        };
+    };
+    assistantStop: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                conversationId: string;
+                turnId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["Empty"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AssistantSnapshot"];
+                };
+            };
+            /** @description Refusal */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NylraRefusal"];
+                };
+            };
+            /** @description Refusal */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NylraRefusal"];
+                };
+            };
+            /** @description Refusal */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NylraRefusal"];
+                };
+            };
+            /** @description Refusal */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NylraRefusal"];
+                };
+            };
+            /** @description Refusal */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NylraRefusal"];
+                };
+            };
+            /** @description Refusal */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NylraRefusal"];
+                };
+            };
+        };
+    };
+    assistantRecover: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                conversationId: string;
+                turnId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["Empty"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AssistantSnapshot"];
+                };
+            };
+            /** @description Refusal */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NylraRefusal"];
+                };
+            };
+            /** @description Refusal */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NylraRefusal"];
+                };
+            };
+            /** @description Refusal */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NylraRefusal"];
+                };
+            };
+            /** @description Refusal */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NylraRefusal"];
+                };
+            };
+            /** @description Refusal */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NylraRefusal"];
+                };
+            };
+            /** @description Refusal */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NylraRefusal"];
+                };
+            };
+        };
+    };
     issueLaptopCode: {
         parameters: {
             query?: never;

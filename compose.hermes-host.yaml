@@ -1,0 +1,15 @@
+# Optional operator probe for the already installed Windows Hermes. No Hermes image.
+# Use with compose.yaml; the ordinary backend stack remains unchanged.
+services:
+  backend:
+    environment:
+      HERMES_API_URL: ${HERMES_API_URL:-http://host.docker.internal:8642}
+      HERMES_API_KEY_FILE: /local/hermes-chat/service-key
+      HERMES_NETWORK: development-host
+  tools:
+    environment:
+      HERMES_API_URL: ${HERMES_API_URL:-http://host.docker.internal:8642}
+      HERMES_API_KEY_FILE: /local/hermes-chat/service-key
+      HERMES_NETWORK: development-host
+# Supply HERMES_API_KEY_FILE as an explicit in-container file reference when
+# running the probe. Existing /local is read-only; do not mount the Hermes home.

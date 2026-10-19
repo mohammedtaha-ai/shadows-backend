@@ -2,7 +2,7 @@
   "openapi": "3.0.3",
   "info": {
     "title": "NYLRA backend API",
-    "version": "0.4.0",
+    "version": "0.5.0",
     "description": "Client contract for the Flutter app and AYLUL desktop. Sessions come from auth-v1. Until routes exist, scripts/mock-nylra.ts serves it from api/nylra-v1.fixtures.json."
   },
   "components": {
@@ -426,6 +426,218 @@
         ],
         "properties": {
           "approvalId": {
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+            "type": "string"
+          }
+        }
+      },
+      "AssistantConversation": {
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "title",
+          "createdAt",
+          "updatedAt"
+        ],
+        "properties": {
+          "id": {
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+            "type": "string"
+          },
+          "title": {
+            "minLength": 0,
+            "maxLength": 200,
+            "type": "string"
+          },
+          "createdAt": {
+            "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\\.[0-9]{1,9})?Z$",
+            "description": "UTC, RFC 3339.",
+            "type": "string"
+          },
+          "updatedAt": {
+            "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\\.[0-9]{1,9})?Z$",
+            "description": "UTC, RFC 3339.",
+            "type": "string"
+          }
+        }
+      },
+      "AssistantCreate": {
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "commandId"
+        ],
+        "properties": {
+          "commandId": {
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+            "type": "string",
+            "description": "Client-generated. The same id with the same request replays; with another, command_conflict."
+          }
+        }
+      },
+      "AssistantList": {
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "conversations"
+        ],
+        "properties": {
+          "conversations": {
+            "maxItems": 100,
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AssistantConversation"
+            }
+          }
+        }
+      },
+      "AssistantParams": {
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "conversationId"
+        ],
+        "properties": {
+          "conversationId": {
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+            "type": "string"
+          }
+        }
+      },
+      "AssistantSend": {
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "commandId",
+          "text"
+        ],
+        "properties": {
+          "commandId": {
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+            "type": "string",
+            "description": "Client-generated. The same id with the same request replays; with another, command_conflict."
+          },
+          "text": {
+            "minLength": 1,
+            "maxLength": 4096,
+            "type": "string"
+          }
+        }
+      },
+      "AssistantSnapshot": {
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "conversation",
+          "turns",
+          "truncated",
+          "connection"
+        ],
+        "properties": {
+          "conversation": {
+            "$ref": "#/components/schemas/AssistantConversation"
+          },
+          "turns": {
+            "maxItems": 30,
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AssistantTurn"
+            }
+          },
+          "truncated": {
+            "type": "boolean"
+          },
+          "connection": {
+            "type": "string",
+            "enum": [
+              "ready",
+              "offline",
+              "unconfigured"
+            ]
+          }
+        }
+      },
+      "AssistantStatus": {
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "state"
+        ],
+        "properties": {
+          "state": {
+            "type": "string",
+            "enum": [
+              "ready",
+              "unavailable",
+              "unconfigured"
+            ]
+          }
+        }
+      },
+      "AssistantTurn": {
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "commandId",
+          "input",
+          "output",
+          "state",
+          "createdAt"
+        ],
+        "properties": {
+          "id": {
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+            "type": "string"
+          },
+          "commandId": {
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+            "type": "string",
+            "description": "Client-generated. The same id with the same request replays; with another, command_conflict."
+          },
+          "input": {
+            "minLength": 0,
+            "maxLength": 4096,
+            "type": "string"
+          },
+          "output": {
+            "minLength": 0,
+            "maxLength": 65536,
+            "type": "string"
+          },
+          "state": {
+            "type": "string",
+            "enum": [
+              "submitting",
+              "running",
+              "done",
+              "error",
+              "cancelled",
+              "unknown",
+              "stopping"
+            ]
+          },
+          "createdAt": {
+            "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\\.[0-9]{1,9})?Z$",
+            "description": "UTC, RFC 3339.",
+            "type": "string"
+          }
+        }
+      },
+      "AssistantTurnParams": {
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "conversationId",
+          "turnId"
+        ],
+        "properties": {
+          "conversationId": {
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+            "type": "string"
+          },
+          "turnId": {
             "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
             "type": "string"
           }
@@ -1854,6 +2066,637 @@
     }
   },
   "paths": {
+    "/v1/nylra/assistant/status": {
+      "get": {
+        "operationId": "assistantStatus",
+        "x-implementation-status": "implemented",
+        "summary": "Signed-in assistant availability",
+        "security": [
+          {
+            "backendBearer": []
+          }
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AssistantStatus"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/nylra/assistant/conversations": {
+      "get": {
+        "operationId": "assistantList",
+        "x-implementation-status": "implemented",
+        "summary": "Owned assistant conversations",
+        "security": [
+          {
+            "backendBearer": []
+          }
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AssistantList"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "operationId": "assistantCreate",
+        "x-implementation-status": "implemented",
+        "summary": "Prepare an owned conversation",
+        "security": [
+          {
+            "backendBearer": []
+          }
+        ],
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AssistantCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AssistantSnapshot"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/nylra/assistant/conversations/{conversationId}": {
+      "get": {
+        "operationId": "assistantSnapshot",
+        "x-implementation-status": "implemented",
+        "summary": "Bounded conversation snapshot",
+        "security": [
+          {
+            "backendBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "conversationId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AssistantSnapshot"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/nylra/assistant/conversations/{conversationId}/turns": {
+      "post": {
+        "operationId": "assistantSend",
+        "x-implementation-status": "implemented",
+        "summary": "Send an idempotent assistant message",
+        "security": [
+          {
+            "backendBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "conversationId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AssistantSend"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AssistantSnapshot"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/nylra/assistant/conversations/{conversationId}/turns/{turnId}/stop": {
+      "post": {
+        "operationId": "assistantStop",
+        "x-implementation-status": "implemented",
+        "summary": "Stop the owned run",
+        "security": [
+          {
+            "backendBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "conversationId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+              "type": "string"
+            }
+          },
+          {
+            "name": "turnId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Empty"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AssistantSnapshot"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/nylra/assistant/conversations/{conversationId}/turns/{turnId}/recover": {
+      "post": {
+        "operationId": "assistantRecover",
+        "x-implementation-status": "implemented",
+        "summary": "Explicit uncertain-admission recovery",
+        "security": [
+          {
+            "backendBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "conversationId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+              "type": "string"
+            }
+          },
+          {
+            "name": "turnId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Empty"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AssistantSnapshot"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Refusal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NylraRefusal"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/nylra/laptops/pairing-code": {
       "post": {
         "operationId": "issueLaptopCode",

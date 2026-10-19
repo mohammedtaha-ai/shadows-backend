@@ -12,7 +12,8 @@ export async function localEnvironment() {
   OIDC_ISSUER:origin+'/realms/shadows-local',OIDC_CLIENT_ID:'shadows-backend',OIDC_CLIENT_SECRET:await secret('client-secret'),
   OIDC_CALLBACK_URL:origin+'/v1/auth/callback',OIDC_LOGOUT_CALLBACK_URL:origin+'/v1/auth/logout-callback',
   TOKEN_ENCRYPTION_KEY:await secret('token-key'),TOKEN_ENCRYPTION_KEY_ID:'local-v1',
-  BYOK_KEY:await secret('byok-key'),BYOK_KEY_ID:'local-byok-v1',PORT:'3000'};
+  BYOK_KEY:await secret('byok-key'),BYOK_KEY_ID:'local-byok-v1',PORT:'3000',
+  ...(process.env.HERMES_API_URL?{HERMES_API_URL:process.env.HERMES_API_URL,HERMES_API_KEY_FILE:process.env.HERMES_API_KEY_FILE,HERMES_NETWORK:process.env.HERMES_NETWORK}:{})};
 }
 if(process.argv[2]==='start'||process.argv[2]==='migrate') {
  try {
