@@ -64,7 +64,8 @@ ephemeral acceptance listeners, not a newly installed background service.
 The [session journey](evidence/2026-10-18-hermes-session-journey.md) now proves
 lost-ACK recovery, an actual MiniMax-M3 reply, completed-result recovery after API
 restart, conversation continuity, conflict refusal and native stop/SSE behavior.
-The internal client exists; the public account facade in B-H2 is the next slice.
+The internal client and public account facade are implemented (`8fbb068`, `02aca92`).
+The initial public client uses bounded snapshot polling, not a public SSE feed.
 
 Opt-in reproduction uses the installed bootstrap interpreter in a separate terminal:
 
@@ -101,3 +102,42 @@ The same internal client may target `http://hermes:8642` with explicit
 This is a proposed deployment address, not a created service. Public clients
 continue using our backend origin. Server credentials/data/backup/lifecycle and
 multi-user isolation remain separate deployment acceptance.
+
+## Normal desktop chat runtime
+
+From the backend root in a dedicated terminal:
+
+```powershell
+pwsh -NoProfile -File scripts/start-hermes-host.ps1
+```
+
+This uses the installed bootstrap interpreter/source, configured MiniMax provider
+and an isolated `.local-runtime/hermes-chat` home at loopback port 8642. Tools,
+personal context/memory and background review are disabled. Only the independently
+generated service key file is mounted through the existing read-only local runtime;
+no provider credential is copied to Docker. Keep the terminal running.
+
+In another terminal, start the already configured backend with its host override:
+
+```powershell
+docker compose -f compose.yaml -f compose.hermes-host.yaml up -d --no-deps backend
+```
+
+Existing database volumes/account data are retained. Normal account clients use
+`/v1/nylra/assistant` for status/list/create/snapshot/send/stop/recover. The desktop
+debug launcher is `../shadows/start-chat.cmd`; see its README for builds/sign-in.
+Quitting the desktop leaves the backend and Hermes running. Create
+`.local-runtime/hermes-chat/stop` to stop only this owned Hermes instance.
+
+The actual UI journey used the real backend and MiniMax with a browser substitute
+for native IPC, then separately verified real authenticated native HTTP. Physical
+Tauri launch was rejected by automatic execution review; it is not claimed as a
+passed device journey. See
+[desktop evidence](../../shadows/docs/evidence/aylul/2026-10-19-normal-chat.md).
+
+Final local checks on 2026-10-19: Docker typecheck, schema:check (12/12), docs
+and secret checks passed. The first broad suite's last captured output contained
+an existing enrollment fresh-process failure; its final totals were lost during
+interruption. The focused enrollment file then passed 3/3 without a code change.
+The broad suite is not represented as green. Desktop build/native tests/Clippy and
+the shell browser retry passed; no remote CI or production acceptance is claimed.

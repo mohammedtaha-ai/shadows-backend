@@ -77,9 +77,9 @@ The existing `ReplyPort` is a text model stream, not the native session/run API.
 Use a dedicated account-owned assistant binding capability, initially one personal
 profile, rather than adding fake run semantics to `ReplyPort`.
 
-Proposed public prefix: `/v1/nylra/assistant`. The
+Implemented public prefix: `/v1/nylra/assistant` (contract 0.5.0, `02aca92`). The
 [shared request](../../shared/requests/2026-10-18-hermes-backed-assistant.md)
-owns its proposed external operations; TypeBox remains the executable schema owner.
+owns its accepted external operations; TypeBox remains the executable schema owner.
 Do not mark them `implemented` before their handlers and authorization tests exist.
 Current `/topics` wire remains backward compatible; no engine-discriminator
 change, provider credential transfer or history migration is implicit.
@@ -94,8 +94,9 @@ does not certify multi-user profile/memory isolation.
 ## 4. Ownership, replay and failure
 
 Hermes owns assistant history, model memory and tool execution. Backend PostgreSQL
-owns account binding, command fingerprint/receipt and the minimal durable event
-projection needed by its external SSE contract. No direct access to Hermes SQLite.
+owns account binding, command fingerprint/receipt and bounded turn projections.
+The human-selected first client uses snapshot polling; public assistant SSE and
+its durable event projection are deferred. No direct access to Hermes SQLite.
 Do not replicate unrestricted histories or create another agent/planning engine.
 
 Commit a prepared intent before dispatch; persist upstream run identity once
@@ -140,7 +141,8 @@ proved these narrow native paths with configured MiniMax-M3 and an isolated home
 The first wire accepts status `started` on admission; pollable state is a separate
 enum. Session messages use a `data` list envelope. Internal client now lives in
 `src/integrations/hermes`; its first consumer is the opt-in Docker journey.
-Account binding/public routing remain unimplemented. Cancellation was observed
+Account binding/public routing were subsequently implemented in `02aca92`.
+Cancellation was observed
 at the native run level, not as proof that a provider stopped billing/network work.
 Backlog expiry and arbitrary in-flight restart recovery remain open before the
 corresponding product guarantees are made.

@@ -20,7 +20,7 @@ Windows Hermes. [Design](specs/2026-10-18-hermes-backed-assistant-design.md),
 passed; the default API was off, then an ephemeral actual installed API instance
 passed health/auth/capabilities from Docker. The internal client and actual
 MiniMax-M3 recovery/continuity/control journey now pass; the public account
-session/run facade is not built.
+session/run facade was subsequently implemented in `02aca92`.
 The previous account-chat implementation below is preserved, not extended into a
 second pilot brain. No further work continues merely to finish its old sequencing.
 
@@ -42,7 +42,18 @@ Evidence: docs/evidence/2026-10-18-hermes-session-journey.md. Completed result
 survived API restart; actual MiniMax session continuity, idempotency conflict,
 native cancelled outcome and SSE cursor replay were observed. Public account API,
 backlog expiry and proof of in-flight provider cancellation remain separate.
-B-H2 is the next account-facade slice, not an already working desktop endpoint.
+B-H2's facade is now implemented; its earlier internal-only evidence remains dated.
+
+### B-H2 · Account-scoped assistant conversations
+- Status: done for normal-chat snapshot polling; public assistant SSE deferred
+- Plan: docs/backend/plans/2026-10-18-hermes-backed-assistant.md#b-h2--account-scoped-backend-facade
+- Read: assistant, Hermes, HTTP, app and database source contracts; accepted assistant request.
+- Touch: src/modules/assistant/, migrations/011_assistant.sql, existing database/app/HTTP composition, TypeBox-generated API, focused tests, host runtime scripts and current contracts/map.
+- Done when: account isolation/replay/unknown/revocation/owned-stop tests, Docker typecheck and generated contract checks pass.
+
+Committed `02aca92`. The desktop uses native authenticated HTTP; no sidecar bearer
+handoff. Real backend/MiniMax browser continuity and separate native HTTP acceptance
+are recorded in the sibling Shadows normal-chat evidence. Physical GUI remains open.
 
 **Preserved: account chat, step 1 (B-1 to B-11).** Account-owned text chat with
 encrypted BYOK connections, backend only.

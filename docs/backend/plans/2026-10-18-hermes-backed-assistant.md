@@ -60,12 +60,20 @@ in-flight provider request are not proved by the narrow completed-run/control te
 
 ## B-H2 — Account-scoped backend facade
 
+**Implemented normal-chat amendment (2026-10-19):** `02aca92` implements the
+assistant module, migration 011, runtime Hermes composition, seven fixed public
+routes and generated TypeBox contract 0.5.0. The human selected normal UI chat
+first. Bounded snapshot polling replaces the first public SSE/Activity projection;
+no assistant event route is claimed. Focused SQL/HTTP tests cover account isolation,
+replay/conflict, unknown recovery, authority after awaits and owned-run stop.
+The checklist below retains the broader design; unchecked SSE remains deferred.
+
 **Proposed source owners:** `src/integrations/hermes/{client.ts,contract.yaml}` for
 the native API; `src/modules/assistant/{service.ts,model.ts,store.ts,index.ts,contract.yaml}`
 for account bindings and receipts; the existing Activity journal for backend SSE.
 Create these only when the first real operation consumes them; no provider framework.
 
-- [ ] Accept the [public request](../../shared/requests/2026-10-18-hermes-backed-assistant.md).
+- [x] Accept the [public request](../../shared/requests/2026-10-18-hermes-backed-assistant.md).
   Add strict TypeBox shapes and registry rows; regenerate canonical OpenAPI/TS,
   fixtures and mocks. Keep planned rows unbound until implemented.
 - [ ] RED: `assistant_requires_backend_account`, `other_account_binding_refused`,
@@ -73,12 +81,12 @@ Create these only when the first real operation consumes them; no provider frame
 - [ ] RED: `same_command_recovers_changed_payload_conflicts`,
   `unknown_run_is_not_redispatched`, `revocation_after_await_blocks_delivery`,
   `hermes_offline_keeps_login_healthy`, `stop_targets_exact_owned_run`.
-- [ ] Add minimal binding/receipt persistence through named migrations; no access
+- [x] Add minimal binding/receipt persistence through named migrations; no access
   to another module's private tables or direct Hermes SQLite. Native session/run
   identity is internal; account authority stays backend-owned.
-- [ ] Compose the selected operator-owned Hermes client in `src/app/compose.ts`.
+- [x] Compose the selected operator-owned Hermes client in `src/app/compose.ts`.
   Route prepared intents to one brain. Keep text-only provider chat unchanged.
-- [ ] Serve only allowlisted assistant operations; do not proxy arbitrary URLs,
+- [x] Serve only allowlisted assistant operations; do not proxy arbitrary URLs,
   profiles, control verbs or model tool requests. Initially refuse steer/approval.
 - [ ] Add bounded event projection through Activity with backend-owned positions,
   explicit snapshots and fresh authority checks. Preserve upstream gap/outcome limits.
@@ -87,9 +95,9 @@ Create these only when the first real operation consumes them; no provider frame
 
 ## B-H3 — Local Docker to Windows, then same service boundary on server
 
-- [ ] Wire operator `HERMES_API_URL` and secret-file reference into runtime config
+- [x] Wire operator `HERMES_API_URL` and secret-file reference into runtime config
   only when B-H2 consumes them. Probe-only override does not configure dispatch.
-- [ ] Local: reuse Windows Hermes over the proven host route. Do not add a Hermes
+- [x] Local: reuse Windows Hermes over the proven host route. Do not add a Hermes
   container or mount its entire home. Keep raw API private and existing stack healthy.
 - [ ] Generate desktop HTTP/SSE client from our backend contract; native account
   credential handoff needs its own accepted local boundary and revocation tests.
@@ -101,7 +109,9 @@ Create these only when the first real operation consumes them; no provider frame
 - [ ] Run one final branch gate appropriate to changed scopes; no repeated full
   suite after each task. Commit completed slices locally; no push/deploy implied.
 
-The first current deliverable is B-H0. B-H1–B-H3 remain unimplemented and must not
-be inferred from readiness-fixture passes. Mobile, multi-user memory isolation,
+The normal-chat B-H2 implementation and local B-H3 routing are delivered. Native
+account HTTP remains in Tauri rather than introducing a sidecar bearer handoff.
+Real backend/MiniMax browser acceptance and separate native HTTP checks do not
+close physical GUI or server deployment gates. Mobile, multi-user memory isolation,
 privileged approvals, Core mutation and the local code-evidence bridge are later
 separately reviewed capabilities.

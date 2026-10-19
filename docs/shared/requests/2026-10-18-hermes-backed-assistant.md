@@ -20,36 +20,40 @@ NYLRA uses our backend for account and assistant operations. Hermes runs behind
 it. Local Docker reaches installed Windows Hermes; no duplicate installation.
 This settles routing/placement, not acceptance of unimplemented payloads.
 
-## Proposed interface
+## Accepted snapshot interface
 
 All operations use existing backend bearer authentication and fresh account/device
-authorization. Proposed prefix `/v1/nylra/assistant` is separate from the existing
+authorization. Prefix `/v1/nylra/assistant` is separate from the existing
 provider `/topics` contract; do not silently change that contract's engine.
 
 | Method and suffix | Intent |
 |---|---|
 | `GET /status` | Credential-free availability for the signed-in account |
+| `GET /conversations` | List account-owned conversations |
 | `POST /conversations` | Create one owned opaque binding with command replay |
-| `GET /conversations/{id}` | Bounded backend projection and cursor |
+| `GET /conversations/{id}` | Bounded latest backend projection |
 | `POST /conversations/{id}/turns` | Command-ID-based turn admission |
-| `GET /conversations/{id}/events` | Backend-positioned SSE, gap requires resnapshot |
 | `POST /conversations/{id}/turns/{turnId}/stop` | Stop the account-owned run; report actual outcome |
+| `POST /conversations/{id}/turns/{turnId}/recover` | Explicit recovery of the same unknown command within native retention |
 
 TypeBox owns final fields, limits, errors and generated clients. Responses retain
 accepted/running/terminal/unknown distinctions. A turn/session binding is not a
 raw upstream selector. Never accept arbitrary URL, profile, key or RPC method.
 No generic `/proxy/*` mount and no raw Hermes token in the webview.
 
-## Open contract details and closing trigger
+## Implemented scope and remaining gates
 
-Final payloads/cursor storage/retention and cancel acknowledgement must be reviewed
-after B-H1 captures actual installed API semantics. The current proposal does not
-authorize schema rows to claim `implemented` or invent an owner's acceptance.
-Close with account isolation, replay/conflict, unknown recovery, revocation during
-await, SSE gaps, exact-run stop and secret-free projection tests. Existing login,
-provider chat and relay acceptance must continue passing in their recorded scope.
+Canonical TypeBox contract 0.5.0 and the seven implemented handlers are committed
+at `02aca92`. Account isolation, replay/conflict, unknown recovery, fresh authority
+after upstream await and exact-run stop have focused integration coverage.
+Snapshot polling is the selected first transport. No public assistant events/SSE
+route or cursor guarantee is implemented. Native cancellation acknowledgement is
+distinct from final run cancellation and provider-side billing termination.
 
 ## Backend answer
 
-Routing preparation recorded. Detailed contract acceptance remains pending;
-no other lead has been messaged or represented as having approved these shapes.
+The controller accepted and implemented this normal-chat contract under the
+human's instruction while owning both changes. No independent lead approval is
+represented. Backend TypeBox is authoritative; the desktop imports generated
+types and maps only closed native operations. Server deployment, multi-user profile
+isolation, code/context sharing and physical Tauri chat acceptance remain separate.
