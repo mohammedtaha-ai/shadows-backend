@@ -55,6 +55,16 @@ Committed `02aca92`. The desktop uses native authenticated HTTP; no sidecar bear
 handoff. Real backend/MiniMax browser continuity and separate native HTTP acceptance
 are recorded in the sibling Shadows normal-chat evidence. Physical GUI remains open.
 
+2026-10-19 follow-up: the person's first desktop message exposed Hermes's unique
+session-title constraint. Fix scope: assistant service/contract and its integration
+test; replace the shared native title with a stable backend-conversation title.
+The public conversation title and command/run identities remain unchanged. The
+regression failed before the fix, then assistant/client tests passed 13/13; Docker
+typecheck and contracts passed. Actual installed Hermes accepted two distinct
+stable titles without a model call; diagnostic sessions were removed. The local
+backend image was rebuilt/recreated. The person's retained unknown request can
+use explicit Recover original request; no automatic resend or database reset.
+
 **Preserved: account chat, step 1 (B-1 to B-11).** Account-owned text chat with
 encrypted BYOK connections, backend only.
 [Design](specs/2026-10-17-account-chat-and-providers-design.md),

@@ -60,3 +60,24 @@ test('assistant_rechecks_account_after_upstream_read_and_stop_targets_owned_turn
   await assert.rejects(f.service.snapshot(p,c.conversation.id),{message:'unauthorized'});
  }finally{await f.close();}
 });
+
+test('assistant_new_conversations_use_distinct_stable_native_titles',async()=>{
+ const f=await fixture(),sessions=new Set<string>(),titles=new Set<string>();
+ const client={...f.client,
+  async getSession(id:string){if(!sessions.has(id))throw new Error('not_found');return {id};},
+  async createSession(id:string,title:string){
+   if(titles.has(title))throw new Error('unavailable'); // Installed Hermes refuses duplicate titles.
+   titles.add(title);sessions.add(id);return {id};
+  }};
+ const service=createAssistant(f.db,f.identity,client,()=>f.now);
+ try{
+  for(let index=0;index<2;index++){
+   const c=await service.create(f.person.principal,{commandId:randomUUID()});
+   const request={commandId:randomUUID(),text:'Hello from a separate conversation.'};
+   const sent=await service.send(f.person.principal,c.conversation.id,request);
+   assert.equal(sent.turns[0]!.state,'running','Each conversation must reach its own native run');
+   await service.send(f.person.principal,c.conversation.id,request);
+  }
+  assert.equal(titles.size,2);assert.equal(sessions.size,2);assert.equal(f.sends,2);
+ }finally{await f.close();}
+});

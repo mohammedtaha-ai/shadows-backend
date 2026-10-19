@@ -5,6 +5,9 @@ owns: Account-owned Hermes conversation bindings, durable turn intents and bound
 public_api:
   createAssistant: Composes account status/list/create/snapshot/send/stop/explicit recovery through the native Hermes client; credentials and upstream addresses never enter projections.
 obligations:
+  - rule: New native sessions use a stable title derived from the backend conversation ID, avoiding the installed Hermes title uniqueness constraint.
+    tested_by: assistant_new_conversations_use_distinct_stable_native_titles
+    note: tests/integration/assistant.test.ts models duplicate-title refusal; actual installed API reproduced invalid_title before the fix.
   - rule: Account scope and replay preserve the original command without a second dispatch; changed input conflicts.
     tested_by: assistant_scopes_history_and_recovers_command_replay_without_duplicate_dispatch
     note: tests/integration/assistant.test.ts uses PostgreSQL and an injected native-client fixture.

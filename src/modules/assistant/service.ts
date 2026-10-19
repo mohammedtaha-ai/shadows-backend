@@ -36,7 +36,7 @@ export function createAssistant(db:Kysely<Database>,identity:Pick<IdentityServic
   if(!client){await store.update(db,turnId,{state:'error',updated_at:clock()});return snapshot(p,id);}
   try{
    const cap=await client.capabilities();if(!cap.durableIdempotency||clock().getTime()-data.t.created_at.getTime()>cap.retentionSeconds*1000)throw new Error('outcome_unknown');
-   try{await client.getSession(data.c.session_id);}catch(error){if(!(error instanceof Error)||error.message!=='not_found')throw error;await client.createSession(data.c.session_id,'AYLUL conversation');}
+   try{await client.getSession(data.c.session_id);}catch(error){if(!(error instanceof Error)||error.message!=='not_found')throw error;await client.createSession(data.c.session_id,'AYLUL '+data.c.id);}
    await transaction(p,async tx=>{await owned(tx,p,id);});
    const result=await client.submitRun({sessionId:data.c.session_id,commandId:data.t.id,input:data.t.input});
    await store.update(db,turnId,{run_id:result.runId,state:'running',updated_at:clock()});

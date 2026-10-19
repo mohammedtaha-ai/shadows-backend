@@ -141,3 +141,17 @@ an existing enrollment fresh-process failure; its final totals were lost during
 interruption. The focused enrollment file then passed 3/3 without a code change.
 The broad suite is not represented as green. Desktop build/native tests/Clippy and
 the shell browser retry passed; no remote CI or production acceptance is claimed.
+
+### 2026-10-19 native title refusal
+
+The person's next desktop conversation exposed a missed upstream constraint:
+Hermes refuses a second session named `AYLUL conversation` with HTTP 400
+`invalid_title`. The failed turn had no native session/run; the original test
+conversation still existed. A no-model native probe reproduced the refusal.
+Assistant dispatch now supplies `AYLUL <backend-conversation-UUID>` as the stable
+internal title. The public title stays unchanged. The new two-conversation
+regression failed before this fix; 13 assistant/client tests then passed, along
+with Docker typecheck/contracts. Two actual native sessions with distinct titles
+were created/read/deleted successfully, without a model call. Local backend was
+rebuilt/recreated. Existing unknown turns retain their command IDs and require
+the person's explicit recovery action; nothing was automatically resubmitted.
